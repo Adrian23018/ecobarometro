@@ -1,0 +1,282 @@
+<!-- src/app/features/auth/register/register.component.html -->
+<div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+  
+  <!-- Elementos decorativos de fondo -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-purple-300 rounded-full opacity-20 animate-pulse"></div>
+    <div class="absolute top-1/3 -left-16 w-60 h-60 bg-green-300 rounded-full opacity-15 animate-bounce"></div>
+    <div class="absolute bottom-10 right-1/4 w-32 h-32 bg-blue-300 rounded-full opacity-25 animate-wiggle"></div>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div class="w-full max-w-lg relative z-10">
+    
+    <!-- Header -->
+    <div class="text-center mb-6 animate__animated animate__fadeInDown">
+      <div class="w-16 h-16 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-3 shadow-lg">
+        <i class="pi pi-user-plus text-2xl text-white"></i>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-800 mb-1">¡Únete a EcoBarómetro!</h1>
+      <p class="text-gray-600">Crea tu cuenta y empieza tu aventura ecológica</p>
+    </div>
+
+    <!-- Card principal -->
+    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-6 animate__animated animate__fadeInUp">
+      
+      <!-- Tabs para Usuario/Admin -->
+      <p-tabView [(activeIndex)]="activeTab" (onChange)="onTabChange($event)" class="mb-4">
+        <p-tabPanel header="🎮 Jugador" leftIcon="pi pi-user">
+          <div class="text-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Registro de Jugador</h3>
+            <p class="text-sm text-gray-600">Necesitas un código de administrador</p>
+          </div>
+        </p-tabPanel>
+        
+        <p-tabPanel header="👨‍💼 Administrador" leftIcon="pi pi-cog">
+          <div class="text-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">Registro de Administrador</h3>
+            <p class="text-sm text-gray-600">Gestiona usuarios y preguntas</p>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+
+      <!-- Formulario de registro -->
+      <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-4">
+        
+        <!-- Email -->
+        <div class="space-y-2">
+          <label for="email" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-envelope mr-2"></i>Correo Electrónico
+          </label>
+          <input 
+            id="email"
+            type="email" 
+            pInputText 
+            formControlName="email"
+            placeholder="tu@email.com"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            [class.border-red-500]="isFieldInvalid('email')"
+          />
+          <p-message 
+            *ngIf="isFieldInvalid('email')" 
+            severity="error" 
+            [text]="getFieldError('email')">
+          </p-message>
+        </div>
+
+        <!-- Nombre completo -->
+        <div class="space-y-2">
+          <label for="fullName" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-user mr-2"></i>Nombre Completo
+          </label>
+          <input 
+            id="fullName"
+            type="text" 
+            pInputText 
+            formControlName="fullName"
+            placeholder="Tu nombre completo"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            [class.border-red-500]="isFieldInvalid('fullName')"
+          />
+          <p-message 
+            *ngIf="isFieldInvalid('fullName')" 
+            severity="error" 
+            [text]="getFieldError('fullName')">
+          </p-message>
+        </div>
+
+        <!-- Username (solo para jugadores) -->
+        <div *ngIf="activeTab === 0" class="space-y-2">
+          <label for="username" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-at mr-2"></i>Nombre de Usuario
+          </label>
+          <div class="flex space-x-2">
+            <input 
+              id="username"
+              type="text" 
+              pInputText 
+              formControlName="username"
+              placeholder="EcoHero123"
+              class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+              [class.border-red-500]="isFieldInvalid('username')"
+            />
+            <button 
+              type="button"
+              pButton 
+              icon="pi pi-refresh"
+              (click)="generateRandomUsername()"
+              class="px-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg">
+            </button>
+          </div>
+          <p-message 
+            *ngIf="isFieldInvalid('username')" 
+            severity="error" 
+            [text]="getFieldError('username')">
+          </p-message>
+        </div>
+
+        <!-- Código de admin (solo para jugadores) -->
+        <div *ngIf="activeTab === 0" class="space-y-2">
+          <label for="adminCode" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-key mr-2"></i>Código de Administrador
+          </label>
+          <input 
+            id="adminCode"
+            type="text" 
+            pInputText 
+            formControlName="adminCode"
+            placeholder="Código proporcionado por tu administrador"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            [class.border-red-500]="isFieldInvalid('adminCode')"
+          />
+          <p-message 
+            *ngIf="isFieldInvalid('adminCode')" 
+            severity="error" 
+            [text]="getFieldError('adminCode')">
+          </p-message>
+        </div>
+
+        <!-- Empresa (solo para admins) -->
+        <div *ngIf="activeTab === 1" class="space-y-2">
+          <label for="company" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-building mr-2"></i>Empresa u Organización
+          </label>
+          <input 
+            id="company"
+            type="text" 
+            pInputText 
+            formControlName="company"
+            placeholder="Nombre de tu empresa"
+            class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+            [class.border-red-500]="isFieldInvalid('company')"
+          />
+          <p-message 
+            *ngIf="isFieldInvalid('company')" 
+            severity="error" 
+            [text]="getFieldError('company')">
+          </p-message>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-2">
+          <label for="password" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-lock mr-2"></i>Contraseña
+          </label>
+          <p-password 
+            id="password"
+            formControlName="password"
+            placeholder="Contraseña segura"
+            [toggleMask]="true"
+            [feedback]="true"
+            promptLabel="Ingresa una contraseña"
+            weakLabel="Débil"
+            mediumLabel="Media"
+            strongLabel="Fuerte"
+            styleClass="w-full"
+            inputStyleClass="w-full p-3 border rounded-lg">
+          </p-password>
+          <p-message 
+            *ngIf="isFieldInvalid('password')" 
+            severity="error" 
+            [text]="getFieldError('password')">
+          </p-message>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="space-y-2">
+          <label for="confirmPassword" class="block text-sm font-medium text-gray-700">
+            <i class="pi pi-lock mr-2"></i>Confirmar Contraseña
+          </label>
+          <p-password 
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            placeholder="Repite tu contraseña"
+            [toggleMask]="true"
+            [feedback]="false"
+            styleClass="w-full"
+            inputStyleClass="w-full p-3 border rounded-lg">
+          </p-password>
+          <p-message 
+            *ngIf="isFieldInvalid('confirmPassword')" 
+            severity="error" 
+            [text]="getFieldError('confirmPassword')">
+          </p-message>
+        </div>
+
+        <!-- Términos y condiciones -->
+        <div class="flex items-start space-x-3">
+          <p-checkbox 
+            formControlName="terms" 
+            binary="true" 
+            inputId="terms"
+            class="mt-1">
+          </p-checkbox>
+          <label for="terms" class="text-sm text-gray-600 leading-relaxed">
+            Acepto los <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">términos y condiciones</a> 
+            y la <a href="#" class="text-purple-600 hover:text-purple-500 font-medium">política de privacidad</a>
+          </label>
+        </div>
+        <p-message 
+          *ngIf="isFieldInvalid('terms')" 
+          severity="error" 
+          [text]="getFieldError('terms')">
+        </p-message>
+
+        <!-- Botón de registro -->
+        <button 
+          type="submit"
+          pButton 
+          [loading]="isLoading"
+          [disabled]="!registerForm.valid"
+          class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50">
+          <i class="pi pi-user-plus mr-2"></i>
+          <span *ngIf="!isLoading">{{ activeTab === 0 ? '🎮 Crear Cuenta de Jugador' : '⚙️ Crear Cuenta de Admin' }}</span>
+          <span *ngIf="isLoading">Creando cuenta...</span>
+        </button>
+
+        <!-- Link a login -->
+        <div class="text-center">
+          <span class="text-gray-600">¿Ya tienes cuenta? </span>
+          <button 
+            type="button"
+            (click)="navigateToLogin()"
+            class="text-purple-600 hover:text-purple-500 font-medium">
+            Inicia sesión aquí
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Estilos adicionales -->
+<style>
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Personalización de PrimeNG */
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  border-radius: 10px 10px 0 0;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  color: white;
+  border-color: #8b5cf6;
+}
+
+::ng-deep .p-password input {
+  width: 100% !important;
+}
+
+::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+}
+</style>

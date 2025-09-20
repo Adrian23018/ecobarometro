@@ -1,1 +1,417 @@
-/* You can add global styles to this file, and also import other style files */
+/* src/styles.css - COMPLETO */
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* Reset y configuración base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Componentes personalizados para el juego */
+.game-card {
+  @apply bg-white/95 backdrop-blur-sm rounded-xl shadow-lg border-2 border-green-200 hover:border-green-400 transition-all duration-300 transform hover:scale-105 hover:shadow-xl;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+}
+
+.eco-button {
+  @apply bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transform hover:scale-105 transition-all duration-200 border-none;
+}
+
+.eco-button:disabled {
+  @apply opacity-50 cursor-not-allowed transform-none;
+}
+
+.score-badge {
+  @apply bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 px-4 py-2 rounded-full font-bold shadow-lg animate-pulse;
+}
+
+.level-badge {
+  @apply bg-gradient-to-r from-blue-400 to-purple-500 text-white px-3 py-1 rounded-full font-semibold text-sm shadow-md;
+}
+
+.achievement-badge {
+  @apply bg-gradient-to-r from-purple-400 to-pink-500 text-white px-3 py-1 rounded-full font-semibold text-sm shadow-md animate-bounce;
+}
+
+/* Animaciones personalizadas */
+.fade-in {
+  animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.game-entrance {
+  animation: gameEntrance 0.8s ease-out forwards;
+}
+
+@keyframes gameEntrance {
+  from { 
+    opacity: 0; 
+    transform: scale(0.8) rotate(-5deg); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) rotate(0deg); 
+  }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 0.6s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.bounce-in {
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.wiggle {
+  animation: wiggle 1s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { 
+    transform: rotate(-3deg); 
+  }
+  50% { 
+    transform: rotate(3deg); 
+  }
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8), 0 0 30px rgba(34, 197, 94, 0.6);
+  }
+}
+
+/* Efectos de partículas y celebración */
+.celebration-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(45deg, #fbbf24, #f59e0b);
+  border-radius: 50%;
+  animation: celebrationFloat 2s ease-out forwards;
+}
+
+@keyframes celebrationFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.5);
+  }
+}
+
+/* Gradientes y fondos especiales */
+.eco-gradient {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 25%, #15803d 50%, #14532d 100%);
+}
+
+.water-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 25%, #1e40af 50%, #1e3a8a 100%);
+}
+
+.energy-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 25%, #b45309 50%, #92400e 100%);
+}
+
+.recycle-gradient {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 25%, #6d28d9 50%, #5b21b6 100%);
+}
+
+/* Efectos glassmorphism */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-dark {
+  background: rgba(31, 41, 55, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Estados de elementos de juego */
+.option-correct {
+  @apply bg-green-100 border-green-500 text-green-800;
+  animation: correctPulse 0.6s ease-in-out;
+}
+
+@keyframes correctPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.option-incorrect {
+  @apply bg-red-100 border-red-500 text-red-800;
+  animation: incorrectShake 0.6s ease-in-out;
+}
+
+@keyframes incorrectShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.option-selected {
+  @apply bg-blue-100 border-blue-500 text-blue-800 transform scale-105;
+}
+
+/* Personalizaciones de PrimeNG */
+::ng-deep .p-toast {
+  z-index: 9999;
+}
+
+::ng-deep .p-toast .p-toast-message {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.9) 0%, rgba(22, 163, 74, 0.9) 100%);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-error {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.9) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+::ng-deep .p-toast .p-toast-message.p-toast-message-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(37, 99, 235, 0.9) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+::ng-deep .p-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep .p-card {
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .p-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .p-progressbar {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+::ng-deep .p-progressbar .p-progressbar-value {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% { background-position: -100% 0; }
+  100% { background-position: 100% 0; }
+}
+
+::ng-deep .p-tabview .p-tabview-nav {
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+}
+
+::ng-deep .p-tabview .p-tabview-panels {
+  border-radius: 0 0 12px 12px;
+}
+
+::ng-deep .p-dialog {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .game-card {
+    @apply mx-2;
+  }
+  
+  .eco-button {
+    @apply py-3 px-4 text-sm;
+  }
+  
+  .score-badge {
+    @apply px-3 py-1 text-sm;
+  }
+}
+
+/* Utilidades para animaciones de delay */
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+.animate-delay-700 { animation-delay: 700ms; }
+.animate-delay-1000 { animation-delay: 1000ms; }
+
+/* Estados de carga */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Efectos de hover especiales */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
