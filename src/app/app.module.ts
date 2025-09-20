@@ -27,6 +27,7 @@ import { environment } from '../environments/environment';
 
 // Configuración básica de rutas aquí mismo
 import { RouterModule, Routes } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 const routes: Routes = [
   { 
@@ -70,6 +71,9 @@ const routes: Routes = [
     BadgeModule,
     ChipModule,
     RippleModule,
+    ConfirmDialogModule,
+    CommonModule,
+    RouterModule,
     
     // PWA
     ServiceWorkerModule.register('ngsw-worker.js', {
@@ -81,6 +85,9 @@ const routes: Routes = [
     MessageService,
     ConfirmationService
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  exports: [RouterModule,
+    ToastModule,
+    ConfirmDialogModule,]
 })
 export class AppModule { }

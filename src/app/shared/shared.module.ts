@@ -1,6 +1,6 @@
 // src/app/shared/shared.module.ts
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { NgModule, Pipe } from '@angular/core';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
@@ -22,7 +22,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { InputTextareaModule } from 'primeng/inputtextarea';
 import { CalendarModule } from 'primeng/calendar';
 import { SliderModule } from 'primeng/slider';
 import { ToggleButtonModule } from 'primeng/togglebutton';
@@ -91,7 +90,6 @@ const PRIMENG_MODULES = [
   DropdownModule,
   CheckboxModule,
   RadioButtonModule,
-  InputTextareaModule,
   CalendarModule,
   SliderModule,
   ToggleButtonModule,
@@ -132,7 +130,7 @@ const SHARED_COMPONENTS = [
   LevelProgressComponent,
   AchievementBadgeComponent,
   GameTimerComponent,
-  ConfirmDialogComponent
+  ConfirmDialogComponent,
 ];
 
 const SHARED_PIPES = [
@@ -155,6 +153,7 @@ const SHARED_DIRECTIVES = [
     ...SHARED_DIRECTIVES
   ],
   imports: [
+    DecimalPipe,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,

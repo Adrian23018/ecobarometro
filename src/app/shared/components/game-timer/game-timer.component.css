@@ -1,0 +1,150 @@
+
+.timer-container {
+  @apply relative inline-block;
+}
+
+.timer-small {
+  @apply text-sm;
+}
+
+.timer-medium {
+  @apply text-base;
+}
+
+.timer-large {
+  @apply text-lg;
+}
+
+.timer-normal {
+  /* Estado normal */
+}
+
+.timer-warning {
+  @apply text-yellow-600;
+}
+
+.timer-critical {
+  @apply text-red-600;
+  animation: criticalPulse 0.5s ease-in-out infinite alternate;
+}
+
+.timer-paused {
+  @apply opacity-75;
+}
+
+.circular-timer {
+  @apply flex items-center justify-center;
+}
+
+.linear-timer {
+  @apply w-full;
+}
+
+.digital-timer {
+  @apply inline-block;
+}
+
+.minimal-timer {
+  @apply inline-flex items-center;
+}
+
+.digital-display {
+  @apply font-mono font-bold tracking-wider;
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* Animaciones personalizadas */
+@keyframes criticalPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes digitalGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+  }
+}
+
+.timer-critical .digital-display {
+  animation: digitalGlow 1s ease-in-out infinite;
+}
+
+/* Efectos de hover */
+.timer-container:hover {
+  @apply transform scale-105 transition-transform duration-200;
+}
+
+.timer-container:hover .digital-timer {
+  @apply transform scale-100; /* Cancelar scale para digital */
+}
+
+/* Estados de pausa */
+.timer-paused::after {
+  content: '⏸️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Responsividad */
+@media (max-width: 640px) {
+  .linear-timer {
+    @apply flex-col space-x-0 space-y-2;
+  }
+  
+  .digital-timer {
+    @apply w-full;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .timer-critical {
+    animation: none;
+  }
+  
+  .digital-display {
+    animation: none;
+  }
+  
+  .animate-pulse,
+  .animate-bounce {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .timer-critical {
+    @apply border-2 border-red-600;
+  }
+  
+  .timer-warning {
+    @apply border-2 border-yellow-600;
+  }
+}
+
+/* Focus states */
+.timer-container button:focus {
+  @apply outline-none ring-2 ring-offset-2 ring-blue-500;
+}
+
+/* Custom progress animations */
+.progress-smooth {
+  transition: all 0.1s linear;
+}
+
+.progress-stepped {
+  transition: all 0.5s steps(10, end);
+}

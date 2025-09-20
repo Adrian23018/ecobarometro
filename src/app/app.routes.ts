@@ -5,7 +5,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { AdminGuard } from './core/guards/admin.guard';
 import { UserGuard } from './core/guards/user.guard';
 
-const routes: Routes = [
+export const routes: Routes = [
   { 
     path: '', 
     redirectTo: '/auth/login', 

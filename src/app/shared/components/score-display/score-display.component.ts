@@ -57,6 +57,7 @@ export class ScoreDisplayComponent implements OnInit, OnChanges {
 
   private animationFrame?: number;
   private targetScore: number = 0;
+Math: any;
 
   ngOnInit() {
     this.initializeScore();

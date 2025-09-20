@@ -19,6 +19,7 @@
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
     "@angular/service-worker": "^18.2.0",
+    "@primeng/themes": "^20.1.2",
     "@supabase/supabase-js": "^2.45.0",
     "animate.css": "^4.1.1",
     "date-fns": "^3.6.0",

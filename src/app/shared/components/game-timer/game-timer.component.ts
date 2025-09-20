@@ -24,13 +24,13 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
   ]
 })
 export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
-  @Input() totalTime: number = 30; // Tiempo total en segundos
+  @Input() totalTime: number = 30;
   @Input() autoStart: boolean = true;
   @Input() showProgress: boolean = true;
   @Input() variant: 'circular' | 'linear' | 'digital' | 'minimal' = 'circular';
   @Input() size: 'small' | 'medium' | 'large' = 'medium';
-  @Input() warningTime: number = 10; // Segundos para mostrar advertencia
-  @Input() criticalTime: number = 5; // Segundos para mostrar estado crítico
+  @Input() warningTime: number = 10;
+  @Input() criticalTime: number = 5;
   @Input() showMilliseconds: boolean = false;
   @Input() pauseOnHover: boolean = false;
   @Input() playSound: boolean = true;
@@ -39,8 +39,8 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
   @Output() timeWarning = new EventEmitter<number>();
   @Output() timeCritical = new EventEmitter<number>();
   @Output() tick = new EventEmitter<number>();
-  @Output() pause = new EventEmitter<void>();
-  @Output() resume = new EventEmitter<void>();
+  @Output() paused = new EventEmitter<void>();   // ✅ renombrado
+  @Output() resumed = new EventEmitter<void>();  // ✅ renombrado
 
   currentTime: number = 0;
   isRunning: boolean = false;
@@ -70,11 +70,10 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
 
   start() {
     if (this.isRunning) return;
-    
     this.isRunning = true;
     this.isPaused = false;
     this.lastTickTime = Date.now();
-    
+
     this.intervalId = window.setInterval(() => {
       if (!this.isPaused) {
         this.updateTimer();
@@ -82,25 +81,22 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
     }, this.showMilliseconds ? 100 : 1000);
   }
 
-  pause() {
+  pauseTimer() { // ✅ renombrado
     if (!this.isRunning || this.isPaused) return;
-    
     this.isPaused = true;
-    this.pause.emit();
+    this.paused.emit();
   }
 
-  resume() {
+  resumeTimer() { // ✅ renombrado
     if (!this.isRunning || !this.isPaused) return;
-    
     this.isPaused = false;
     this.lastTickTime = Date.now();
-    this.resume.emit();
+    this.resumed.emit();
   }
 
   stop() {
     this.isRunning = false;
     this.isPaused = false;
-    
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = undefined;
@@ -120,17 +116,11 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private updateTimer() {
-    const now = Date.now();
     const deltaTime = this.showMilliseconds ? 0.1 : 1;
-    
     this.currentTime = Math.max(0, this.currentTime - deltaTime);
-    this.lastTickTime = now;
-    
-    // Emitir eventos
     this.tick.emit(this.currentTime);
     this.checkTimeStates();
-    
-    // Verificar si el tiempo se agotó
+
     if (this.currentTime <= 0) {
       this.stop();
       this.timeUp.emit();
@@ -140,7 +130,7 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
 
   private checkTimeStates() {
     const prevState = this.animationState;
-    
+
     if (this.currentTime <= this.criticalTime && this.currentTime > 0) {
       this.animationState = 'critical';
       if (prevState !== 'critical') {
@@ -161,9 +151,7 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private playWarningSound() {
-    if (this.playSound) {
-      this.playBeep(800, 200);
-    }
+    if (this.playSound) this.playBeep(800, 200);
   }
 
   private playCriticalSound() {
@@ -174,9 +162,7 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private playTimeUpSound() {
-    if (this.playSound) {
-      this.playBeep(400, 500);
-    }
+    if (this.playSound) this.playBeep(400, 500);
   }
 
   private playBeep(frequency: number, duration: number) {
@@ -184,16 +170,16 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
-      
+
       oscillator.connect(gainNode);
       gainNode.connect(audioContext.destination);
-      
+
       oscillator.frequency.value = frequency;
       oscillator.type = 'sine';
-      
+
       gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
-      
+
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + duration / 1000);
     } catch (error) {
@@ -201,6 +187,7 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
+  // ✅ Helpers
   get progressPercentage(): number {
     return ((this.totalTime - this.currentTime) / this.totalTime) * 100;
   }
@@ -221,82 +208,52 @@ export class GameTimerComponent implements OnInit, OnDestroy, OnChanges {
   private formatSeconds(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    
-    if (mins > 0) {
-      return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-    return secs.toString();
+    return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : secs.toString();
   }
 
   get timerClasses(): string {
     const classes = ['timer-container'];
-    
-    // Tamaño
     switch (this.size) {
-      case 'small':
-        classes.push('timer-small');
-        break;
-      case 'large':
-        classes.push('timer-large');
-        break;
-      default:
-        classes.push('timer-medium');
+      case 'small': classes.push('timer-small'); break;
+      case 'large': classes.push('timer-large'); break;
+      default: classes.push('timer-medium');
     }
-    
-    // Estado
-    classes.push(`timer-${this.animationState}`);
-    
-    // Variante
-    classes.push(`timer-${this.variant}`);
-    
-    if (this.isPaused) {
-      classes.push('timer-paused');
-    }
-    
+    classes.push(`timer-${this.animationState}`, `timer-${this.variant}`);
+    if (this.isPaused) classes.push('timer-paused');
     return classes.join(' ');
   }
 
   get strokeColor(): string {
     switch (this.animationState) {
-      case 'critical':
-        return '#ef4444';
-      case 'warning':
-        return '#f59e0b';
-      default:
-        return '#22c55e';
+      case 'critical': return '#ef4444';
+      case 'warning': return '#f59e0b';
+      default: return '#22c55e';
     }
   }
 
   get textColor(): string {
     switch (this.animationState) {
-      case 'critical':
-        return 'text-red-600';
-      case 'warning':
-        return 'text-yellow-600';
-      default:
-        return 'text-green-600';
+      case 'critical': return 'text-red-600';
+      case 'warning': return 'text-yellow-600';
+      default: return 'text-green-600';
     }
   }
 
-  // Métodos para control externo
+  // Eventos del mouse
   onMouseEnter() {
     if (this.pauseOnHover && this.isRunning && !this.isPaused) {
-      this.pause();
+      this.pauseTimer();
     }
   }
 
   onMouseLeave() {
     if (this.pauseOnHover && this.isRunning && this.isPaused) {
-      this.resume();
+      this.resumeTimer();
     }
   }
 
   togglePause() {
-    if (this.isPaused) {
-      this.resume();
-    } else {
-      this.pause();
-    }
+    this.isPaused ? this.resumeTimer() : this.pauseTimer();
   }
 
   addTime(seconds: number) {

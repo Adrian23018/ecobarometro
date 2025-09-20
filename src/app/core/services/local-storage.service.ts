@@ -300,7 +300,7 @@ export class LocalStorageService {
 
   // ==================== UTILIDADES GENERALES ====================
 
-  private setItem(key: string, value: any): void {
+  public setItem(key: string, value: any): void {
     try {
       const serializedValue = JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
@@ -309,7 +309,7 @@ export class LocalStorageService {
     }
   }
 
-  private getItem(key: string): any | null {
+  public getItem(key: string): any | null {
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;

@@ -511,7 +511,7 @@ export class GameService {
 
         return new BehaviorSubject([]).asObservable();
       }),
-      map(response => response.data || [])
+      map((response:any) => response.data || [])
     );
   }
 }

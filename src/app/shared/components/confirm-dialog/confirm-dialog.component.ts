@@ -1,5 +1,5 @@
 // src/app/shared/components/confirm-dialog/confirm-dialog.component.ts
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ContentChild, TemplateRef } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 export interface ConfirmDialogConfig {
@@ -61,6 +61,9 @@ export class ConfirmDialogComponent implements OnInit {
     allowClickOutside: true,
     width: 'auto'
   };
+
+  @ContentChild(TemplateRef) projectedContent!: TemplateRef<any>;
+
 
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
@@ -189,5 +192,10 @@ export class ConfirmDialogComponent implements OnInit {
 
   get dialogWidth(): string {
     return this.config.width || 'auto';
+  }
+
+  
+  get hasBodyContent(): boolean {
+    return !!this.projectedContent;
   }
 }

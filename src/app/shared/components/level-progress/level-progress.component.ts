@@ -62,6 +62,7 @@ export class LevelProgressComponent implements OnInit, OnChanges {
     { min: 76, max: 100, name: 'Leyenda Verde', icon: '👑', color: '#f59e0b', bgColor: '#fed7aa' },
     { min: 101, max: 999, name: 'Dios de la Naturaleza', icon: '⚡', color: '#d97706', bgColor: '#fdba74' }
   ];
+Math: any;
 
   ngOnInit() {
     this.previousLevel = this.currentLevel;

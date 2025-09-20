@@ -388,15 +388,24 @@ export class AuthService {
   /**
    * Valida el código de administrador
    */
-  private validateAdminCode(adminCode: string): Promise<AdminProfile | null> {
-    return this.supabase
-      .from('admins')
-      .select('*')
-      .eq('admin_code', adminCode)
-      .eq('is_active', true)
-      .single()
-      .then(response => response.data);
+private async validateAdminCode(adminCode: string): Promise<AdminProfile | null> {
+  const { data, error } = await this.supabase
+    .from('admins')
+    .select('*') // sin genérico aquí
+    .eq('admin_code', adminCode)
+    .eq('is_active', true)
+    .single();
+
+  if (error) {
+    console.error('Error validando admin_code:', error.message);
+    return null;
   }
+
+  return data as AdminProfile | null; // 👈 casteo explícito
+}
+
+
+
 
   /**
    * Genera un código único de administrador

@@ -1,0 +1,309 @@
+
+.level-progress-container {
+  @apply relative;
+}
+
+/* Variante Default */
+.default-variant {
+  @apply bg-white rounded-xl p-4 shadow-md border border-gray-200;
+}
+
+.level-badge {
+  @apply w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg;
+}
+
+.level-name {
+  @apply font-semibold text-gray-800;
+}
+
+.level-icon {
+  @apply text-lg;
+}
+
+.exp-display {
+  @apply flex items-center space-x-1 text-right;
+}
+
+.exp-current {
+  @apply font-bold text-blue-600;
+}
+
+.exp-separator {
+  @apply text-gray-400;
+}
+
+.exp-total {
+  @apply font-medium text-gray-600;
+}
+
+.exp-label {
+  @apply text-xs text-gray-500 ml-1;
+}
+
+.progress-container {
+  @apply relative;
+}
+
+.progress-background {
+  @apply w-full bg-gray-200 rounded-full h-3 overflow-hidden;
+}
+
+.progress-bar {
+  @apply h-full rounded-full transition-all duration-1000 ease-out relative;
+}
+
+.eco-gradient {
+  background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+}
+
+.gaming-gradient {
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+}
+
+.professional-gradient {
+  background: linear-gradient(90deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+}
+
+.progress-shine {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30;
+  animation: shine 2s infinite;
+}
+
+.progress-percentage {
+  @apply absolute right-2 top-1/2 transform -translate-y-1/2 text-xs font-medium text-gray-700;
+}
+
+.details-section {
+  @apply mt-3 space-y-1;
+}
+
+.detail-item {
+  @apply flex items-center space-x-2 text-xs text-gray-600;
+}
+
+/* Variante Compact */
+.compact-variant {
+  @apply inline-flex;
+}
+
+.compact-level {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm;
+}
+
+.compact-progress-bg {
+  @apply w-24 bg-gray-200 rounded-full h-2;
+}
+
+.compact-progress-fill {
+  @apply h-full rounded-full;
+}
+
+.compact-text {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.compact-icon {
+  @apply text-lg;
+}
+
+/* Variante Circular */
+.circular-variant {
+  @apply flex justify-center;
+}
+
+.circular-level-badge {
+  @apply w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm mb-1;
+}
+
+.circular-icon {
+  @apply text-lg mb-1;
+}
+
+.circular-exp {
+  @apply text-xs font-bold text-gray-700;
+}
+
+.circular-name {
+  @apply text-xs text-gray-500 text-center max-w-20 truncate;
+}
+
+/* Variante Card */
+.card-variant {
+  @apply w-full max-w-sm;
+}
+
+.level-card {
+  @apply bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200;
+}
+
+.card-header {
+  @apply p-4 text-white;
+}
+
+.card-level-badge {
+  @apply w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center font-bold text-lg;
+}
+
+.card-level-name {
+  @apply font-bold;
+}
+
+.card-level-subtitle {
+  @apply text-sm opacity-90;
+}
+
+.card-icon {
+  @apply text-2xl;
+}
+
+.card-content {
+  @apply p-4;
+}
+
+.card-progress-section {
+  @apply mb-4;
+}
+
+.card-progress-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.card-progress-value {
+  @apply text-sm font-bold text-gray-800;
+}
+
+.card-progress-container {
+  @apply w-full bg-gray-200 rounded-full h-3 overflow-hidden;
+}
+
+.card-progress-bar {
+  @apply h-full rounded-full relative;
+}
+
+.progress-glow {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50;
+  animation: progressGlow 2s infinite;
+}
+
+.card-stats {
+  @apply grid grid-cols-3 gap-3 mb-4;
+}
+
+.stat-item {
+  @apply text-center;
+}
+
+.stat-icon {
+  @apply text-lg mb-1;
+}
+
+.stat-value {
+  @apply font-bold text-gray-800 text-sm;
+}
+
+.stat-label {
+  @apply text-xs text-gray-500;
+}
+
+.next-level-preview {
+  @apply pt-3 border-t border-gray-200;
+}
+
+.next-level-info {
+  @apply flex items-center space-x-1;
+}
+
+.next-level-icon {
+  @apply text-sm;
+}
+
+.next-level-name {
+  @apply text-sm font-medium text-gray-700;
+}
+
+/* Efectos de celebración */
+.sparkles-container {
+  @apply absolute inset-0 pointer-events-none;
+}
+
+.sparkle {
+  @apply absolute text-lg;
+  animation: sparkleFloat 2s ease-out forwards;
+}
+
+/* Animaciones */
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes progressGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(1);
+  }
+}
+
+/* Tamaños */
+.size-small .level-badge {
+  @apply w-8 h-8 text-sm;
+}
+
+.size-small .default-variant {
+  @apply p-3;
+}
+
+.size-large .level-badge {
+  @apply w-16 h-16 text-xl;
+}
+
+.size-large .default-variant {
+  @apply p-6;
+}
+
+/* Temas */
+.theme-gaming .level-card {
+  @apply border-2 border-blue-500;
+}
+
+.theme-professional .level-card {
+  @apply border border-gray-300;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .card-stats {
+    @apply grid-cols-2;
+  }
+  
+  .default-variant {
+    @apply p-3;
+  }
+}
+
+/* Hover effects */
+.level-progress-container:hover .progress-shine {
+  animation-duration: 1s;
+}
+
+.card-variant:hover .level-card {
+  @apply transform scale-105 transition-transform duration-200;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .progress-shine,
+  .progress-glow,
+  .sparkle {
+    animation: none;
+  }
+}

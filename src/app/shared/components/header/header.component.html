@@ -161,7 +161,7 @@
           <!-- Nombre (oculto en móvil) -->
           <div class="hidden sm:block">
             <p class="text-sm font-medium text-gray-800">{{ user.name }}</p>
-            <p class="text-xs text-gray-500">@{{ user.username }}</p>
+            <p class="text-xs text-gray-500">{{ user.username }}</p>
           </div>
 
           <i class="pi pi-chevron-down text-gray-400 text-xs"></i>
@@ -253,45 +253,3 @@
   class="fixed inset-0 z-40 lg:hidden"
   (click)="closeMenus()">
 </div>
-
-<!-- Estilos específicos -->
-<style>
-.header-container {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  transition: all 0.3s ease;
-}
-
-.header-game {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-}
-
-.header-admin .header-container {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%);
-}
-
-/* Animaciones para notificaciones */
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.notification-panel {
-  animation: slideInDown 0.2s ease-out;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .header-container .flex {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-</style>

@@ -1,0 +1,144 @@
+
+.score-container {
+  @apply relative inline-block;
+}
+
+.default-style {
+  @apply bg-white rounded-lg p-4 shadow-md border border-gray-200;
+}
+
+.compact-style {
+  @apply inline-flex items-center;
+}
+
+.detailed-style {
+  @apply w-full max-w-sm;
+}
+
+.game-style {
+  @apply relative;
+}
+
+.score-value {
+  @apply font-bold transition-all duration-300;
+}
+
+.score-icon {
+  @apply flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full;
+}
+
+.progress-bar {
+  @apply w-full;
+}
+
+.trend-indicator {
+  @apply flex flex-col items-center;
+}
+
+/* Animaciones personalizadas */
+@keyframes scoreIncrease {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  50% {
+    transform: scale(1.1);
+    color: #22c55e;
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+@keyframes scoreDecrease {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  50% {
+    transform: scale(0.9);
+    color: #ef4444;
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+.sparkle-effect {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* Efectos de brillos */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .detailed-variant {
+    @apply px-4;
+  }
+  
+  .game-variant {
+    @apply mx-2;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .default-style {
+    @apply bg-gray-800 border-gray-700 text-white;
+  }
+  
+  .detailed-variant .bg-gradient-to-br {
+    @apply from-gray-800 to-gray-900;
+  }
+}
+
+/* Hover effects */
+.score-container:hover .score-value {
+  @apply transform scale-105;
+}
+
+.game-variant:hover {
+  @apply transform scale-105;
+}
+
+/* Focus states for accessibility */
+.score-container:focus-within {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}

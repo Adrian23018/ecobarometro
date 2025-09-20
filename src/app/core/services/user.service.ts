@@ -255,7 +255,7 @@ export class UserService {
   }
 
   private async awardAchievements(userId: string, achievementIds: string[]): Promise<UserAchievement[]> {
-    const newAchievements = [];
+    const newAchievements:any = [];
     
     for (const achievementId of achievementIds) {
       try {

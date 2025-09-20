@@ -58,7 +58,7 @@ export class QuestionCardComponent implements OnInit {
   @Output() optionSelected = new EventEmitter<QuestionOption>();
   @Output() timeExpired = new EventEmitter<void>();
 
-  selectedOption: QuestionOption | null = null;
+  selectedOption: QuestionOption | any = null;
   showResult: boolean = false;
   cardState: string = 'front';
   scoreState: string = 'hidden';
@@ -66,6 +66,7 @@ export class QuestionCardComponent implements OnInit {
   
   private timer: any;
   private initialTime: number = 30;
+String: any;
 
   ngOnInit() {
     this.initialTime = this.timeRemaining;

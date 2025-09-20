@@ -1,14 +1,17 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 
 import { GameRoutingModule } from './game-routing.module';
+import { QuestionCardComponent } from './question-card/question-card.component';
 
 
 @NgModule({
-  declarations: [],
+  declarations: [QuestionCardComponent],
   imports: [
     CommonModule,
-    GameRoutingModule
-  ]
+    GameRoutingModule,
+    DecimalPipe
+  ],
+  exports: [QuestionCardComponent]
 })
 export class GameModule { }

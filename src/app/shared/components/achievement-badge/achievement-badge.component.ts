@@ -22,17 +22,17 @@ export interface Achievement {
   styleUrls: ['./achievement-badge.component.css'],
   animations: [
     trigger('badgeUnlock', [
-      state('locked', style({ 
-        transform: 'scale(1)', 
-        filter: 'grayscale(100%) brightness(0.6)' 
+      state('locked', style({
+        transform: 'scale(1)',
+        filter: 'grayscale(100%) brightness(0.6)'
       })),
-      state('unlocked', style({ 
-        transform: 'scale(1)', 
-        filter: 'grayscale(0%) brightness(1)' 
+      state('unlocked', style({
+        transform: 'scale(1)',
+        filter: 'grayscale(0%) brightness(1)'
       })),
-      state('celebrating', style({ 
-        transform: 'scale(1.1)', 
-        filter: 'grayscale(0%) brightness(1.2)' 
+      state('celebrating', style({
+        transform: 'scale(1.1)',
+        filter: 'grayscale(0%) brightness(1.2)'
       })),
       transition('locked => unlocked', [
         animate('300ms ease-out', style({ transform: 'scale(1.2)', filter: 'grayscale(0%) brightness(1.3)' })),
@@ -100,7 +100,7 @@ export class AchievementBadgeComponent {
   onBadgeClick() {
     if (this.clickable) {
       this.achievementClick.emit(this.achievement);
-      
+
       if (this.achievement.isUnlocked && this.animated) {
         this.animationState = 'celebrating';
         setTimeout(() => {
@@ -147,28 +147,28 @@ export class AchievementBadgeComponent {
 
   get badgeClasses(): string {
     const classes = ['achievement-badge'];
-    
+
     // Tamaño
     classes.push(`size-${this.size}`);
-    
+
     // Variante
     classes.push(`variant-${this.variant}`);
-    
+
     // Rareza
     classes.push(`rarity-${this.achievement.rarity}`);
-    
+
     // Estado
     if (this.achievement.isUnlocked) {
       classes.push('unlocked');
     } else {
       classes.push('locked');
     }
-    
+
     // Clickeable
     if (this.clickable) {
       classes.push('clickable');
     }
-    
+
     return classes.join(' ');
   }
 
@@ -182,7 +182,7 @@ export class AchievementBadgeComponent {
 
   formatDate(dateString?: string): string {
     if (!dateString) return '';
-    
+
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', {
       day: 'numeric',
@@ -198,7 +198,7 @@ export class AchievementBadgeComponent {
       epic: 'Épico',
       legendary: 'Legendario'
     };
-    
+
     return labels[this.achievement.rarity] || 'Común';
   }
 
@@ -206,11 +206,32 @@ export class AchievementBadgeComponent {
     if (this.achievement.isUnlocked) {
       return '¡Completado!';
     }
-    
+
     if (this.achievement.progress !== undefined) {
       return `${this.progressPercentage.toFixed(0)}% completado`;
     }
-    
+
     return 'No iniciado';
   }
+
+  getRarityStars(): number {
+    const starMap = {
+      common: 1,
+      rare: 2,
+      epic: 3,
+      legendary: 4
+    };
+    return starMap[this.achievement.rarity] || 1;
+  }
+
+  isRecentlyUnlocked(): boolean {
+    if (!this.achievement.earnedAt) return false;
+
+    const earnedDate = new Date(this.achievement.earnedAt);
+    const now = new Date();
+    const daysDiff = (now.getTime() - earnedDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    return daysDiff <= 7; // Consideramos "nuevo" si se desbloqueó en los últimos 7 días
+  }
+
 }

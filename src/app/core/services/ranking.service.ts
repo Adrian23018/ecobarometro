@@ -78,7 +78,7 @@ export class RankingService {
   constructor(
     private supabase: SupabaseService,
     private localStorage: LocalStorageService
-  ) {}
+  ) { }
 
   // ==================== CARGA DE RANKINGS ====================
 
@@ -96,7 +96,7 @@ export class RankingService {
           totalParticipants: global.length,
           lastUpdated: new Date().toISOString()
         };
-        
+
         return leaderboardData;
       }),
       tap(data => {
@@ -111,7 +111,7 @@ export class RankingService {
       map(response => {
         if (response.error) throw response.error;
         const rankings = response.data || [];
-        
+
         return rankings.map((ranking, index) => this.mapToRankingEntry(ranking, index + 1));
       }),
       switchMap(rankings => {
@@ -125,18 +125,18 @@ export class RankingService {
     return from(this.supabase.getCategoriesByAdmin(adminId)).pipe(
       switchMap(response => {
         const categories = response.data || [];
-        
+
         const categoryRankings = categories.map(category =>
           from(this.supabase.getRankingByCategory(adminId, category.id, 50)).pipe(
             map(rankingResponse => ({
               categoryId: category.id,
-              rankings: (rankingResponse.data || []).map((ranking, index) => 
+              rankings: (rankingResponse.data || []).map((ranking, index) =>
                 this.mapToRankingEntry(ranking, index + 1, category.id, category.name)
               )
             }))
           )
         );
-        
+
         return combineLatest(categoryRankings);
       }),
       map(categoryData => {
@@ -157,9 +157,9 @@ export class RankingService {
       switchMap(([globalResponse, categoriesResponse]) => {
         const globalRankings = globalResponse.data || [];
         const categories = categoriesResponse.data || [];
-        
+
         const globalPosition = globalRankings.findIndex(r => r.user_id === userId) + 1;
-        
+
         const categoryPositions = categories.map(category =>
           from(this.supabase.getRankingByCategory(adminId, category.id, 1000)).pipe(
             map(categoryResponse => ({
@@ -168,14 +168,14 @@ export class RankingService {
             }))
           )
         );
-        
+
         return combineLatest(categoryPositions).pipe(
           map(positions => {
             const byCategory: { [categoryId: string]: number } = {};
             positions.forEach(pos => {
               byCategory[pos.categoryId] = pos.position;
             });
-            
+
             return { global: globalPosition, byCategory };
           })
         );
@@ -185,7 +185,7 @@ export class RankingService {
 
   private mapToRankingEntry(ranking: any, rank: number, categoryId?: string, categoryName?: string): RankingEntry {
     const user = ranking.user || {};
-    
+
     return {
       id: ranking.id,
       userId: ranking.user_id,
@@ -251,9 +251,9 @@ export class RankingService {
     return this.leaderboard$.pipe(
       map(leaderboard => {
         if (!leaderboard) return [];
-        
+
         const trophies: TrophyData[] = [];
-        
+
         // Trofeo al primer lugar global
         if (leaderboard.global.length > 0) {
           const winner = leaderboard.global[0];
@@ -270,7 +270,7 @@ export class RankingService {
             awardedAt: new Date().toISOString()
           });
         }
-        
+
         // Trofeos por categoría
         Object.entries(leaderboard.byCategory).forEach(([categoryId, rankings]) => {
           if (rankings.length > 0) {
@@ -289,7 +289,7 @@ export class RankingService {
             });
           }
         });
-        
+
         // Trofeo por mayor racha
         const streakLeader = this.findStreakLeader(leaderboard.global);
         if (streakLeader) {
@@ -306,7 +306,7 @@ export class RankingService {
             awardedAt: new Date().toISOString()
           });
         }
-        
+
         return trophies;
       })
     );
@@ -330,11 +330,11 @@ export class RankingService {
   private generateMockHistory(days: number): any[] {
     const history = [];
     const today = new Date();
-    
+
     for (let i = days; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      
+
       history.push({
         date: date.toISOString().split('T')[0],
         rank: Math.floor(Math.random() * 20) + 1,
@@ -342,7 +342,7 @@ export class RankingService {
         gamesPlayed: Math.floor(Math.random() * 5)
       });
     }
-    
+
     return history;
   }
 
@@ -376,7 +376,7 @@ export class RankingService {
         label: 'Todos los Tiempos'
       }
     ];
-    
+
     return periods;
   }
 
@@ -396,6 +396,53 @@ export class RankingService {
 
   // ==================== COMPARACIONES ====================
 
+  // compareUsers(userId1: string, userId2: string, adminId: string): Observable<{
+  //   user1: RankingEntry;
+  //   user2: RankingEntry;
+  //   comparison: {
+  //     pointsDifference: number;
+  //     rankDifference: number;
+  //     betterCategories: { user1: string[], user2: string[] };
+  //   };
+  // }> {
+  //   return this.leaderboard$.pipe(
+  //     map((leaderboard:any) => {
+  //       if (!leaderboard) throw new Error('Leaderboard no disponible');
+
+  //       const user1 = leaderboard.global.find((u:any) => u.userId === userId1);
+  //       const user2 = leaderboard.global.find((u:any) => u.userId === userId2);
+
+  //       if (!user1 || !user2) throw new Error('Usuarios no encontrados');
+
+  //       const pointsDifference = user1.points - user2.points;
+  //       const rankDifference = user2.rank - user1.rank; // Menor rank es mejor
+
+  //       // Comparar por categorías
+  //       const betterCategories = { user1: [], user2: [] };
+  //       Object.entries(leaderboard.byCategory).forEach(([categoryId, rankings]) => {
+  //         const user1Rank = rankings.find((r:any) => r.userId === userId1)?.rank || 999;
+  //         const user2Rank = rankings.find((r:any) => r.userId === userId2)?.rank || 999;
+
+  //         if (user1Rank < user2Rank) {
+  //           betterCategories.user1.push(categoryId);
+  //         } else if (user2Rank < user1Rank) {
+  //           betterCategories.user2.push(categoryId);
+  //         }
+  //       });
+
+  //       return {
+  //         user1,
+  //         user2,
+  //         comparison: {
+  //           pointsDifference,
+  //           rankDifference,
+  //           betterCategories
+  //         }
+  //       };
+  //     })
+  //   );
+  // }
+
   compareUsers(userId1: string, userId2: string, adminId: string): Observable<{
     user1: RankingEntry;
     user2: RankingEntry;
@@ -406,30 +453,32 @@ export class RankingService {
     };
   }> {
     return this.leaderboard$.pipe(
-      map(leaderboard => {
+      map((leaderboard: LeaderboardData | null) => {
         if (!leaderboard) throw new Error('Leaderboard no disponible');
-        
+
         const user1 = leaderboard.global.find(u => u.userId === userId1);
         const user2 = leaderboard.global.find(u => u.userId === userId2);
-        
+
         if (!user1 || !user2) throw new Error('Usuarios no encontrados');
-        
+
         const pointsDifference = user1.points - user2.points;
         const rankDifference = user2.rank - user1.rank; // Menor rank es mejor
-        
+
         // Comparar por categorías
-        const betterCategories = { user1: [], user2: [] };
+        const betterCategories: { user1: string[]; user2: string[] } = { user1: [], user2: [] };
+
         Object.entries(leaderboard.byCategory).forEach(([categoryId, rankings]) => {
-          const user1Rank = rankings.find(r => r.userId === userId1)?.rank || 999;
-          const user2Rank = rankings.find(r => r.userId === userId2)?.rank || 999;
-          
+          // rankings ya es RankingEntry[]
+          const user1Rank = rankings.find(r => r.userId === userId1)?.rank ?? 999;
+          const user2Rank = rankings.find(r => r.userId === userId2)?.rank ?? 999;
+
           if (user1Rank < user2Rank) {
             betterCategories.user1.push(categoryId);
           } else if (user2Rank < user1Rank) {
             betterCategories.user2.push(categoryId);
           }
         });
-        
+
         return {
           user1,
           user2,
@@ -442,6 +491,7 @@ export class RankingService {
       })
     );
   }
+
 
   // ==================== ESTADÍSTICAS AVANZADAS ====================
 
@@ -463,20 +513,20 @@ export class RankingService {
             growthRate: 0
           };
         }
-        
+
         const participants = leaderboard.global;
         const totalParticipants = participants.length;
-        const averageScore = totalParticipants > 0 
-          ? participants.reduce((sum, p) => sum + p.points, 0) / totalParticipants 
+        const averageScore = totalParticipants > 0
+          ? participants.reduce((sum, p) => sum + p.points, 0) / totalParticipants
           : 0;
-        
-        const topPercentile = totalParticipants > 0 
-          ? participants.slice(0, Math.ceil(totalParticipants * 0.1))[0]?.points || 0 
+
+        const topPercentile = totalParticipants > 0
+          ? participants.slice(0, Math.ceil(totalParticipants * 0.1))[0]?.points || 0
           : 0;
-        
+
         const competitionLevel = this.calculateCompetitionLevel(participants);
         const growthRate = this.calculateGrowthRate(); // Simulado
-        
+
         return {
           totalParticipants,
           averageScore: Math.round(averageScore),
@@ -511,13 +561,13 @@ export class RankingService {
   loadCachedLeaderboard(): LeaderboardData | null {
     const cached = this.localStorage.getItem('cached_leaderboard');
     if (!cached) return null;
-    
+
     // Verificar si el caché es válido (menos de 5 minutos)
     const fiveMinutes = 5 * 60 * 1000;
     if (Date.now() - cached.timestamp > fiveMinutes) {
       return null;
     }
-    
+
     return cached.data;
   }
 
@@ -539,10 +589,10 @@ export class RankingService {
   getUserRankInCategory(categoryId: string, userId: string): number {
     const leaderboard = this.getCurrentLeaderboard();
     if (!leaderboard) return 0;
-    
+
     const categoryRanking = leaderboard.byCategory[categoryId];
     if (!categoryRanking) return 0;
-    
+
     const userEntry = categoryRanking.find(entry => entry.userId === userId);
     return userEntry?.rank || 0;
   }
@@ -560,11 +610,11 @@ export class RankingService {
     return this.leaderboard$.pipe(
       map(leaderboard => {
         if (!leaderboard) return '';
-        
+
         if (format === 'csv') {
           return this.convertRankingToCSV(leaderboard.global);
         }
-        
+
         return JSON.stringify({
           exportDate: new Date().toISOString(),
           globalRanking: leaderboard.global,
@@ -585,7 +635,7 @@ export class RankingService {
       `${entry.accuracy}%`,
       entry.gamesPlayed
     ]);
-    
+
     return [headers, ...rows].map(row => row.join(',')).join('\n');
   }
 }

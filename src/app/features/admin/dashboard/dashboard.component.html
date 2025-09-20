@@ -1,1 +1,285 @@
-<p>dashboard works!</p>
+ <div class="admin-dashboard">
+      <!-- Header -->
+      <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
+        <div>
+          <h1 class="text-4xl font-bold text-900 mb-2">
+            ¡Hola {{ currentAdmin?.name }}! 👋
+          </h1>
+          <p class="text-600 text-lg">
+            Aquí tienes un resumen de tu EcoBarómetro
+          </p>
+        </div>
+        <div class="flex gap-2 mt-3 lg:mt-0">
+          <p-button 
+            label="Ver Usuarios" 
+            icon="pi pi-users" 
+            [routerLink]="['/admin/users']"
+            severity="secondary"
+          />
+          <p-button 
+            label="Crear Pregunta" 
+            icon="pi pi-plus" 
+            [routerLink]="['/admin/questions/create']"
+          />
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="grid" *ngIf="!loading; else loadingStats">
+        <div class="col-12 md:col-6 xl:col-3">
+          <div class="card bg-blue-100 border-none">
+            <div class="flex justify-content-between align-items-start">
+              <div>
+                <span class="block text-500 font-medium mb-2">Usuarios Totales</span>
+                <div class="text-900 font-medium text-xl">{{ stats.totalUsers | number }}</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-blue-500 border-circle" 
+                   style="width:3rem;height:3rem">
+                <i class="pi pi-users text-white text-xl"></i>
+              </div>
+            </div>
+            <span class="text-green-500 font-medium">
+              {{ stats.activeUsers }} activos
+            </span>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 xl:col-3">
+          <div class="card bg-orange-100 border-none">
+            <div class="flex justify-content-between align-items-start">
+              <div>
+                <span class="block text-500 font-medium mb-2">Preguntas</span>
+                <div class="text-900 font-medium text-xl">{{ stats.totalQuestions | number }}</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-orange-500 border-circle" 
+                   style="width:3rem;height:3rem">
+                <i class="pi pi-question-circle text-white text-xl"></i>
+              </div>
+            </div>
+            <span class="text-orange-500 font-medium">
+              {{ stats.totalCategories }} categorías
+            </span>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 xl:col-3">
+          <div class="card bg-cyan-100 border-none">
+            <div class="flex justify-content-between align-items-start">
+              <div>
+                <span class="block text-500 font-medium mb-2">Partidas Jugadas</span>
+                <div class="text-900 font-medium text-xl">{{ stats.totalSessions | number }}</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-cyan-500 border-circle" 
+                   style="width:3rem;height:3rem">
+                <i class="pi pi-play text-white text-xl"></i>
+              </div>
+            </div>
+            <span class="text-cyan-500 font-medium">
+              {{ stats.completionRate }}% completadas
+            </span>
+          </div>
+        </div>
+
+        <div class="col-12 md:col-6 xl:col-3">
+          <div class="card bg-purple-100 border-none">
+            <div class="flex justify-content-between align-items-start">
+              <div>
+                <span class="block text-500 font-medium mb-2">Puntuación Promedio</span>
+                <div class="text-900 font-medium text-xl">{{ stats.avgScore }}%</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-purple-500 border-circle" 
+                   style="width:3rem;height:3rem">
+                <i class="pi pi-star text-white text-xl"></i>
+              </div>
+            </div>
+            <span class="text-purple-500 font-medium">
+              {{ stats.totalPoints | number }} puntos totales
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid mt-4">
+        <!-- User Activity Chart -->
+        <div class="col-12 xl:col-8">
+          <p-card header="Actividad de Usuarios (Últimos 7 días)" styleClass="h-full">
+            <p-chart 
+              type="line" 
+              [data]="userActivityChart" 
+              [options]="chartOptions"
+              height="300"
+            />
+          </p-card>
+        </div>
+
+        <!-- Category Performance -->
+        <div class="col-12 xl:col-4">
+          <p-card header="Rendimiento por Categoría" styleClass="h-full">
+            <p-chart 
+              type="doughnut" 
+              [data]="categoryChart" 
+              [options]="doughnutOptions"
+              height="300"
+            />
+          </p-card>
+        </div>
+      </div>
+
+      <!-- Recent Activity and Top Users -->
+      <div class="grid mt-4">
+        <!-- Recent Activity -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Actividad Reciente" styleClass="h-full">
+            <div class="timeline-container">
+              <div class="flex flex-column gap-3" *ngIf="recentActivity.length > 0; else noActivity">
+                <div 
+                  *ngFor="let activity of recentActivity; trackBy: trackByActivity"
+                  class="flex align-items-center gap-3 p-2 border-round hover:surface-hover cursor-pointer transition-colors transition-duration-150"
+                >
+                  <div class="flex align-items-center justify-content-center border-circle" 
+                       [style.background-color]="activity.color"
+                       style="width:2.5rem;height:2.5rem">
+                    <i [class]="activity.icon" class="text-white"></i>
+                  </div>
+                  <div class="flex-1">
+                    <p class="m-0 font-medium text-900">{{ activity.description }}</p>
+                    <small class="text-500">{{ activity.timestamp | date:'short' }}</small>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noActivity>
+                <div class="text-center text-500 py-4">
+                  <i class="pi pi-info-circle text-3xl mb-3"></i>
+                  <p>No hay actividad reciente</p>
+                </div>
+              </ng-template>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Top Users -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Top Usuarios" styleClass="h-full">
+            <p-table 
+              [value]="topUsers" 
+              [paginator]="false"
+              [rows]="5"
+              styleClass="p-datatable-sm"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Usuario</th>
+                  <th>Puntos</th>
+                  <th>Nivel</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-user let-i="rowIndex">
+                <tr>
+                  <td>
+                    <div class="flex align-items-center gap-2">
+                      <p-avatar 
+                        [image]="user.avatar_url"
+                        [label]="user.full_name?.charAt(0) || '?'"
+                        size="normal"
+                        shape="circle"
+                      />
+                      <div>
+                        <div class="font-medium">{{ user.full_name }}</div>
+                        <small class="text-500">{{ user.username }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p-tag 
+                      [value]="(user.total_points | number) || ''" 
+                      severity="success"
+                    />
+                  </td>
+                  <td>
+                    <p-badge 
+                      [value]="user.level" 
+                      severity="info"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="3" class="text-center text-500 py-4">
+                    No hay usuarios registrados
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            
+            <p-divider />
+            
+            <div class="text-center">
+              <p-button 
+                label="Ver todos los usuarios" 
+                icon="pi pi-arrow-right" 
+                [text]="true"
+                [routerLink]="['/admin/users']"
+              />
+            </div>
+          </p-card>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid mt-4">
+        <div class="col-12">
+          <p-card header="Acciones Rápidas">
+            <div class="grid">
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-button 
+                  label="Crear Categoría" 
+                  icon="pi pi-plus" 
+                  [routerLink]="['/admin/categories']"
+                  styleClass="w-full"
+                  severity="secondary"
+                />
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-button 
+                  label="Gestionar Preguntas" 
+                  icon="pi pi-question" 
+                  [routerLink]="['/admin/questions']"
+                  styleClass="w-full"
+                  severity="secondary"
+                />
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-button 
+                  label="Ver Análisis" 
+                  icon="pi pi-chart-line" 
+                  [routerLink]="['/admin/analytics']"
+                  styleClass="w-full"
+                  severity="secondary"
+                />
+              </div>
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-button 
+                  label="Compartir Código" 
+                  icon="pi pi-share-alt" 
+                  (onClick)="shareAdminCode()"
+                  styleClass="w-full"
+                  severity="help"
+                />
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #loadingStats>
+      <div class="grid">
+        <div class="col-12 md:col-6 xl:col-3" *ngFor="let item of [1,2,3,4]">
+          <div class="card">
+            <p-skeleton height="4rem" />
+          </div>
+        </div>
+      </div>
+    </ng-template>
