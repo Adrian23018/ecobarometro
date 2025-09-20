@@ -1,1 +1,672 @@
-<p>achievement-badge works!</p>
+<!-- src/app/shared/components/achievement-badge/achievement-badge.component.html -->
+<div 
+  [class]="badgeClasses"
+  [@badgeUnlock]="animationState"
+  (click)="onBadgeClick()"
+  (mouseenter)="onBadgeHover()"
+  [pTooltip]="showTooltip ? achievement.description : ''"
+  tooltipPosition="top">
+
+  <!-- Variante Badge (circular) -->
+  <div *ngIf="variant === 'badge'" class="badge-container">
+    
+    <!-- Fondo del badge -->
+    <div 
+      class="badge-background"
+      [style.border-color]="rarityConfig.borderColor"
+      [class]="'bg-gradient-to-br ' + rarityConfig.bgGradient">
+      
+      <!-- Efecto de brillo -->
+      <div 
+        *ngIf="achievement.isUnlocked && showShine"
+        class="badge-shine"
+        [@shine]="showShine ? 'on' : 'off'">
+      </div>
+      
+      <!-- Icono principal -->
+      <div class="badge-icon">
+        <i *ngIf="achievement.icon.startsWith('pi-')" [class]="'pi ' + achievement.icon + ' badge-icon-symbol'"></i>
+        <span *ngIf="!achievement.icon.startsWith('pi-')" class="badge-icon-emoji">{{ achievement.icon }}</span>
+      </div>
+      
+      <!-- Indicador de rareza -->
+      <div class="rarity-indicator" [style.background-color]="rarityConfig.borderColor">
+        <div class="rarity-stars">
+          <i 
+            *ngFor="let star of [1,2,3,4]; let i = index"
+            [class]="'pi pi-star' + (i < getRarityStars() ? '-fill' : '') + ' rarity-star'"
+            [style.color]="i < getRarityStars() ? '#fbbf24' : '#6b7280'">
+          </i>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Barra de progreso circular -->
+    <div *ngIf="showProgress && !achievement.isUnlocked && achievement.progress !== undefined" class="progress-ring">
+      <svg class="progress-svg" viewBox="0 0 36 36">
+        <path
+          class="progress-bg"
+          d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+          fill="none"
+          stroke="#e5e7eb"
+          stroke-width="2">
+        </path>
+        <path
+          class="progress-bar"
+          [attr.stroke-dasharray]="progressPercentage + ', 100'"
+          d="M18 2.0845
+            a 15.9155 15.9155 0 0 1 0 31.831
+            a 15.9155 15.9155 0 0 1 0 -31.831"
+          fill="none"
+          [attr.stroke]="rarityConfig.borderColor"
+          stroke-width="2"
+          stroke-linecap="round">
+        </path>
+      </svg>
+    </div>
+    
+    <!-- Badge de "NUEVO" -->
+    <div *ngIf="achievement.isUnlocked && isRecentlyUnlocked()" class="new-badge">
+      ¡NUEVO!
+    </div>
+  </div>
+
+  <!-- Variante Card -->
+  <div *ngIf="variant === 'card'" class="card-container">
+    <div 
+      class="achievement-card"
+      [class]="'border-l-4 ' + (achievement.isUnlocked ? 'border-l-green-500' : 'border-l-gray-300')">
+      
+      <!-- Header de la card -->
+      <div class="card-header">
+        <div class="flex items-center space-x-3">
+          
+          <!-- Icono de la card -->
+          <div 
+            class="card-icon-container"
+            [style.background-color]="achievement.isUnlocked ? achievement.badgeColor : '#9ca3af'">
+            <i *ngIf="achievement.icon.startsWith('pi-')" [class]="'pi ' + achievement.icon + ' card-icon'"></i>
+            <span *ngIf="!achievement.icon.startsWith('pi-')" class="card-icon-emoji">{{ achievement.icon }}</span>
+          </div>
+          
+          <!-- Información principal -->
+          <div class="flex-1">
+            <h3 class="card-title" [class]="achievement.isUnlocked ? 'text-gray-800' : 'text-gray-500'">
+              {{ achievement.name }}
+            </h3>
+            <p class="card-description" [class]="achievement.isUnlocked ? 'text-gray-600' : 'text-gray-400'">
+              {{ achievement.description }}
+            </p>
+          </div>
+          
+          <!-- Rareza -->
+          <div class="rarity-badge" [style.background-color]="rarityConfig.borderColor">
+            {{ getRarityLabel() }}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Progreso y detalles -->
+      <div class="card-body">
+        
+        <!-- Barra de progreso -->
+        <div *ngIf="showProgress && !achievement.isUnlocked && achievement.progress !== undefined" class="progress-section">
+          <div class="flex justify-between text-sm mb-1">
+            <span class="text-gray-600">Progreso</span>
+            <span class="font-medium" [style.color]="rarityConfig.borderColor">{{ progressPercentage.toFixed(0) }}%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div 
+              class="progress-bar-fill"
+              [style.width.%]="progressPercentage"
+              [style.background-color]="rarityConfig.borderColor">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Estado del logro -->
+        <div class="achievement-status">
+          <div *ngIf="achievement.isUnlocked" class="status-unlocked">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span class="text-green-600 font-medium">Desbloqueado el {{ formatDate(achievement.earnedAt) }}</span>
+          </div>
+          <div *ngIf="!achievement.isUnlocked" class="status-locked">
+            <i class="pi pi-lock text-gray-400"></i>
+            <span class="text-gray-500">{{ getProgressText() }}</span>
+          </div>
+        </div>
+        
+        <!-- Puntos requeridos -->
+        <div class="points-info">
+          <i class="pi pi-star text-yellow-500"></i>
+          <span class="text-sm text-gray-600">{{ achievement.pointsRequired | number }} puntos requeridos</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Minimal -->
+  <div *ngIf="variant === 'minimal'" class="minimal-container">
+    <div class="flex items-center space-x-2">
+      
+      <!-- Icono minimal -->
+      <div 
+        class="minimal-icon"
+        [style.color]="achievement.isUnlocked ? achievement.badgeColor : '#9ca3af'">
+        <i *ngIf="achievement.icon.startsWith('pi-')" [class]="'pi ' + achievement.icon"></i>
+        <span *ngIf="!achievement.icon.startsWith('pi-')" class="text-lg">{{ achievement.icon }}</span>
+      </div>
+      
+      <!-- Nombre del logro -->
+      <span 
+        class="minimal-name"
+        [class]="achievement.isUnlocked ? 'text-gray-800 font-medium' : 'text-gray-400'">
+        {{ achievement.name }}
+      </span>
+      
+      <!-- Indicador de estado -->
+      <div class="minimal-status">
+        <i 
+          *ngIf="achievement.isUnlocked"
+          class="pi pi-check-circle text-green-500 text-sm">
+        </i>
+        <i 
+          *ngIf="!achievement.isUnlocked"
+          class="pi pi-lock text-gray-400 text-sm">
+        </i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Detailed -->
+  <div *ngIf="variant === 'detailed'" class="detailed-container">
+    <div class="detailed-card">
+      
+      <!-- Header detallado -->
+      <div 
+        class="detailed-header"
+        [class]="'bg-gradient-to-r ' + rarityConfig.bgGradient + ' text-white'">
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            
+            <!-- Icono grande -->
+            <div class="detailed-icon-container">
+              <i *ngIf="achievement.icon.startsWith('pi-')" [class]="'pi ' + achievement.icon + ' detailed-icon'"></i>
+              <span *ngIf="!achievement.icon.startsWith('pi-')" class="detailed-icon-emoji">{{ achievement.icon }}</span>
+              
+              <!-- Efecto de resplandor -->
+              <div *ngIf="achievement.isUnlocked" class="icon-glow"></div>
+            </div>
+            
+            <!-- Información del logro -->
+            <div>
+              <h2 class="detailed-title">{{ achievement.name }}</h2>
+              <p class="detailed-subtitle">{{ achievement.category || 'Logro General' }}</p>
+            </div>
+          </div>
+          
+          <!-- Rareza con estrellas -->
+          <div class="detailed-rarity">
+            <div class="rarity-label">{{ getRarityLabel() }}</div>
+            <div class="rarity-stars-row">
+              <i 
+                *ngFor="let star of [1,2,3,4]; let i = index"
+                [class]="'pi pi-star' + (i < getRarityStars() ? '-fill' : '') + ' rarity-star'"
+                [style.color]="i < getRarityStars() ? '#fbbf24' : 'rgba(255,255,255,0.5)'">
+              </i>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Contenido detallado -->
+      <div class="detailed-content">
+        
+        <!-- Descripción -->
+        <div class="detailed-description">
+          <p class="text-gray-700">{{ achievement.description }}</p>
+        </div>
+        
+        <!-- Progreso detallado -->
+        <div *ngIf="showProgress && !achievement.isUnlocked && achievement.progress !== undefined" class="detailed-progress">
+          <div class="progress-header">
+            <span class="progress-label">Progreso hacia el logro</span>
+            <span class="progress-value" [style.color]="rarityConfig.borderColor">
+              {{ progressPercentage.toFixed(1) }}%
+            </span>
+          </div>
+          
+          <div class="detailed-progress-bar">
+            <div 
+              class="detailed-progress-fill"
+              [style.width.%]="progressPercentage"
+              [style.background]="'linear-gradient(90deg, ' + rarityConfig.borderColor + ', ' + rarityConfig.glowColor + ')'">
+              <div class="progress-shine-effect"></div>
+            </div>
+          </div>
+          
+          <!-- Progreso en texto -->
+          <div class="progress-text">
+            <span class="text-sm text-gray-600">{{ getProgressText() }}</span>
+          </div>
+        </div>
+        
+        <!-- Información adicional -->
+        <div class="detailed-info">
+          <div class="info-grid">
+            
+            <!-- Puntos -->
+            <div class="info-item">
+              <i class="pi pi-star text-yellow-500"></i>
+              <div>
+                <div class="info-value">{{ achievement.pointsRequired | number }}</div>
+                <div class="info-label">Puntos</div>
+              </div>
+            </div>
+            
+            <!-- Estado -->
+            <div class="info-item">
+              <i [class]="'pi ' + (achievement.isUnlocked ? 'pi-check-circle text-green-500' : 'pi-clock text-gray-400')"></i>
+              <div>
+                <div class="info-value">{{ achievement.isUnlocked ? 'Desbloqueado' : 'Bloqueado' }}</div>
+                <div class="info-label">Estado</div>
+              </div>
+            </div>
+            
+            <!-- Fecha -->
+            <div *ngIf="achievement.isUnlocked && achievement.earnedAt" class="info-item">
+              <i class="pi pi-calendar text-blue-500"></i>
+              <div>
+                <div class="info-value">{{ formatDate(achievement.earnedAt) }}</div>
+                <div class="info-label">Obtenido</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Efectos de partículas para celebración -->
+  <div 
+    *ngIf="achievement.isUnlocked && animationState === 'celebrating'"
+    class="celebration-particles">
+    <div 
+      *ngFor="let particle of [1,2,3,4,5,6,7,8]; let i = index"
+      class="particle"
+      [style.animation-delay]="(i * 0.1) + 's'">
+      ✨
+    </div>
+  </div>
+</div>
+
+<!-- Métodos adicionales en el componente TypeScript -->
+<script>
+// Agregar estos métodos a la clase del componente
+getRarityStars(): number {
+  const starMap = {
+    common: 1,
+    rare: 2,
+    epic: 3,
+    legendary: 4
+  };
+  return starMap[this.achievement.rarity] || 1;
+}
+
+isRecentlyUnlocked(): boolean {
+  if (!this.achievement.earnedAt) return false;
+  
+  const earnedDate = new Date(this.achievement.earnedAt);
+  const now = new Date();
+  const daysDiff = (now.getTime() - earnedDate.getTime()) / (1000 * 60 * 60 * 24);
+  
+  return daysDiff <= 7; // Consideramos "nuevo" si se desbloqueó en los últimos 7 días
+}
+</script>
+
+<!-- Estilos CSS -->
+<style>
+.achievement-badge {
+  @apply relative inline-block;
+}
+
+/* Tamaños */
+.size-small .badge-background {
+  @apply w-12 h-12;
+}
+
+.size-medium .badge-background {
+  @apply w-16 h-16;
+}
+
+.size-large .badge-background {
+  @apply w-20 h-20;
+}
+
+/* Variante Badge */
+.badge-container {
+  @apply relative;
+}
+
+.badge-background {
+  @apply rounded-full border-4 flex items-center justify-center relative overflow-hidden shadow-lg transition-all duration-300;
+}
+
+.badge-shine {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-50;
+  animation: badgeShine 1s ease-in-out;
+}
+
+.badge-icon {
+  @apply text-white z-10;
+}
+
+.badge-icon-symbol {
+  @apply text-xl;
+}
+
+.badge-icon-emoji {
+  @apply text-lg;
+}
+
+.rarity-indicator {
+  @apply absolute -bottom-1 -right-1 rounded-full px-1 py-0.5;
+}
+
+.rarity-stars {
+  @apply flex space-x-0.5;
+}
+
+.rarity-star {
+  @apply text-xs;
+}
+
+.progress-ring {
+  @apply absolute inset-0;
+}
+
+.progress-svg {
+  @apply w-full h-full transform -rotate-90;
+}
+
+.new-badge {
+  @apply absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse;
+}
+
+/* Variante Card */
+.card-container {
+  @apply w-full;
+}
+
+.achievement-card {
+  @apply bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg;
+}
+
+.card-header {
+  @apply p-4;
+}
+
+.card-icon-container {
+  @apply w-12 h-12 rounded-full flex items-center justify-center text-white;
+}
+
+.card-icon {
+  @apply text-xl;
+}
+
+.card-icon-emoji {
+  @apply text-lg;
+}
+
+.card-title {
+  @apply font-bold text-lg;
+}
+
+.card-description {
+  @apply text-sm mt-1;
+}
+
+.rarity-badge {
+  @apply px-2 py-1 rounded-full text-xs font-bold text-white;
+}
+
+.card-body {
+  @apply p-4 pt-0 space-y-3;
+}
+
+.progress-section {
+  @apply space-y-2;
+}
+
+.progress-bar-bg {
+  @apply w-full bg-gray-200 rounded-full h-2;
+}
+
+.progress-bar-fill {
+  @apply h-full rounded-full transition-all duration-500;
+}
+
+.achievement-status {
+  @apply flex items-center space-x-2;
+}
+
+.points-info {
+  @apply flex items-center space-x-1;
+}
+
+/* Variante Minimal */
+.minimal-container {
+  @apply inline-block;
+}
+
+.minimal-icon {
+  @apply text-lg;
+}
+
+.minimal-name {
+  @apply text-sm;
+}
+
+/* Variante Detailed */
+.detailed-container {
+  @apply w-full max-w-md;
+}
+
+.detailed-card {
+  @apply bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200;
+}
+
+.detailed-header {
+  @apply p-6;
+}
+
+.detailed-icon-container {
+  @apply relative w-16 h-16 rounded-full bg-white bg-opacity-20 flex items-center justify-center;
+}
+
+.detailed-icon {
+  @apply text-2xl text-white;
+}
+
+.detailed-icon-emoji {
+  @apply text-xl;
+}
+
+.icon-glow {
+  @apply absolute inset-0 rounded-full;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: iconGlow 2s ease-in-out infinite;
+}
+
+.detailed-title {
+  @apply text-xl font-bold;
+}
+
+.detailed-subtitle {
+  @apply text-sm opacity-90;
+}
+
+.detailed-rarity {
+  @apply text-center;
+}
+
+.rarity-label {
+  @apply text-xs font-medium mb-1;
+}
+
+.rarity-stars-row {
+  @apply flex space-x-1;
+}
+
+.detailed-content {
+  @apply p-6 space-y-4;
+}
+
+.detailed-description {
+  @apply text-gray-700;
+}
+
+.detailed-progress {
+  @apply space-y-2;
+}
+
+.progress-header {
+  @apply flex justify-between items-center;
+}
+
+.progress-label {
+  @apply text-sm font-medium text-gray-700;
+}
+
+.progress-value {
+  @apply text-sm font-bold;
+}
+
+.detailed-progress-bar {
+  @apply w-full bg-gray-200 rounded-full h-3 overflow-hidden;
+}
+
+.detailed-progress-fill {
+  @apply h-full rounded-full relative;
+}
+
+.progress-shine-effect {
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30;
+  animation: progressShine 2s infinite;
+}
+
+.detailed-info {
+  @apply pt-4 border-t border-gray-200;
+}
+
+.info-grid {
+  @apply grid grid-cols-3 gap-4;
+}
+
+.info-item {
+  @apply text-center flex flex-col items-center space-y-1;
+}
+
+.info-value {
+  @apply font-bold text-gray-800 text-sm;
+}
+
+.info-label {
+  @apply text-xs text-gray-500;
+}
+
+/* Efectos de celebración */
+.celebration-particles {
+  @apply absolute inset-0 pointer-events-none;
+}
+
+.particle {
+  @apply absolute text-lg;
+  animation: particleFloat 1.5s ease-out forwards;
+}
+
+/* Estados */
+.locked {
+  @apply opacity-60;
+}
+
+.unlocked {
+  @apply opacity-100;
+}
+
+.clickable {
+  @apply cursor-pointer transition-transform duration-200;
+}
+
+.clickable:hover {
+  @apply transform scale-105;
+}
+
+/* Rareza específica */
+.rarity-legendary .badge-background {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.rarity-epic .badge-background {
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+.rarity-rare .badge-background {
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+/* Animaciones */
+@keyframes badgeShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes iconGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes progressShine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px) scale(1) rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .detailed-header {
+    @apply p-4;
+  }
+  
+  .detailed-content {
+    @apply p-4;
+  }
+  
+  .info-grid {
+    @apply grid-cols-2;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .badge-shine,
+  .icon-glow,
+  .progress-shine-effect,
+  .particle {
+    animation: none;
+  }
+}
+</style>

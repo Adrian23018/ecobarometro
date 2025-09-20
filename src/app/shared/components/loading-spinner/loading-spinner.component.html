@@ -1,1 +1,239 @@
-<p>loading-spinner works!</p>
+<!-- src/app/shared/components/loading-spinner/loading-spinner.component.html -->
+<div [class]="containerClasses">
+  
+  <!-- Spinner clásico -->
+  <div *ngIf="variant === 'spinner'" class="flex flex-col items-center justify-center">
+    <div [class]="spinnerClasses + ' animate-spin'">
+      <svg class="w-full h-full" fill="none" viewBox="0 0 24 24">
+        <circle 
+          class="opacity-25" 
+          cx="12" 
+          cy="12" 
+          r="10" 
+          stroke="currentColor" 
+          stroke-width="4">
+        </circle>
+        <path 
+          class="opacity-75" 
+          fill="currentColor" 
+          d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+        </path>
+      </svg>
+    </div>
+    <p *ngIf="message" [class]="messageClasses + ' mt-3 text-gray-600'">{{ message }}</p>
+  </div>
+
+  <!-- Puntos saltarines -->
+  <div *ngIf="variant === 'dots'" class="flex flex-col items-center justify-center">
+    <div class="flex space-x-1">
+      <div 
+        *ngFor="let dot of [1,2,3]; let i = index"
+        [class]="'w-2 h-2 rounded-full animate-bounce ' + (color === 'primary' ? 'bg-blue-500' : 
+                 color === 'success' ? 'bg-green-500' : 
+                 color === 'warning' ? 'bg-yellow-500' : 
+                 color === 'danger' ? 'bg-red-500' : 'bg-gray-500')"
+        [style.animation-delay]="i * 0.1 + 's'">
+      </div>
+    </div>
+    <p *ngIf="message" [class]="messageClasses + ' mt-3 text-gray-600'">{{ message }}</p>
+  </div>
+
+  <!-- Pulse -->
+  <div *ngIf="variant === 'pulse'" class="flex flex-col items-center justify-center">
+    <div 
+      [class]="'rounded-full animate-pulse ' + 
+               (size === 'small' ? 'w-4 h-4' : size === 'large' ? 'w-12 h-12' : 'w-8 h-8') + ' ' +
+               (color === 'primary' ? 'bg-blue-500' : 
+                color === 'success' ? 'bg-green-500' : 
+                color === 'warning' ? 'bg-yellow-500' : 
+                color === 'danger' ? 'bg-red-500' : 'bg-gray-500')">
+    </div>
+    <p *ngIf="message" [class]="messageClasses + ' mt-3 text-gray-600'">{{ message }}</p>
+  </div>
+
+  <!-- Bounce -->
+  <div *ngIf="variant === 'bounce'" class="flex flex-col items-center justify-center">
+    <div class="flex space-x-1">
+      <div 
+        *ngFor="let ball of [1,2,3,4]; let i = index"
+        [class]="'rounded-full animate-bounce ' + 
+                 (size === 'small' ? 'w-2 h-2' : size === 'large' ? 'w-4 h-4' : 'w-3 h-3') + ' ' +
+                 (color === 'primary' ? 'bg-blue-500' : 
+                  color === 'success' ? 'bg-green-500' : 
+                  color === 'warning' ? 'bg-yellow-500' : 
+                  color === 'danger' ? 'bg-red-500' : 'bg-gray-500')"
+        [style.animation-delay]="i * 0.15 + 's'">
+      </div>
+    </div>
+    <p *ngIf="message" [class]="messageClasses + ' mt-3 text-gray-600'">{{ message }}</p>
+  </div>
+
+  <!-- Eco Loading (temático) -->
+  <div *ngIf="variant === 'eco'" class="flex flex-col items-center justify-center">
+    <div class="relative">
+      
+      <!-- Planeta giratorio -->
+      <div 
+        [class]="'rounded-full border-4 border-green-200 animate-spin ' +
+                 (size === 'small' ? 'w-8 h-8' : size === 'large' ? 'w-16 h-16' : 'w-12 h-12')"
+        style="border-top-color: #22c55e; animation-duration: 2s;">
+        
+        <!-- Icono de hoja en el centro -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <i 
+            [class]="'pi pi-leaf text-green-600 ' + 
+                     (size === 'small' ? 'text-xs' : size === 'large' ? 'text-xl' : 'text-sm')"
+            style="animation: float 2s ease-in-out infinite;">
+          </i>
+        </div>
+      </div>
+      
+      <!-- Partículas flotantes -->
+      <div class="absolute inset-0 pointer-events-none">
+        <div 
+          *ngFor="let particle of [1,2,3]; let i = index"
+          [class]="'absolute w-1 h-1 bg-green-400 rounded-full animate-ping ' +
+                   (size === 'small' ? 'w-0.5 h-0.5' : size === 'large' ? 'w-2 h-2' : 'w-1 h-1')"
+          [style.top]="(20 + i * 15) + '%'"
+          [style.left]="(15 + i * 25) + '%'"
+          [style.animation-delay]="i * 0.5 + 's'">
+        </div>
+      </div>
+    </div>
+    
+    <p *ngIf="message" [class]="messageClasses + ' mt-4 text-green-700 font-medium'">{{ message }}</p>
+    
+    <!-- Texto motivacional aleatorio -->
+    <p *ngIf="!message" class="mt-3 text-sm text-green-600 animate-pulse">
+      {{ getRandomEcoMessage() }}
+    </p>
+  </div>
+</div>
+
+<!-- Componente TypeScript actualizado -->
+<script>
+// Agregar este método a la clase del componente
+getRandomEcoMessage(): string {
+  const messages = [
+    '🌱 Cargando conocimiento verde...',
+    '🌍 Preparando el planeta...',
+    '♻️ Reciclando datos...',
+    '🌿 Cultivando sabiduría...',
+    '💚 Conectando con la naturaleza...',
+    '🌳 Creciendo sosteniblemente...',
+    '🦋 Transformando el mundo...',
+    '☀️ Energizando con renovables...'
+  ];
+  
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+</script>
+
+<!-- Estilos CSS -->
+<style>
+.loading-container {
+  @apply flex items-center justify-center p-4;
+}
+
+.loading-container.overlay {
+  @apply absolute inset-0 bg-white bg-opacity-75 z-50;
+}
+
+.loading-container.full-screen {
+  @apply fixed inset-0 bg-white bg-opacity-90 z-50;
+}
+
+.loading-message {
+  @apply text-center font-medium;
+}
+
+/* Animaciones personalizadas */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Variaciones de tamaño para eco loader */
+.eco-small {
+  animation-duration: 1.5s;
+}
+
+.eco-large {
+  animation-duration: 3s;
+}
+
+/* Efectos especiales */
+.sparkle {
+  position: relative;
+}
+
+.sparkle::before,
+.sparkle::after {
+  content: '✨';
+  position: absolute;
+  animation: sparkle 2s linear infinite;
+  font-size: 0.5em;
+}
+
+.sparkle::before {
+  top: -10%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.sparkle::after {
+  bottom: -10%;
+  right: -10%;
+  animation-delay: 1s;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .loading-container {
+    @apply p-2;
+  }
+  
+  .loading-message {
+    @apply text-sm;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .loading-container.overlay {
+    @apply bg-gray-900 bg-opacity-75;
+  }
+  
+  .loading-container.full-screen {
+    @apply bg-gray-900 bg-opacity-90;
+  }
+  
+  .loading-message {
+    @apply text-gray-300;
+  }
+}
+</style>

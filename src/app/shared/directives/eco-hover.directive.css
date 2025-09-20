@@ -1,0 +1,370 @@
+/* src/app/shared/directives/eco-hover.directive.css */
+/* Estilos para la directiva EcoHover */
+
+/* Animación para el efecto de hoja flotante */
+@keyframes leafFloat {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-15px) rotate(180deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-30px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Animación para el efecto de onda */
+@keyframes waveSlide {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Animación adicional para efecto de brillo */
+@keyframes ecoGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+}
+
+/* Animación para partículas ecológicas */
+@keyframes ecoParticle {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-40px) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Animación para efecto de crecimiento orgánico */
+@keyframes organicGrowth {
+  0% {
+    transform: scale(1);
+    border-radius: inherit;
+  }
+  50% {
+    transform: scale(1.02);
+    border-radius: 50% 20% 50% 20%;
+  }
+  100% {
+    transform: scale(1.05);
+    border-radius: inherit;
+  }
+}
+
+/* Clases helper para diferentes intensidades */
+.eco-hover-subtle {
+  transition: all 200ms ease-out;
+}
+
+.eco-hover-normal {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eco-hover-strong {
+  transition: all 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Efectos especiales para diferentes temas */
+.eco-hover-water {
+  position: relative;
+  overflow: hidden;
+}
+
+.eco-hover-water::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
+  transition: left 0.5s ease-out;
+}
+
+.eco-hover-water:hover::before {
+  left: 100%;
+}
+
+.eco-hover-earth {
+  position: relative;
+}
+
+.eco-hover-earth:hover {
+  box-shadow: 
+    0 0 10px rgba(34, 197, 94, 0.3),
+    inset 0 0 10px rgba(34, 197, 94, 0.1);
+}
+
+.eco-hover-air {
+  position: relative;
+}
+
+.eco-hover-air:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.2);
+}
+
+.eco-hover-fire {
+  position: relative;
+}
+
+.eco-hover-fire:hover {
+  box-shadow: 
+    0 0 15px rgba(245, 158, 11, 0.4),
+    0 0 30px rgba(245, 158, 11, 0.2);
+  animation: ecoGlow 1.5s ease-in-out infinite;
+}
+
+/* Efectos para diferentes estados de elementos */
+.eco-hover-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.eco-hover-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease-out, height 0.6s ease-out;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.eco-hover-button:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.eco-hover-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.eco-hover-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(34, 197, 94, 0.1);
+}
+
+/* Efectos de ecosistema */
+.eco-hover-forest::before {
+  content: '🌲';
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  font-size: 12px;
+  opacity: 0;
+  transition: all 0.3s ease-out;
+  pointer-events: none;
+}
+
+.eco-hover-forest:hover::before {
+  opacity: 1;
+  top: -10px;
+  animation: leafFloat 2s ease-in-out infinite;
+}
+
+.eco-hover-ocean::before {
+  content: '🌊';
+  position: absolute;
+  bottom: -20px;
+  left: -10px;
+  font-size: 12px;
+  opacity: 0;
+  transition: all 0.3s ease-out;
+  pointer-events: none;
+}
+
+.eco-hover-ocean:hover::before {
+  opacity: 1;
+  bottom: -5px;
+  animation: waveSlide 1.5s ease-in-out infinite;
+}
+
+.eco-hover-sky::before {
+  content: '☁️';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  opacity: 0;
+  transition: all 0.4s ease-out;
+  pointer-events: none;
+}
+
+.eco-hover-sky:hover::before {
+  opacity: 1;
+  top: -5px;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .eco-hover-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+  
+  @keyframes leafFloat {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 0;
+    }
+    50% {
+      transform: translateY(-10px) rotate(180deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-20px) rotate(360deg);
+      opacity: 0;
+    }
+  }
+}
+
+/* Accessibility: respeta la preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .eco-hover-subtle,
+  .eco-hover-normal,
+  .eco-hover-strong {
+    transition: none;
+  }
+  
+  /* @keyframes leafFloat,
+  @keyframes waveSlide,
+  @keyframes ecoGlow,
+  @keyframes ecoParticle,
+  @keyframes organicGrowth {
+    animation: none;
+  } */
+  
+  .eco-hover-card:hover,
+  .eco-hover-button:hover,
+  .eco-hover-air:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .eco-hover-card:hover {
+    border: 2px solid currentColor;
+  }
+  
+  .eco-hover-button:hover {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .eco-hover-card,
+  .eco-hover-button,
+  .eco-hover-water,
+  .eco-hover-earth,
+  .eco-hover-air,
+  .eco-hover-fire {
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  
+  .eco-hover-card::before,
+  .eco-hover-button::after,
+  .eco-hover-forest::before,
+  .eco-hover-ocean::before,
+  .eco-hover-sky::before {
+    display: none !important;
+  }
+}
+
+/* Dark mode adaptations */
+@media (prefers-color-scheme: dark) {
+  .eco-hover-card:hover {
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(34, 197, 94, 0.2);
+  }
+  
+  .eco-hover-water::before {
+    background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+  }
+  
+  .eco-hover-button::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  }
+}
+
+/* Utilidades adicionales para combinaciones de efectos */
+.eco-hover-combo-glow-scale:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(34, 197, 94, 0.2),
+    0 0 15px rgba(34, 197, 94, 0.3);
+}
+
+.eco-hover-combo-lift-glow:hover {
+  transform: translateY(-6px);
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.eco-hover-rainbow:hover {
+  background: linear-gradient(
+    45deg,
+    #22c55e,
+    #3b82f6,
+    #8b5cf6,
+    #f59e0b,
+    #ef4444,
+    #22c55e
+  );
+  background-size: 200% 200%;
+  animation: rainbowShift 2s ease infinite;
+}
+
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Performance optimizations */
+.eco-hover-optimized {
+  will-change: transform, box-shadow;
+}
+
+.eco-hover-optimized:hover {
+  will-change: auto;
+}

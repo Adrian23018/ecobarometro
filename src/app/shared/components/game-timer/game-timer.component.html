@@ -1,1 +1,342 @@
-<p>game-timer works!</p>
+<!-- src/app/shared/components/game-timer/game-timer.component.html -->
+<div 
+  [class]="timerClasses"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  [@timerPulse]="animationState">
+
+  <!-- Variante Circular -->
+  <div *ngIf="variant === 'circular'" class="circular-timer">
+    <div class="relative">
+      
+      <!-- SVG Circle Progress -->
+      <svg 
+        [attr.width]="size === 'small' ? 80 : size === 'large' ? 120 : 100"
+        [attr.height]="size === 'small' ? 80 : size === 'large' ? 120 : 100"
+        class="transform -rotate-90">
+        
+        <!-- Background circle -->
+        <circle
+          [attr.cx]="size === 'small' ? 40 : size === 'large' ? 60 : 50"
+          [attr.cy]="size === 'small' ? 40 : size === 'large' ? 60 : 50"
+          [attr.r]="size === 'small' ? 35 : size === 'large' ? 55 : 45"
+          stroke="#e5e7eb"
+          stroke-width="4"
+          fill="none">
+        </circle>
+        
+        <!-- Progress circle -->
+        <circle
+          [attr.cx]="size === 'small' ? 40 : size === 'large' ? 60 : 50"
+          [attr.cy]="size === 'small' ? 40 : size === 'large' ? 60 : 50"
+          [attr.r]="size === 'small' ? 35 : size === 'large' ? 55 : 45"
+          [attr.stroke]="strokeColor"
+          stroke-width="4"
+          fill="none"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="size === 'small' ? 219.9 : size === 'large' ? 345.6 : 282.7"
+          [attr.stroke-dashoffset]="(size === 'small' ? 219.9 : size === 'large' ? 345.6 : 282.7) * (1 - remainingPercentage / 100)"
+          class="transition-all duration-300 ease-linear">
+        </circle>
+      </svg>
+      
+      <!-- Time display in center -->
+      <div class="absolute inset-0 flex flex-col items-center justify-center">
+        <div [class]="'font-bold ' + textColor + ' ' + (size === 'small' ? 'text-lg' : size === 'large' ? 'text-2xl' : 'text-xl')">
+          {{ formattedTime }}
+        </div>
+        <div *ngIf="size !== 'small'" class="text-xs text-gray-500 mt-1">
+          {{ isPaused ? 'PAUSADO' : 'TIEMPO' }}
+        </div>
+      </div>
+      
+      <!-- Pause/Play button -->
+      <button 
+        *ngIf="size === 'large'"
+        (click)="togglePause()"
+        class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-gray-50 transition-colors">
+        <i [class]="'pi ' + (isPaused ? 'pi-play' : 'pi-pause') + ' text-gray-600 text-sm'"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Variante Linear -->
+  <div *ngIf="variant === 'linear'" class="linear-timer">
+    <div class="flex items-center space-x-3">
+      
+      <!-- Time display -->
+      <div class="flex items-center space-x-2">
+        <i [class]="'pi pi-clock ' + textColor"></i>
+        <span [class]="'font-bold ' + textColor + ' ' + (size === 'small' ? 'text-sm' : size === 'large' ? 'text-xl' : 'text-lg')">
+          {{ formattedTime }}
+        </span>
+      </div>
+      
+      <!-- Progress bar -->
+      <div *ngIf="showProgress" class="flex-1 max-w-xs">
+        <div [class]="'w-full bg-gray-200 rounded-full ' + (size === 'small' ? 'h-2' : size === 'large' ? 'h-4' : 'h-3')">
+          <div 
+            class="h-full rounded-full transition-all duration-300 ease-linear"
+            [style.width.%]="remainingPercentage"
+            [style.background-color]="strokeColor">
+          </div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>0</span>
+          <span>{{ totalTime }}s</span>
+        </div>
+      </div>
+      
+      <!-- Controls -->
+      <div class="flex items-center space-x-1">
+        <button 
+          (click)="togglePause()"
+          class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <i [class]="'pi ' + (isPaused ? 'pi-play' : 'pi-pause') + ' text-gray-600'"></i>
+        </button>
+        <button 
+          (click)="restart()"
+          class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <i class="pi pi-refresh text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Digital -->
+  <div *ngIf="variant === 'digital'" class="digital-timer">
+    <div class="bg-gray-900 text-green-400 font-mono rounded-lg p-4 shadow-lg border border-gray-700">
+      
+      <!-- Display principal -->
+      <div class="text-center">
+        <div [class]="'digital-display ' + (size === 'small' ? 'text-2xl' : size === 'large' ? 'text-5xl' : 'text-4xl')">
+          {{ formattedTime }}
+        </div>
+        
+        <!-- Indicadores de estado -->
+        <div class="flex justify-center items-center space-x-4 mt-2">
+          <div class="flex items-center space-x-1">
+            <div [class]="'w-2 h-2 rounded-full ' + (isRunning && !isPaused ? 'bg-green-400 animate-pulse' : 'bg-gray-600')"></div>
+            <span class="text-xs">RUN</span>
+          </div>
+          <div class="flex items-center space-x-1">
+            <div [class]="'w-2 h-2 rounded-full ' + (isPaused ? 'bg-yellow-400 animate-pulse' : 'bg-gray-600')"></div>
+            <span class="text-xs">PAUSE</span>
+          </div>
+          <div class="flex items-center space-x-1">
+            <div [class]="'w-2 h-2 rounded-full ' + (currentTime <= criticalTime && currentTime > 0 ? 'bg-red-400 animate-pulse' : 'bg-gray-600')"></div>
+            <span class="text-xs">ALERT</span>
+          </div>
+        </div>
+        
+        <!-- Progress bar digital -->
+        <div *ngIf="showProgress" class="mt-3">
+          <div class="w-full bg-gray-800 rounded-sm h-1">
+            <div 
+              class="h-full rounded-sm transition-all duration-300"
+              [style.width.%]="remainingPercentage"
+              [style.background-color]="strokeColor">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Controles digitales -->
+      <div class="flex justify-center space-x-2 mt-3">
+        <button 
+          (click)="togglePause()"
+          class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-green-400 text-xs font-mono rounded border border-gray-600 transition-colors">
+          {{ isPaused ? 'RESUME' : 'PAUSE' }}
+        </button>
+        <button 
+          (click)="restart()"
+          class="px-3 py-1 bg-gray-800 hover:bg-gray-700 text-green-400 text-xs font-mono rounded border border-gray-600 transition-colors">
+          RESET
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Minimal -->
+  <div *ngIf="variant === 'minimal'" class="minimal-timer">
+    <div class="flex items-center space-x-2">
+      <span [class]="'font-mono font-bold ' + textColor + ' ' + (size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base')">
+        {{ formattedTime }}
+      </span>
+      <div 
+        *ngIf="showProgress"
+        [class]="'w-1 rounded-full transition-all duration-300 ' + (size === 'small' ? 'h-4' : size === 'large' ? 'h-8' : 'h-6')"
+        [style.height.%]="remainingPercentage"
+        [style.background-color]="strokeColor">
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerta de tiempo crítico -->
+  <div 
+    *ngIf="showAlert && animationState === 'critical'"
+    class="absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none"
+    [@timeAlert]="showAlert ? 'visible' : 'hidden'">
+    <div class="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-bounce">
+      ¡TIEMPO AGOTÁNDOSE!
+    </div>
+  </div>
+</div>
+
+<!-- Efectos visuales para estados críticos -->
+<div *ngIf="animationState === 'critical' && currentTime > 0" class="absolute inset-0 pointer-events-none">
+  <div class="w-full h-full border-2 border-red-500 rounded-lg animate-pulse opacity-50"></div>
+</div>
+
+<!-- Estilos CSS -->
+<style>
+.timer-container {
+  @apply relative inline-block;
+}
+
+.timer-small {
+  @apply text-sm;
+}
+
+.timer-medium {
+  @apply text-base;
+}
+
+.timer-large {
+  @apply text-lg;
+}
+
+.timer-normal {
+  /* Estado normal */
+}
+
+.timer-warning {
+  @apply text-yellow-600;
+}
+
+.timer-critical {
+  @apply text-red-600;
+  animation: criticalPulse 0.5s ease-in-out infinite alternate;
+}
+
+.timer-paused {
+  @apply opacity-75;
+}
+
+.circular-timer {
+  @apply flex items-center justify-center;
+}
+
+.linear-timer {
+  @apply w-full;
+}
+
+.digital-timer {
+  @apply inline-block;
+}
+
+.minimal-timer {
+  @apply inline-flex items-center;
+}
+
+.digital-display {
+  @apply font-mono font-bold tracking-wider;
+  text-shadow: 0 0 10px currentColor;
+}
+
+/* Animaciones personalizadas */
+@keyframes criticalPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+@keyframes digitalGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 15px currentColor, 0 0 25px currentColor;
+  }
+}
+
+.timer-critical .digital-display {
+  animation: digitalGlow 1s ease-in-out infinite;
+}
+
+/* Efectos de hover */
+.timer-container:hover {
+  @apply transform scale-105 transition-transform duration-200;
+}
+
+.timer-container:hover .digital-timer {
+  @apply transform scale-100; /* Cancelar scale para digital */
+}
+
+/* Estados de pausa */
+.timer-paused::after {
+  content: '⏸️';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Responsividad */
+@media (max-width: 640px) {
+  .linear-timer {
+    @apply flex-col space-x-0 space-y-2;
+  }
+  
+  .digital-timer {
+    @apply w-full;
+  }
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .timer-critical {
+    animation: none;
+  }
+  
+  .digital-display {
+    animation: none;
+  }
+  
+  .animate-pulse,
+  .animate-bounce {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .timer-critical {
+    @apply border-2 border-red-600;
+  }
+  
+  .timer-warning {
+    @apply border-2 border-yellow-600;
+  }
+}
+
+/* Focus states */
+.timer-container button:focus {
+  @apply outline-none ring-2 ring-offset-2 ring-blue-500;
+}
+
+/* Custom progress animations */
+.progress-smooth {
+  transition: all 0.1s linear;
+}
+
+.progress-stepped {
+  transition: all 0.5s steps(10, end);
+}
+</style>

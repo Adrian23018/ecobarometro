@@ -1,1 +1,407 @@
-<p>footer works!</p>
+<!-- src/app/shared/components/footer/footer.component.html -->
+<footer [class]="backgroundColor + ' ' + textColor + ' relative overflow-hidden'">
+  
+  <!-- Elementos decorativos de fondo -->
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="absolute top-0 left-0 w-32 h-32 bg-green-500 opacity-5 rounded-full transform -translate-x-16 -translate-y-16"></div>
+    <div class="absolute bottom-0 right-0 w-48 h-48 bg-blue-500 opacity-5 rounded-full transform translate-x-24 translate-y-24"></div>
+    <div class="absolute top-1/2 left-1/4 w-24 h-24 bg-purple-500 opacity-5 rounded-full"></div>
+  </div>
+
+  <!-- Variante Default -->
+  <div *ngIf="variant === 'default'" class="relative z-10">
+    
+    <!-- Sección principal -->
+    <div class="container mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        
+        <!-- Logo y descripción -->
+        <div class="lg:col-span-1">
+          <div class="flex items-center space-x-3 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <i class="pi pi-globe text-white text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white">EcoBarómetro</h3>
+          </div>
+          <p class="text-gray-400 mb-4 leading-relaxed">
+            La plataforma gamificada que revoluciona la educación ambiental. 
+            Aprende, juega y contribuye a un mundo más sostenible.
+          </p>
+          
+          <!-- Estadísticas -->
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="bg-gray-700 rounded-lg p-3">
+              <div class="text-green-400 font-bold text-lg">10K+</div>
+              <div class="text-xs text-gray-400">Jugadores</div>
+            </div>
+            <div class="bg-gray-700 rounded-lg p-3">
+              <div class="text-blue-400 font-bold text-lg">50K+</div>
+              <div class="text-xs text-gray-400">Preguntas</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enlaces rápidos -->
+        <div *ngIf="showQuickLinks" class="lg:col-span-1">
+          <h4 class="text-white font-semibold mb-4">Enlaces Rápidos</h4>
+          <ul class="space-y-2">
+            <li *ngFor="let link of quickLinks">
+              <a 
+                (click)="onQuickLinkClick(link)"
+                class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2">
+                <i class="pi pi-angle-right text-xs"></i>
+                <span>{{ link.name }}</span>
+                <i *ngIf="link.external" class="pi pi-external-link text-xs"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Características -->
+        <div class="lg:col-span-1">
+          <h4 class="text-white font-semibold mb-4">¿Por qué EcoBarómetro?</h4>
+          <div class="space-y-3">
+            <div *ngFor="let feature of ecoFeatures" class="flex items-start space-x-3">
+              <span class="text-lg">{{ feature.icon }}</span>
+              <div>
+                <div class="text-white text-sm font-medium">{{ feature.title }}</div>
+                <div class="text-gray-400 text-xs">{{ feature.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Newsletter y redes sociales -->
+        <div class="lg:col-span-1">
+          <h4 class="text-white font-semibold mb-4">Mantente Conectado</h4>
+          
+          <!-- Newsletter -->
+          <div class="mb-6">
+            <p class="text-gray-400 text-sm mb-3">Recibe las últimas noticias sobre sostenibilidad</p>
+            <div class="flex">
+              <input 
+                type="email" 
+                placeholder="tu@email.com"
+                class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500">
+              <button class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-r-lg transition-colors">
+                <i class="pi pi-send"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Redes sociales -->
+          <div *ngIf="showSocialLinks">
+            <h5 class="text-white text-sm font-medium mb-3">Síguenos</h5>
+            <div class="flex space-x-3">
+              <button 
+                *ngFor="let social of socialLinks"
+                (click)="onSocialLinkClick(social)"
+                class="w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center justify-center transition-all duration-200 hover:scale-110"
+                [style.background-color]="'hover:' + social.color">
+                <i [class]="'pi ' + social.icon + ' text-gray-300 hover:text-white'"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra inferior -->
+    <div class="border-t border-gray-700">
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          
+          <!-- Copyright -->
+          <div class="text-gray-400 text-sm">
+            © {{ currentYear }} EcoBarómetro. Todos los derechos reservados.
+          </div>
+
+          <!-- Información de la app -->
+          <div *ngIf="showAppInfo" class="flex items-center space-x-4 text-sm text-gray-400">
+            <span>Versión {{ appVersion }}</span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <span>Hecho con 💚 para el planeta</span>
+            <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+            <button 
+              (click)="scrollToTop()"
+              class="text-green-400 hover:text-green-300 transition-colors">
+              Subir ↑
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Minimal -->
+  <div *ngIf="variant === 'minimal'" class="relative z-10">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        
+        <!-- Logo y copyright -->
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <i class="pi pi-globe text-white"></i>
+            </div>
+            <span class="text-white font-semibold">EcoBarómetro</span>
+          </div>
+          <span class="text-gray-400 text-sm">© {{ currentYear }}</span>
+        </div>
+
+        <!-- Enlaces rápidos minimal -->
+        <div class="flex items-center space-x-6">
+          <a 
+            *ngFor="let link of quickLinks.slice(0, 4)"
+            (click)="onQuickLinkClick(link)"
+            class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer text-sm">
+            {{ link.name }}
+          </a>
+        </div>
+
+        <!-- Redes sociales minimal -->
+        <div *ngIf="showSocialLinks" class="flex space-x-2">
+          <button 
+            *ngFor="let social of socialLinks"
+            (click)="onSocialLinkClick(social)"
+            class="w-8 h-8 bg-gray-700 hover:bg-gray-600 rounded-lg flex items-center justify-center transition-colors">
+            <i [class]="'pi ' + social.icon + ' text-gray-400 text-sm'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Detailed -->
+  <div *ngIf="variant === 'detailed'" class="relative z-10">
+    
+    <!-- Wave separator -->
+    <div class="absolute top-0 left-0 right-0">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="w-full h-12 fill-current text-green-500 opacity-20">
+        <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"></path>
+      </svg>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container mx-auto px-4 py-16">
+      
+      <!-- Header de la sección -->
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-white mb-4">Únete al Movimiento Eco</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          Miles de personas ya están aprendiendo sobre sostenibilidad de manera divertida. 
+          ¡Sé parte del cambio que el planeta necesita!
+        </p>
+      </div>
+
+      <!-- Grid principal -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        
+        <!-- Sobre la empresa -->
+        <div class="lg:col-span-2">
+          <div class="flex items-center space-x-3 mb-6">
+            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-500 rounded-xl flex items-center justify-center">
+              <i class="pi pi-globe text-white text-xl"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-white">EcoBarómetro</h3>
+              <p class="text-green-400 text-sm">Educación Gamificada</p>
+            </div>
+          </div>
+          
+          <p class="text-gray-400 mb-6 leading-relaxed">
+            Creemos que la educación ambiental debe ser accesible, divertida y efectiva. 
+            Nuestra plataforma combina gamificación con contenido científico para crear 
+            una experiencia de aprendizaje única.
+          </p>
+
+          <!-- Métricas destacadas -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-400">10K+</div>
+              <div class="text-xs text-gray-400">Eco-Guerreros</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-400">50K+</div>
+              <div class="text-xs text-gray-400">Preguntas</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-purple-400">100+</div>
+              <div class="text-xs text-gray-400">Categorías</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enlaces -->
+        <div>
+          <h4 class="text-white font-semibold mb-4">Navegación</h4>
+          <ul class="space-y-3">
+            <li *ngFor="let link of quickLinks.slice(0, 6)">
+              <a 
+                (click)="onQuickLinkClick(link)"
+                class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2 group">
+                <i class="pi pi-angle-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                <span>{{ link.name }}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Soporte -->
+        <div>
+          <h4 class="text-white font-semibold mb-4">Soporte</h4>
+          <ul class="space-y-3">
+            <li>
+              <a class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2">
+                <i class="pi pi-question-circle text-xs"></i>
+                <span>Centro de Ayuda</span>
+              </a>
+            </li>
+            <li>
+              <a class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2">
+                <i class="pi pi-comments text-xs"></i>
+                <span>Chat en Vivo</span>
+              </a>
+            </li>
+            <li>
+              <a class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2">
+                <i class="pi pi-envelope text-xs"></i>
+                <span>Contacto</span>
+              </a>
+            </li>
+            <li>
+              <a class="text-gray-400 hover:text-green-400 transition-colors cursor-pointer flex items-center space-x-2">
+                <i class="pi pi-book text-xs"></i>
+                <span>Documentación</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Newsletter y social -->
+        <div>
+          <h4 class="text-white font-semibold mb-4">Mantente Informado</h4>
+          
+          <!-- Newsletter form -->
+          <div class="mb-6">
+            <p class="text-gray-400 text-sm mb-3">Newsletter semanal</p>
+            <div class="space-y-2">
+              <input 
+                type="email" 
+                placeholder="Correo electrónico"
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 text-sm">
+              <button class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
+                Suscribirse
+              </button>
+            </div>
+          </div>
+
+          <!-- Social links -->
+          <div *ngIf="showSocialLinks">
+            <h5 class="text-white text-sm font-medium mb-3">Síguenos</h5>
+            <div class="grid grid-cols-2 gap-2">
+              <button 
+                *ngFor="let social of socialLinks"
+                (click)="onSocialLinkClick(social)"
+                class="flex items-center space-x-2 px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors text-sm">
+                <i [class]="'pi ' + social.icon + ' text-gray-300'"></i>
+                <span class="text-gray-300">{{ social.name }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call to action -->
+      <div class="bg-gradient-to-r from-green-600 to-blue-600 rounded-2xl p-8 text-center mb-8">
+        <h3 class="text-2xl font-bold text-white mb-4">¿Listo para convertirte en un Eco-Héroe?</h3>
+        <p class="text-green-100 mb-6">Únete a miles de personas que ya están aprendiendo sobre sostenibilidad</p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+          <button class="px-6 py-3 bg-white text-green-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            Empezar Gratis
+          </button>
+          <button class="px-6 py-3 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-green-600 transition-colors">
+            Ver Demo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer bottom -->
+    <div class="border-t border-gray-700">
+      <div class="container mx-auto px-4 py-6">
+        <div class="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
+          
+          <!-- Copyright y legal -->
+          <div class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-400">
+            <span>© {{ currentYear }} EcoBarómetro. Todos los derechos reservados.</span>
+            <div class="flex space-x-4">
+              <a class="hover:text-green-400 transition-colors cursor-pointer">Términos</a>
+              <a class="hover:text-green-400 transition-colors cursor-pointer">Privacidad</a>
+              <a class="hover:text-green-400 transition-colors cursor-pointer">Cookies</a>
+            </div>
+          </div>
+
+          <!-- App info y acciones -->
+          <div class="flex items-center space-x-6 text-sm text-gray-400">
+            <span>v{{ appVersion }}</span>
+            <span class="flex items-center space-x-1">
+              <span>Hecho con</span>
+              <span class="text-red-400 animate-pulse">💚</span>
+              <span>para el planeta</span>
+            </span>
+            <button 
+              (click)="scrollToTop()"
+              class="flex items-center space-x-1 text-green-400 hover:text-green-300 transition-colors">
+              <i class="pi pi-arrow-up"></i>
+              <span>Subir</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Estilos CSS adicionales -->
+<style>
+.footer-wave {
+  animation: wave 3s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-25px); }
+}
+
+/* Hover effects para social buttons */
+.social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Newsletter input focus */
+input[type="email"]:focus {
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  input[type="email"] {
+    color-scheme: dark;
+  }
+}
+</style>

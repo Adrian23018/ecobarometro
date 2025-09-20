@@ -1,1 +1,309 @@
-<p>score-display works!</p>
+<!-- src/app/shared/components/score-display/score-display.component.html -->
+<div [class]="containerClasses">
+
+  <!-- Variante Default -->
+  <div *ngIf="variant === 'default'" class="default-variant">
+    <div class="flex items-center space-x-4">
+      
+      <!-- Icono de puntos -->
+      <div class="score-icon">
+        <i class="pi pi-star text-yellow-500 text-2xl"></i>
+      </div>
+      
+      <!-- Puntuación principal -->
+      <div class="score-main">
+        <div [class]="scoreClasses" [@scoreChange]="displayScore">
+          {{ formatScore(displayScore) }}
+        </div>
+        <div class="text-sm text-gray-500">Puntos</div>
+      </div>
+      
+      <!-- Tendencia -->
+      <div *ngIf="showTrend && previousScore !== undefined" class="trend-indicator">
+        <div class="flex items-center space-x-1">
+          <i [class]="'pi ' + getTrendIcon() + ' ' + getTrendColor()"></i>
+          <span [class]="'text-sm font-medium ' + getTrendColor()">
+            {{ getTrendText() }}
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Barra de progreso -->
+    <div *ngIf="showProgress && maxScore" class="progress-bar mt-3">
+      <div class="w-full bg-gray-200 rounded-full h-2">
+        <div 
+          class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-500"
+          [style.width.%]="progressPercentage">
+        </div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-500 mt-1">
+        <span>{{ formatScore(displayScore) }}</span>
+        <span>{{ formatScore(maxScore) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Compact -->
+  <div *ngIf="variant === 'compact'" class="compact-variant">
+    <div class="flex items-center space-x-2">
+      <i class="pi pi-star text-yellow-500"></i>
+      <span [class]="scoreClasses">{{ formatScore(displayScore) }}</span>
+      <span *ngIf="showTrend && previousScore !== undefined" 
+            [class]="'text-xs ' + getTrendColor()">
+        ({{ getTrendText() }})
+      </span>
+    </div>
+  </div>
+
+  <!-- Variante Detailed -->
+  <div *ngIf="variant === 'detailed'" class="detailed-variant">
+    <div class="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">Puntuación Total</h3>
+        <div *ngIf="showTrend" class="flex items-center space-x-1">
+          <i [class]="'pi ' + getTrendIcon() + ' ' + getTrendColor()"></i>
+          <span [class]="'text-sm font-medium ' + getTrendColor()">
+            {{ getTrendText() }}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Puntuación principal -->
+      <div class="text-center mb-4">
+        <div [class]="scoreClasses + ' mb-2'" [@scoreChange]="displayScore">
+          {{ formatScore(displayScore) }}
+        </div>
+        <div class="text-sm text-gray-500">Puntos acumulados</div>
+      </div>
+      
+      <!-- Información adicional -->
+      <div class="grid grid-cols-2 gap-4 mb-4" *ngIf="level !== undefined">
+        <div class="text-center">
+          <div class="text-lg font-bold text-purple-600">{{ level }}</div>
+          <div class="text-xs text-gray-500">Nivel</div>
+        </div>
+        <div class="text-center" *ngIf="experience !== undefined && experienceToNext !== undefined">
+          <div class="text-lg font-bold text-green-600">{{ experience }}</div>
+          <div class="text-xs text-gray-500">EXP</div>
+        </div>
+      </div>
+      
+      <!-- Progreso de experiencia -->
+      <div *ngIf="experience !== undefined && experienceToNext !== undefined" class="progress-section">
+        <div class="flex justify-between text-xs text-gray-600 mb-1">
+          <span>Progreso al siguiente nivel</span>
+          <span>{{ experiencePercentage.toFixed(0) }}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            class="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+            [style.width.%]="experiencePercentage">
+          </div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <span>{{ experience }}</span>
+          <span>{{ experienceToNext }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variante Game -->
+  <div *ngIf="variant === 'game'" class="game-variant">
+    <div class="relative">
+      
+      <!-- Fondo brillante -->
+      <div class="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-lg opacity-20 blur-sm"></div>
+      
+      <!-- Contenido principal -->
+      <div class="relative bg-white/90 backdrop-blur-sm rounded-lg p-4 border-2 border-yellow-300 shadow-lg">
+        
+        <!-- Icono y puntos -->
+        <div class="flex items-center justify-center space-x-3">
+          <div class="relative">
+            <i class="pi pi-star text-yellow-500 text-3xl animate-pulse"></i>
+            <div class="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-ping"></div>
+          </div>
+          
+          <div class="text-center">
+            <div [class]="scoreClasses" [@scoreChange]="displayScore">
+              {{ formatScore(displayScore) }}
+            </div>
+            <div class="text-xs text-yellow-700 font-medium">PUNTOS</div>
+          </div>
+        </div>
+        
+        <!-- Efectos de partículas cuando se ganan puntos -->
+        <div *ngIf="showPointsAnimation" class="absolute inset-0 pointer-events-none">
+          <div 
+            *ngFor="let particle of [1,2,3,4,5]; let i = index"
+            class="absolute w-2 h-2 bg-yellow-400 rounded-full animate-ping"
+            [style.top]="(20 + Math.random() * 60) + '%'"
+            [style.left]="(20 + Math.random() * 60) + '%'"
+            [style.animation-delay]="(i * 0.1) + 's'">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Animación de puntos ganados -->
+  <div 
+    *ngIf="showRecentPoints && recentPoints && recentPoints > 0"
+    class="absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-none"
+    [@pointsEarned]="showPointsAnimation ? 'visible' : 'hidden'">
+    <div class="bg-green-500 text-white px-3 py-1 rounded-full font-bold shadow-lg">
+      +{{ recentPoints }}
+    </div>
+  </div>
+</div>
+
+<!-- Estilos CSS -->
+<style>
+.score-container {
+  @apply relative inline-block;
+}
+
+.default-style {
+  @apply bg-white rounded-lg p-4 shadow-md border border-gray-200;
+}
+
+.compact-style {
+  @apply inline-flex items-center;
+}
+
+.detailed-style {
+  @apply w-full max-w-sm;
+}
+
+.game-style {
+  @apply relative;
+}
+
+.score-value {
+  @apply font-bold transition-all duration-300;
+}
+
+.score-icon {
+  @apply flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-full;
+}
+
+.progress-bar {
+  @apply w-full;
+}
+
+.trend-indicator {
+  @apply flex flex-col items-center;
+}
+
+/* Animaciones personalizadas */
+@keyframes scoreIncrease {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  50% {
+    transform: scale(1.1);
+    color: #22c55e;
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+@keyframes scoreDecrease {
+  0% {
+    transform: scale(1);
+    color: inherit;
+  }
+  50% {
+    transform: scale(0.9);
+    color: #ef4444;
+  }
+  100% {
+    transform: scale(1);
+    color: inherit;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+.sparkle-effect {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+/* Efectos de brillos */
+.shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  animation: shine 2s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .detailed-variant {
+    @apply px-4;
+  }
+  
+  .game-variant {
+    @apply mx-2;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .default-style {
+    @apply bg-gray-800 border-gray-700 text-white;
+  }
+  
+  .detailed-variant .bg-gradient-to-br {
+    @apply from-gray-800 to-gray-900;
+  }
+}
+
+/* Hover effects */
+.score-container:hover .score-value {
+  @apply transform scale-105;
+}
+
+.game-variant:hover {
+  @apply transform scale-105;
+}
+
+/* Focus states for accessibility */
+.score-container:focus-within {
+  @apply ring-2 ring-blue-500 ring-offset-2;
+}
+</style>
