@@ -1,8 +1,14 @@
 /* src/styles.css - COMPLETO */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+/* PrimeNG theme + core + icons */
+
+
+/* Tailwind (si lo usas con SCSS, estas directivas funcionan igual) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ... tus estilos y utilidades (los @apply de Tailwind) ... */
+
 
 /* Reset y configuración base */
 * {

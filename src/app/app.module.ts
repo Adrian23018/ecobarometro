@@ -47,7 +47,7 @@ const routes: Routes = [
 
 @NgModule({
   declarations: [
-    AppComponent
+    // AppComponent
   ],
   imports: [
     BrowserModule,
@@ -85,7 +85,7 @@ const routes: Routes = [
     MessageService,
     ConfirmationService
   ],
-  bootstrap: [AppComponent],
+  // bootstrap: [AppComponent],
   exports: [RouterModule,
     ToastModule,
     ConfirmDialogModule,]
