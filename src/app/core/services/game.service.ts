@@ -97,8 +97,8 @@ export class GameService {
 
   constructor() {
     this.supabase = createClient(
-      environment.supabase.url,
-      environment.supabase.anonKey
+      environment.supabaseUrl,
+      environment.supabaseKey
     );
   }
 

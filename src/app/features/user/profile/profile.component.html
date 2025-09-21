@@ -1,1 +1,507 @@
-<p>profile works!</p>
+
+    <div class="user-profile">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="flex flex-column lg:flex-row lg:align-items-center gap-4">
+          <!-- Avatar Section -->
+          <div class="avatar-section text-center lg:text-left">
+            <div class="avatar-container">
+              <p-avatar 
+                [image]="currentUser?.avatar_url"
+                [label]="currentUser?.full_name?.charAt(0) || '?'"
+                size="xlarge"
+                shape="circle"
+                styleClass="profile-avatar"
+              />
+              <p-button 
+                icon="pi pi-camera"
+                severity="secondary"
+                [rounded]="true"
+                size="small"
+                styleClass="avatar-edit-btn"
+                (onClick)="showAvatarDialog = true"
+                pTooltip="Cambiar foto"
+              />
+            </div>
+          </div>
+
+          <!-- User Info -->
+          <div class="user-info flex-1">
+            <h1 class="text-3xl font-bold text-900 mb-2">{{ currentUser?.full_name }}</h1>
+            <p class="text-600 text-lg mb-3">{{ currentUser?.username }}</p>
+            
+            <div class="user-badges flex flex-wrap gap-2 mb-3">
+              <p-badge 
+                [value]="'Nivel ' + (currentUser?.level || 1)" 
+                severity="success"
+                size="large"
+              />
+              <p-badge 
+                [value]="currentUser?.total_points + ' puntos'"
+                severity="info"
+                size="large"
+              />
+              <p-tag 
+                [value]="getMembershipDuration()"
+                severity="secondary"
+              />
+            </div>
+
+            <!-- Level Progress -->
+            <div class="level-progress">
+              <div class="flex justify-content-between align-items-center mb-2">
+                <span class="font-medium">Progreso al Nivel {{ (currentUser?.level || 1) + 1 }}</span>
+                <span class="text-primary font-bold">{{ levelProgress }}%</span>
+              </div>
+              <p-progressBar 
+                [value]="levelProgress"
+                [showValue]="false"
+                styleClass="level-bar"
+              />
+              <small class="text-500">{{ pointsToNextLevel }} puntos restantes</small>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats">
+            <div class="stats-grid">
+              <div class="stat-item text-center">
+                <div class="stat-value text-xl font-bold text-green-500">{{ userStats.totalGames }}</div>
+                <div class="stat-label text-600 text-sm">Partidas</div>
+              </div>
+              <div class="stat-item text-center">
+                <div class="stat-value text-xl font-bold text-blue-500">{{ userStats.avgScore }}%</div>
+                <div class="stat-label text-600 text-sm">Promedio</div>
+              </div>
+              <div class="stat-item text-center">
+                <div class="stat-value text-xl font-bold text-orange-500">{{ userStats.streakDays }}</div>
+                <div class="stat-label text-600 text-sm">Racha</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs Content -->
+      <p-tabView [(activeIndex)]="activeTabIndex">
+        <!-- Profile Settings -->
+        <p-tabPanel header="Mi Información" leftIcon="pi pi-user">
+          <div class="grid">
+            <div class="col-12 lg:col-8">
+              <p-card header="Información Personal" styleClass="h-full">
+                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                  <div class="grid">
+                    <div class="col-12 md:col-6">
+                      <label for="fullName" class="block text-900 font-medium mb-2">Nombre Completo *</label>
+                      <input 
+                        id="fullName"
+                        type="text" 
+                        pInputText 
+                        formControlName="full_name"
+                        class="w-full"
+                        [class.ng-invalid]="isFieldInvalid('full_name')"
+                      />
+                      <small 
+                        *ngIf="isFieldInvalid('full_name')"
+                        class="p-error"
+                      >
+                        El nombre es requerido
+                      </small>
+                    </div>
+
+                    <div class="col-12 md:col-6">
+                      <label for="username" class="block text-900 font-medium mb-2">Nombre de Usuario *</label>
+                      <input 
+                        id="username"
+                        type="text" 
+                        pInputText 
+                        formControlName="username"
+                        class="w-full"
+                        [class.ng-invalid]="isFieldInvalid('username')"
+                      />
+                      <small 
+                        *ngIf="isFieldInvalid('username')"
+                        class="p-error"
+                      >
+                        El nombre de usuario es requerido
+                      </small>
+                    </div>
+
+                    <div class="col-12">
+                      <label for="email" class="block text-900 font-medium mb-2">Correo Electrónico *</label>
+                      <input 
+                        id="email"
+                        type="email" 
+                        pInputText 
+                        formControlName="email"
+                        class="w-full"
+                        [class.ng-invalid]="isFieldInvalid('email')"
+                      />
+                      <small 
+                        *ngIf="isFieldInvalid('email')"
+                        class="p-error"
+                      >
+                        <span *ngIf="profileForm.get('email')?.errors?.['required']">
+                          El correo es requerido
+                        </span>
+                        <span *ngIf="profileForm.get('email')?.errors?.['email']">
+                          Formato de correo inválido
+                        </span>
+                      </small>
+                    </div>
+
+                    <div class="col-12">
+                      <label for="bio" class="block text-900 font-medium mb-2">Biografía</label>
+                      <textarea 
+                        id="bio"
+                        pInputTextarea 
+                        formControlName="bio"
+                        rows="3"
+                        class="w-full"
+                        placeholder="Cuéntanos algo sobre ti y tu interés por el medio ambiente..."
+                      ></textarea>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="flex justify-content-end gap-2 mt-3">
+                        <p-button 
+                          label="Cancelar"
+                          severity="secondary"
+                          [outlined]="true"
+                          (onClick)="resetForm()"
+                        />
+                        <p-button 
+                          label="Guardar Cambios"
+                          type="submit"
+                          [loading]="updating"
+                          [disabled]="profileForm.invalid || !profileForm.dirty"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </p-card>
+            </div>
+
+            <div class="col-12 lg:col-4">
+              <div class="flex flex-column gap-4">
+                <!-- Account Info -->
+                <p-card header="Información de Cuenta">
+                  <div class="account-info">
+                    <div class="info-item">
+                      <span class="info-label text-600">Código de Admin:</span>
+                      <span class="info-value font-medium">{{ currentUser?.admin_code }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label text-600">Miembro desde:</span>
+                      <span class="info-value font-medium">{{ currentUser?.created_at | date:'mediumDate' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label text-600">Última actividad:</span>
+                      <span class="info-value font-medium">{{ currentUser?.last_game_at ? (currentUser?.last_game_at | date:'short') : 'Nunca' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label text-600">Estado:</span>
+                      <p-tag 
+                        [value]="currentUser?.is_active ? 'Activo' : 'Inactivo'"
+                        [severity]="currentUser?.is_active ? 'success' : 'danger'"
+                      />
+                    </div>
+                  </div>
+                </p-card>
+
+                <!-- Preferences -->
+                <p-card header="Preferencias">
+                  <form [formGroup]="preferencesForm">
+                    <div class="preferences-options">
+                      <div class="preference-item">
+                        <p-checkbox 
+                          formControlName="emailNotifications"
+                          [binary]="true"
+                          inputId="emailNotifications"
+                        />
+                        <label for="emailNotifications" class="ml-2">
+                          Notificaciones por correo
+                        </label>
+                      </div>
+                      
+                      <div class="preference-item">
+                        <p-checkbox 
+                          formControlName="weeklyDigest"
+                          [binary]="true"
+                          inputId="weeklyDigest"
+                        />
+                        <label for="weeklyDigest" class="ml-2">
+                          Resumen semanal
+                        </label>
+                      </div>
+                      
+                      <div class="preference-item">
+                        <p-checkbox 
+                          formControlName="achievementAlerts"
+                          [binary]="true"
+                          inputId="achievementAlerts"
+                        />
+                        <label for="achievementAlerts" class="ml-2">
+                          Alertas de logros
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <p-button 
+                      label="Actualizar Preferencias"
+                      [text]="true"
+                      size="small"
+                      (onClick)="updatePreferences()"
+                      styleClass="w-full mt-3"
+                    />
+                  </form>
+                </p-card>
+              </div>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- Security -->
+        <p-tabPanel header="Seguridad" leftIcon="pi pi-shield">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <p-card header="Cambiar Contraseña">
+                <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                  <div class="flex flex-column gap-3">
+                    <div>
+                      <label for="currentPassword" class="block text-900 font-medium mb-2">Contraseña Actual *</label>
+                      <p-password 
+                        id="currentPassword"
+                        formControlName="currentPassword"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        placeholder="Contraseña actual"
+                        styleClass="w-full"
+                        [inputStyleClass]="'w-full'"
+                      />
+                    </div>
+
+                    <div>
+                      <label for="newPassword" class="block text-900 font-medium mb-2">Nueva Contraseña *</label>
+                      <p-password 
+                        id="newPassword"
+                        formControlName="newPassword"
+                        [toggleMask]="true"
+                        [feedback]="true"
+                        placeholder="Nueva contraseña"
+                        styleClass="w-full"
+                        [inputStyleClass]="'w-full'"
+                      />
+                    </div>
+
+                    <div>
+                      <label for="confirmPassword" class="block text-900 font-medium mb-2">Confirmar Contraseña *</label>
+                      <p-password 
+                        id="confirmPassword"
+                        formControlName="confirmPassword"
+                        [toggleMask]="true"
+                        [feedback]="false"
+                        placeholder="Confirmar nueva contraseña"
+                        styleClass="w-full"
+                        [inputStyleClass]="'w-full'"
+                      />
+                      <small 
+                        *ngIf="passwordForm.get('confirmPassword')?.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched"
+                        class="p-error"
+                      >
+                        Las contraseñas no coinciden
+                      </small>
+                    </div>
+
+                    <p-button 
+                      label="Cambiar Contraseña"
+                      type="submit"
+                      [loading]="changingPassword"
+                      [disabled]="passwordForm.invalid"
+                      styleClass="w-full"
+                    />
+                  </div>
+                </form>
+              </p-card>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <p-card header="Configuración de Seguridad">
+                <div class="security-info">
+                  <div class="security-item">
+                    <div class="flex align-items-center gap-3 mb-2">
+                      <i class="pi pi-shield text-green-500 text-xl"></i>
+                      <span class="font-medium">Cuenta Verificada</span>
+                    </div>
+                    <small class="text-600">Tu cuenta ha sido verificada correctamente</small>
+                  </div>
+
+                  <p-divider />
+
+                  <div class="security-item">
+                    <div class="flex align-items-center gap-3 mb-2">
+                      <i class="pi pi-clock text-blue-500 text-xl"></i>
+                      <span class="font-medium">Último Acceso</span>
+                    </div>
+                    <small class="text-600">{{ getLastLoginInfo() }}</small>
+                  </div>
+
+                  <p-divider />
+
+                  <div class="security-item">
+                    <div class="flex align-items-center gap-3 mb-2">
+                      <i class="pi pi-exclamation-triangle text-orange-500 text-xl"></i>
+                      <span class="font-medium">Eliminar Cuenta</span>
+                    </div>
+                    <small class="text-600 mb-2">Esta acción no se puede deshacer</small>
+                    <p-button 
+                      label="Eliminar Mi Cuenta"
+                      severity="danger"
+                      [outlined]="true"
+                      size="small"
+                      (onClick)="confirmDeleteAccount()"
+                    />
+                  </div>
+                </div>
+              </p-card>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- Statistics -->
+        <p-tabPanel header="Mis Estadísticas" leftIcon="pi pi-chart-bar">
+          <div class="grid">
+            <!-- Overall Stats -->
+            <div class="col-12">
+              <p-card header="Estadísticas Generales">
+                <div class="grid">
+                  <div class="col-12 md:col-3 text-center">
+                    <div class="stat-circle">
+                      <p-knob 
+                        [(ngModel)]="userStats.avgScore"
+                        [readonly]="true"
+                        [size]="80"
+                        [strokeWidth]="8"
+                        valueColor="#22c55e"
+                        rangeColor="#e5e7eb"
+                        valueTemplate="{value}%"
+                      />
+                      <div class="stat-circle-label mt-2">Puntuación Promedio</div>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-3 text-center">
+                    <div class="stat-number">
+                      <div class="stat-value text-3xl font-bold text-blue-500">{{ userStats.totalGames }}</div>
+                      <div class="stat-label text-600">Partidas Jugadas</div>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-3 text-center">
+                    <div class="stat-number">
+                      <div class="stat-value text-3xl font-bold text-orange-500">{{ userStats.hoursPlayed }}</div>
+                      <div class="stat-label text-600">Horas Jugadas</div>
+                    </div>
+                  </div>
+                  <div class="col-12 md:col-3 text-center">
+                    <div class="stat-number">
+                      <div class="stat-value text-3xl font-bold text-purple-500">{{ userStats.improvementRate }}%</div>
+                      <div class="stat-label text-600">Mejora General</div>
+                    </div>
+                  </div>
+                </div>
+              </p-card>
+            </div>
+
+            <!-- Activity Chart -->
+            <div class="col-12 lg:col-8">
+              <p-card header="Actividad de los Últimos 30 Días">
+                <p-chart 
+                  type="line" 
+                  [data]="activityChart" 
+                  [options]="chartOptions"
+                  height="300"
+                />
+              </p-card>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="col-12 lg:col-4">
+              <p-card header="Actividad Reciente" styleClass="h-full">
+                <p-timeline 
+                  [value]="recentActivity" 
+                  layout="vertical"
+                  styleClass="activity-timeline"
+                >
+                  <ng-template pTemplate="content" let-activity>
+                    <div class="activity-item">
+                      <div class="flex align-items-center gap-2 mb-1">
+                        <i [class]="activity.icon" [style.color]="activity.color"></i>
+                        <span class="font-medium text-sm">{{ activity.title }}</span>
+                      </div>
+                      <p class="text-600 text-xs m-0">{{ activity.description }}</p>
+                      <small class="text-500">{{ activity.timestamp | date:'short' }}</small>
+                    </div>
+                  </ng-template>
+                </p-timeline>
+              </p-card>
+            </div>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+
+      <!-- Avatar Upload Dialog -->
+      <p-dialog 
+        header="Cambiar Foto de Perfil" 
+        [(visible)]="showAvatarDialog"
+        [modal]="true"
+        [style]="{width: '400px'}"
+      >
+        <div class="avatar-upload">
+          <div class="text-center mb-4">
+            <p-avatar 
+              [image]="previewAvatar || currentUser?.avatar_url"
+              [label]="currentUser?.full_name?.charAt(0) || '?'"
+              size="xlarge"
+              shape="circle"
+            />
+          </div>
+          
+          <p-fileUpload 
+            mode="basic" 
+            [auto]="false"
+            accept="image/*"
+            [maxFileSize]="1000000"
+            chooseLabel="Seleccionar Imagen"
+            (onSelect)="onAvatarSelect($event)"
+            styleClass="w-full"
+          />
+          
+          <small class="text-500 block mt-2">
+            Tamaño máximo: 1MB. Formatos: JPG, PNG, GIF
+          </small>
+        </div>
+
+        <ng-template pTemplate="footer">
+          <div class="flex gap-2">
+            <p-button 
+              label="Cancelar"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="closeAvatarDialog()"
+            />
+            <p-button 
+              label="Guardar"
+              (onClick)="uploadAvatar()"
+              [loading]="uploadingAvatar"
+              [disabled]="!selectedAvatarFile"
+            />
+          </div>
+        </ng-template>
+      </p-dialog>
+
+      <!-- Confirmation Dialog -->
+      <p-confirmDialog />
+      
+      <!-- Toast -->
+      <p-toast />
+    </div>

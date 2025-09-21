@@ -1,6 +1,7 @@
 // src/app/features/game/components/question-card/question-card.component.ts
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { DecimalPipe } from '@angular/common';
 
 export interface Question {
   id: string;
@@ -26,6 +27,8 @@ export interface QuestionOption {
   selector: 'app-question-card',
   templateUrl: './question-card.component.html',
   styleUrls: ['./question-card.component.css'],
+  imports: [DecimalPipe],
+  standalone: true,
   animations: [
     trigger('cardFlip', [
       state('front', style({ transform: 'rotateY(0deg)' })),

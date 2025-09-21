@@ -72,4 +72,5 @@ export interface RankingUpdate {
   points_change: number;
   new_position: number;
   previous_position: number;
+  total_points?: number;
 }

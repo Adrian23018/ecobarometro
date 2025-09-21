@@ -1,0 +1,28 @@
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 2s ease-in-out infinite;
+}
+
+/* Personalización de PrimeNG */
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  border-radius: 10px 10px 0 0;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  color: white;
+  border-color: #8b5cf6;
+}
+
+::ng-deep .p-password input {
+  width: 100% !important;
+}
+
+::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+}

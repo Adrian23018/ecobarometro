@@ -1,10 +1,11 @@
 // src/app/core/services/user.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, from, BehaviorSubject, combineLatest } from 'rxjs';
+import { Observable, from, BehaviorSubject, combineLatest, of, throwError } from 'rxjs';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
-import { SupabaseService } from './supabase.service';
-import { LocalStorageService } from './local-storage.service';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../../environments/environment';
 
+// Interfaces para el UserService
 export interface UserStats {
   totalPoints: number;
   level: number;
@@ -51,11 +52,37 @@ export interface GameHistory {
   }[];
 }
 
+export interface UpdateUserRequest {
+  full_name?: string;
+  username?: string;
+  email?: string;
+  bio?: string;
+  avatar_url?: string;
+}
+
+export interface User {
+  id: string;
+  admin_id: string;
+  email: string;
+  username: string;
+  full_name: string;
+  avatar_url?: string;
+  total_points: number;
+  level: number;
+  experience_points: number;
+  games_played: number;
+  admin_code: string;
+  is_active: boolean;
+  last_game_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-
+  private supabase: SupabaseClient;
   private userStatsSubject = new BehaviorSubject<UserStats | null>(null);
   private achievementsSubject = new BehaviorSubject<UserAchievement[]>([]);
   private gameHistorySubject = new BehaviorSubject<GameHistory[]>([]);
@@ -64,10 +91,157 @@ export class UserService {
   public achievements$ = this.achievementsSubject.asObservable();
   public gameHistory$ = this.gameHistorySubject.asObservable();
 
-  constructor(
-    private supabase: SupabaseService,
-    private localStorage: LocalStorageService
-  ) {}
+  constructor() {
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+  }
+
+  // ==================== GESTIÓN DE USUARIO ====================
+
+  /**
+   * Actualizar datos del usuario
+   */
+  updateUser(userId: string, updateData: UpdateUserRequest): Observable<User> {
+    return from(this.performUserUpdate(userId, updateData)).pipe(
+      tap(updatedUser => {
+        // Actualizar localStorage
+        this.updateLocalStorageUser(updatedUser);
+      }),
+      catchError(error => {
+        console.error('Error updating user:', error);
+        return throwError(() => new Error('Error al actualizar el usuario'));
+      })
+    );
+  }
+
+  private async performUserUpdate(userId: string, updateData: UpdateUserRequest): Promise<User> {
+    // Validar username único si se está actualizando
+    if (updateData.username) {
+      const { data: existingUser } = await this.supabase
+        .from('users')
+        .select('id')
+        .eq('username', updateData.username)
+        .neq('id', userId)
+        .single();
+
+      if (existingUser) {
+        throw new Error('El nombre de usuario ya está en uso');
+      }
+    }
+
+    // Validar email único si se está actualizando
+    if (updateData.email) {
+      const { data: existingUser } = await this.supabase
+        .from('users')
+        .select('id')
+        .eq('email', updateData.email)
+        .neq('id', userId)
+        .single();
+
+      if (existingUser) {
+        throw new Error('El email ya está en uso');
+      }
+    }
+
+    // Actualizar usuario
+    const { data: updatedUser, error } = await this.supabase
+      .from('users')
+      .update({
+        ...updateData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return updatedUser;
+  }
+
+  /**
+   * Obtener usuario por ID
+   */
+  getUserById(userId: string): Observable<User> {
+    return from(this.supabase
+      .from('users')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    ).pipe(
+      map(response => {
+        if (response.error) throw new Error(response.error.message);
+        return response.data;
+      })
+    );
+  }
+
+  /**
+   * Cambiar contraseña del usuario
+   */
+  changePassword(userId: string, currentPassword: string, newPassword: string): Observable<boolean> {
+    return from(this.performPasswordChange(userId, currentPassword, newPassword));
+  }
+
+  private async performPasswordChange(userId: string, currentPassword: string, newPassword: string): Promise<boolean> {
+    try {
+      // En un caso real, aquí validarías la contraseña actual
+      // Por ahora simularemos la validación
+      
+      // Hash de la nueva contraseña (simplificado)
+      const hashedPassword = btoa(newPassword + 'salt');
+
+      const { error } = await this.supabase
+        .from('users')
+        .update({ 
+          password_hash: hashedPassword,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId);
+
+      if (error) throw new Error(error.message);
+      
+      return true;
+    } catch (error) {
+      throw new Error('Error al cambiar la contraseña');
+    }
+  }
+
+  /**
+   * Subir avatar del usuario
+   */
+  uploadAvatar(userId: string, file: File): Observable<string> {
+    return from(this.performAvatarUpload(userId, file));
+  }
+
+  private async performAvatarUpload(userId: string, file: File): Promise<string> {
+    try {
+      // Subir archivo a Supabase Storage
+      const fileName = `${userId}-${Date.now()}.${file.name.split('.').pop()}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { data: uploadData, error: uploadError } = await this.supabase.storage
+        .from('user-avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Obtener URL pública
+      const { data: urlData } = this.supabase.storage
+        .from('user-avatars')
+        .getPublicUrl(filePath);
+
+      const avatarUrl = urlData.publicUrl;
+
+      // Actualizar usuario con nueva URL
+      await this.updateUser(userId, { avatar_url: avatarUrl }).toPromise();
+
+      return avatarUrl;
+    } catch (error: any) {
+      throw new Error('Error al subir el avatar: ' + error.message);
+    }
+  }
 
   // ==================== ESTADÍSTICAS DE USUARIO ====================
 
@@ -76,7 +250,7 @@ export class UserService {
       tap(stats => {
         this.userStatsSubject.next(stats);
         // Actualizar datos locales
-        this.localStorage.setGameProgress({
+        this.updateLocalStorageProgress({
           currentLevel: stats.level,
           totalExperience: stats.experiencePoints,
           totalGamesPlayed: stats.gamesPlayed
@@ -89,10 +263,10 @@ export class UserService {
     try {
       // Obtener datos del usuario
       const [userResponse, sessionsResponse, responsesResponse, rankingResponse] = await Promise.all([
-        this.supabase.client.from('users').select('*').eq('id', userId).single(),
-        this.supabase.client.from('game_sessions').select('*').eq('user_id', userId),
-        this.supabase.client.from('user_responses').select('*').eq('user_id', userId),
-        this.supabase.client.from('rankings').select('*').eq('user_id', userId)
+        this.supabase.from('users').select('*').eq('id', userId).single(),
+        this.supabase.from('game_sessions').select('*').eq('user_id', userId),
+        this.supabase.from('user_responses').select('*, questions(category_id)').eq('user_id', userId),
+        this.supabase.from('rankings').select('*').eq('user_id', userId)
       ]);
 
       const user = userResponse.data;
@@ -119,7 +293,7 @@ export class UserService {
 
       // Obtener categorías completadas
       const completedCategories = new Set(
-        responses.filter(r => r.is_correct).map(r => r.question?.category_id)
+        responses.filter(r => r.is_correct && r.questions?.category_id).map(r => r.questions.category_id)
       ).size;
 
       // Calcular ranking
@@ -127,7 +301,10 @@ export class UserService {
       const rank = userRanking?.rank_position || 0;
 
       // Contar logros
-      const achievementsResponse = await this.supabase.getUserAchievements(userId);
+      const achievementsResponse = await this.supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId);
       const achievements = achievementsResponse.data?.length || 0;
 
       return {
@@ -180,128 +357,89 @@ export class UserService {
   // ==================== LOGROS ====================
 
   loadUserAchievements(userId: string): Observable<UserAchievement[]> {
-    return combineLatest([
-      from(this.supabase.getUserAchievements(userId)),
-      from(this.supabase.getAchievementsByAdmin(this.getCurrentAdminId()))
-    ]).pipe(
-      map(([userAchievementsResponse, allAchievementsResponse]) => {
-        const userAchievements = userAchievementsResponse.data || [];
-        const allAchievements = allAchievementsResponse.data || [];
-        
-        return allAchievements.map(achievement => ({
-          id: achievement.id,
-          name: achievement.name,
-          description: achievement.description,
-          icon: achievement.icon,
-          badgeColor: achievement.badge_color,
-          pointsRequired: achievement.points_required,
-          earnedAt: userAchievements.find(ua => ua.achievement_id === achievement.id)?.earned_at,
-          isUnlocked: userAchievements.some(ua => ua.achievement_id === achievement.id)
-        }));
-      }),
+    return from(this.loadAchievementsData(userId)).pipe(
       tap(achievements => {
         this.achievementsSubject.next(achievements);
         // Guardar en caché local
-        this.localStorage.setAchievementsCache(achievements);
+        this.setAchievementsCache(achievements);
       })
     );
   }
 
-  checkForNewAchievements(userId: string): Observable<UserAchievement[]> {
-    return this.userStats$.pipe(
-      switchMap(stats => {
-        if (!stats) return new BehaviorSubject([]).asObservable();
-        
-        const potentialAchievements = this.identifyPotentialAchievements(stats);
-        
-        if (potentialAchievements.length > 0) {
-          return from(this.awardAchievements(userId, potentialAchievements));
-        }
-        
-        return new BehaviorSubject([]).asObservable();
-      })
-    );
-  }
+  private async loadAchievementsData(userId: string): Promise<UserAchievement[]> {
+    try {
+      const adminId = this.getCurrentAdminId();
 
-  private identifyPotentialAchievements(stats: UserStats): string[] {
-    const achievements = [];
-    
-    // Logro por primera partida
-    if (stats.gamesPlayed === 1) {
-      achievements.push('first-game');
-    }
-    
-    // Logro por puntuación perfecta
-    if (stats.accuracy === 100 && stats.totalQuestions >= 10) {
-      achievements.push('perfect-score');
-    }
-    
-    // Logro por nivel alto
-    if (stats.level >= 10) {
-      achievements.push('level-master');
-    }
-    
-    // Logro por racha
-    if (stats.streak >= 7) {
-      achievements.push('weekly-warrior');
-    }
-    
-    // Logro por muchos juegos
-    if (stats.gamesPlayed >= 100) {
-      achievements.push('game-addict');
-    }
-    
-    return achievements;
-  }
+      const [userAchievementsResponse, allAchievementsResponse] = await Promise.all([
+        this.supabase
+          .from('user_achievements')
+          .select('*, achievements(*)')
+          .eq('user_id', userId),
+        this.supabase
+          .from('achievements')
+          .select('*')
+          .eq('admin_id', adminId)
+      ]);
 
-  private async awardAchievements(userId: string, achievementIds: string[]): Promise<UserAchievement[]> {
-    const newAchievements:any = [];
-    
-    for (const achievementId of achievementIds) {
-      try {
-        const response = await this.supabase.createUserAchievement({
-          user_id: userId,
-          achievement_id: achievementId
-        });
-        
-        if (response.data) {
-          newAchievements.push(response.data);
-        }
-      } catch (error) {
-        console.error('Error otorgando logro:', error);
-      }
+      const userAchievements = userAchievementsResponse.data || [];
+      const allAchievements = allAchievementsResponse.data || [];
+      
+      return allAchievements.map(achievement => ({
+        id: achievement.id,
+        name: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        badgeColor: achievement.badge_color,
+        pointsRequired: achievement.points_required,
+        earnedAt: userAchievements.find(ua => ua.achievement_id === achievement.id)?.earned_at,
+        isUnlocked: userAchievements.some(ua => ua.achievement_id === achievement.id)
+      }));
+    } catch (error) {
+      console.error('Error loading achievements:', error);
+      return [];
     }
-    
-    return newAchievements;
   }
 
   // ==================== HISTORIAL DE JUEGOS ====================
 
   loadGameHistory(userId: string, limit: number = 20): Observable<GameHistory[]> {
-    return from(this.supabase.getGameSessionsByUser(userId)).pipe(
-      switchMap(response => {
-        const sessions = response.data || [];
-        const completedSessions = sessions
-          .filter(s => s.status === 'completed')
-          .slice(0, limit);
-        
-        // Obtener detalles de cada sesión
-        return from(Promise.all(
-          completedSessions.map(session => this.buildGameHistoryItem(session))
-        ));
-      }),
+    return from(this.buildGameHistory(userId, limit)).pipe(
       tap(history => this.gameHistorySubject.next(history))
     );
+  }
+
+  private async buildGameHistory(userId: string, limit: number): Promise<GameHistory[]> {
+    try {
+      const { data: sessions } = await this.supabase
+        .from('game_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(limit);
+
+      if (!sessions) return [];
+
+      // Obtener detalles de cada sesión
+      return await Promise.all(
+        sessions.map(session => this.buildGameHistoryItem(session))
+      );
+    } catch (error) {
+      console.error('Error loading game history:', error);
+      return [];
+    }
   }
 
   private async buildGameHistoryItem(session: any): Promise<GameHistory> {
     try {
       // Obtener respuestas de la sesión
-      const responsesResponse = await this.supabase.getUserResponsesBySession(session.id);
-      const responses = responsesResponse.data || [];
+      const { data: responses } = await this.supabase
+        .from('user_responses')
+        .select('*, questions(category_id, categories(name))')
+        .eq('game_session_id', session.id);
       
       // Agrupar por categoría
-      const categoryBreakdown = this.groupResponsesByCategory(responses);
+      const categoryBreakdown = this.groupResponsesByCategory(responses || []);
       
       return {
         id: session.id,
@@ -336,8 +474,8 @@ export class UserService {
     const categories = new Map();
     
     responses.forEach(response => {
-      const categoryId = response.question?.category_id;
-      const categoryName = response.question?.category?.name;
+      const categoryId = response.questions?.category_id;
+      const categoryName = response.questions?.categories?.name;
       
       if (!categoryId) return;
       
@@ -360,53 +498,9 @@ export class UserService {
     return Array.from(categories.values());
   }
 
-  // ==================== PERFIL DE USUARIO ====================
-
-  updateProfile(userId: string, profileData: any): Observable<any> {
-    return from(this.supabase.updateUser(userId, profileData)).pipe(
-      map(response => {
-        if (response.error) throw response.error;
-        return response.data;
-      }),
-      tap(updatedUser => {
-        // Actualizar localStorage
-        this.localStorage.setUserProfile(updatedUser);
-      })
-    );
-  }
-
-  uploadAvatar(userId: string, file: File): Observable<string> {
-    // Implementación para subir avatar a Supabase Storage
-    return from(this.uploadToStorage(file, `avatars/${userId}`)).pipe(
-      switchMap(avatarUrl => {
-        return this.updateProfile(userId, { avatar_url: avatarUrl }).pipe(
-          map(() => avatarUrl)
-        );
-      })
-    );
-  }
-
-  private async uploadToStorage(file: File, path: string): Promise<string> {
-    // Aquí implementarías la subida a Supabase Storage
-    // Por ahora retornamos una URL de ejemplo
-    return `https://example.com/storage/${path}`;
-  }
-
-  // ==================== CONFIGURACIONES ====================
-
-  updateGameSettings(settings: any): Observable<void> {
-    this.localStorage.setGameSettings(settings);
-    return new BehaviorSubject(void 0).asObservable();
-  }
-
-  getGameSettings(): Observable<any> {
-    return this.localStorage.getSettings();
-  }
-
   // ==================== PROGRESO Y NIVELES ====================
 
   calculateLevelProgress(experiencePoints: number): { currentLevel: number, nextLevel: number, progress: number, pointsNeeded: number } {
-    // Sistema de niveles exponencial
     const baseXP = 1000;
     const multiplier = 1.5;
     
@@ -438,7 +532,7 @@ export class UserService {
   }
 
   addExperience(userId: string, experience: number): Observable<any> {
-    return from(this.supabase.client
+    return from(this.supabase
       .from('users')
       .select('experience_points, level')
       .eq('id', userId)
@@ -457,20 +551,66 @@ export class UserService {
           updates.level = levelInfo.currentLevel;
         }
         
-        return from(this.supabase.updateUser(userId, updates));
+        return this.updateUser(userId, updates);
       }),
       tap(() => {
-        this.localStorage.addExperience(experience);
+        this.addExperienceToLocalStorage(experience);
       })
     );
   }
 
-  // ==================== UTILIDADES ====================
+  // ==================== MÉTODOS DE LOCALSTORAGE ====================
+
+  private updateLocalStorageUser(user: User): void {
+    localStorage.setItem('ecobarometro_user', JSON.stringify(user));
+  }
+
+  private updateLocalStorageProgress(progress: any): void {
+    localStorage.setItem('ecobarometro_progress', JSON.stringify(progress));
+  }
+
+  private setAchievementsCache(achievements: UserAchievement[]): void {
+    localStorage.setItem('ecobarometro_achievements', JSON.stringify(achievements));
+  }
+
+  private addExperienceToLocalStorage(experience: number): void {
+    const stored = localStorage.getItem('ecobarometro_progress');
+    if (stored) {
+      const progress = JSON.parse(stored);
+      progress.totalExperience = (progress.totalExperience || 0) + experience;
+      localStorage.setItem('ecobarometro_progress', JSON.stringify(progress));
+    }
+  }
 
   private getCurrentAdminId(): string {
-    const profile = this.localStorage.getUserProfile();
-    return profile?.admin_id || '';
+    const userData = localStorage.getItem('ecobarometro_user');
+    if (userData) {
+      const user = JSON.parse(userData);
+      return user.admin_id || '';
+    }
+    return '';
   }
+
+  getUserProfile(): User | null {
+    const userData = localStorage.getItem('ecobarometro_user');
+    return userData ? JSON.parse(userData) : null;
+  }
+
+  getGameSettings(): Observable<any> {
+    const settings = localStorage.getItem('ecobarometro_settings');
+    return of(settings ? JSON.parse(settings) : {
+      soundEnabled: true,
+      animationsEnabled: true,
+      theme: 'light',
+      difficulty: 'medium'
+    });
+  }
+
+  setGameSettings(settings: any): void {
+    localStorage.setItem('ecobarometro_settings', JSON.stringify(settings));
+  }
+
+  // ==================== MÉTODOS ADICIONALES ====================
 
   getCurrentStats(): UserStats | null {
     return this.userStatsSubject.value;
@@ -484,38 +624,90 @@ export class UserService {
     return this.gameHistorySubject.value;
   }
 
-  // ==================== RANKING ====================
-
-  getUserRank(userId: string): Observable<{ position: number, total: number, percentile: number }> {
-    const adminId = this.getCurrentAdminId();
-    
-    return from(this.supabase.getRankingByAdmin(adminId, 1000)).pipe(
-      map(response => {
-        const rankings = response.data || [];
-        const userRankIndex = rankings.findIndex(r => r.user_id === userId);
-        
-        return {
-          position: userRankIndex + 1,
-          total: rankings.length,
-          percentile: rankings.length > 0 ? Math.round(((rankings.length - userRankIndex) / rankings.length) * 100) : 0
-        };
-      })
-    );
-  }
-
-  // ==================== EXPORTAR DATOS ====================
-
+  /**
+   * Exportar datos del usuario
+   */
   exportUserData(): Observable<string> {
     const userData = {
-      profile: this.localStorage.getUserProfile(),
+      profile: this.getUserProfile(),
       stats: this.getCurrentStats(),
       achievements: this.getCurrentAchievements(),
       gameHistory: this.getCurrentGameHistory(),
-      settings: this.localStorage.getGameSettings(),
-      progress: this.localStorage.getGameProgress(),
+      settings: JSON.parse(localStorage.getItem('ecobarometro_settings') || '{}'),
+      progress: JSON.parse(localStorage.getItem('ecobarometro_progress') || '{}'),
       exportDate: new Date().toISOString()
     };
     
-    return new BehaviorSubject(JSON.stringify(userData, null, 2)).asObservable();
+    return of(JSON.stringify(userData, null, 2));
+  }
+
+  /**
+   * Verificar disponibilidad de username
+   */
+  checkUsernameAvailability(username: string, currentUserId?: string): Observable<boolean> {
+    let query = this.supabase
+      .from('users')
+      .select('id')
+      .eq('username', username);
+
+    if (currentUserId) {
+      query = query.neq('id', currentUserId);
+    }
+
+    return from(query.single()).pipe(
+      map(response => !!response.error) // Si hay error, el username está disponible
+    );
+  }
+
+  /**
+   * Verificar disponibilidad de email
+   */
+  checkEmailAvailability(email: string, currentUserId?: string): Observable<boolean> {
+    let query = this.supabase
+      .from('users')
+      .select('id')
+      .eq('email', email);
+
+    if (currentUserId) {
+      query = query.neq('id', currentUserId);
+    }
+
+    return from(query.single()).pipe(
+      map(response => !!response.error) // Si hay error, el email está disponible
+    );
+  }
+
+  /**
+   * Eliminar cuenta de usuario
+   */
+  deleteUserAccount(userId: string): Observable<boolean> {
+    return from(this.performAccountDeletion(userId));
+  }
+
+  private async performAccountDeletion(userId: string): Promise<boolean> {
+    try {
+      // En orden: eliminar respuestas, sesiones, logros, rankings y finalmente el usuario
+      await Promise.all([
+        this.supabase.from('user_responses').delete().eq('user_id', userId),
+        this.supabase.from('game_sessions').delete().eq('user_id', userId),
+        this.supabase.from('user_achievements').delete().eq('user_id', userId),
+        this.supabase.from('rankings').delete().eq('user_id', userId)
+      ]);
+
+      const { error } = await this.supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      // Limpiar localStorage
+      localStorage.clear();
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting account:', error);
+      throw new Error('Error al eliminar la cuenta');
+    }
   }
 }

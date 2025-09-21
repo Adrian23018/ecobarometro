@@ -16,7 +16,7 @@ export class AchievementService {
   private supabase: SupabaseClient;
 
   constructor() {
-    this.supabase = createClient(environment.supabase.url, environment.supabase.anonKey);
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
 
   // CRUD Achievements (Admin)

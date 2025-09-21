@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 // PrimeNG Modules
@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DropdownModule } from 'primeng/dropdown';
 import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -56,7 +57,6 @@ import { AdminRoutingModule } from './admin-routing.module';
 // Services
 import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api';
-// import { SharedModule } from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -67,13 +67,14 @@ import { MessageService } from 'primeng/api';
     ReactiveFormsModule,
     FormsModule,
     AdminRoutingModule,
-    // SharedModule,
+    DecimalPipe,
     
     // PrimeNG Modules
     ButtonModule,
     CardModule,
     TableModule,
     InputTextModule,
+    InputTextareaModule,
     DropdownModule,
     DialogModule,
     ConfirmDialogModule,
@@ -118,6 +119,7 @@ import { MessageService } from 'primeng/api';
   providers: [
     ConfirmationService,
     MessageService
-  ]
+  ],
+  exports:[DecimalPipe]
 })
 export class AdminModule { }

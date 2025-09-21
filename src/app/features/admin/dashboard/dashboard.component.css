@@ -1,22 +1,24 @@
-.admin-dashboard {
-    padding: 1rem;
-}
 
-.timeline-container {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.card {
-    height: 100%;
-}
-
-.surface-hover:hover {
-    background-color: var(--surface-hover);
-}
-
-@media (max-width: 768px) {
     .admin-dashboard {
-        padding: 0.5rem;
+      padding: 1rem;
     }
-}
+
+    .timeline-container {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .card {
+      height: 100%;
+    }
+
+    .surface-hover:hover {
+      background-color: var(--surface-hover);
+    }
+
+    @media (max-width: 768px) {
+      .admin-dashboard {
+        padding: 0.5rem;
+      }
+    }
+  

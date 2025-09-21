@@ -1,0 +1,26 @@
+
+    .question-manager {
+      padding: 1rem;
+    }
+
+    .max-w-20rem {
+      max-width: 20rem;
+    }
+
+    .question-preview {
+      min-height: 300px;
+    }
+
+    .options-list .border-green-500 {
+      border-color: #22c55e !important;
+    }
+
+    .bg-green-50 {
+      background-color: #f0fdf4;
+    }
+
+    @media (max-width: 768px) {
+      .question-manager {
+        padding: 0.5rem;
+      }
+    }

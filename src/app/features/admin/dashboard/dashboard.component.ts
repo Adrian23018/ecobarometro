@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG
@@ -14,11 +14,12 @@ import { AvatarModule } from 'primeng/avatar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
-import { User } from '../../../core/models/user';
-import { Admin } from '../../../core/models/admin';
 import { AdminService } from '../../../core/services/admin.service';
-import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user';
 import { CategoryService } from '../../../core/services/category.service';
+import { UserService } from '../../../core/services/user.service';
+import { QuestionService } from '../../../core/services/questions.service';
+import { Admin } from '../../../core/models/admin';
 
 // Services
 
@@ -62,10 +63,11 @@ interface RecentActivity {
     AvatarModule,
     SkeletonModule,
     DividerModule,
-    TooltipModule
+    TooltipModule,
+    DecimalPipe
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   loading = true;
@@ -95,6 +97,8 @@ export class DashboardComponent implements OnInit {
     private adminService: AdminService,
     private userService: UserService,
     private categoryService: CategoryService,
+    private questionService: QuestionService,
+    // private gameSessionService: GameSessionService
   ) {
     this.initializeChartOptions();
   }

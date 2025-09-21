@@ -1,1 +1,334 @@
-<p>game-lobby works!</p>
+    <div class="game-lobby">
+      <!-- Welcome Header -->
+      <div class="welcome-section">
+        <div class="flex align-items-center justify-content-between mb-4">
+          <div class="flex align-items-center gap-4">
+            <p-avatar 
+              [image]="currentUser?.avatar_url"
+              [label]="currentUser?.full_name?.charAt(0) || '?'"
+              size="xlarge"
+              shape="circle"
+              styleClass="user-avatar"
+            />
+            <div>
+              <h1 class="text-4xl font-bold text-900 mb-1">
+                ¡Hola Adrian! 👋
+              </h1>
+              <p class="text-600 text-lg">¿Listo para el EcoChallenge?</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-2xl font-bold text-primary">{{ currentUser?.total_points | number }}</div>
+            <div class="text-600">puntos totales</div>
+            <p-badge 
+              [value]="'Nivel ' + (currentUser?.level || 1)" 
+              severity="success"
+              size="large"
+            />
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid mb-6">
+          <div class="col-12 md:col-4">
+            <div class="stat-card bg-blue-50">
+              <div class="flex align-items-center gap-3">
+                <div class="stat-icon bg-blue-500">
+                  <i class="pi pi-play text-white"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-bold text-blue-700">{{ currentUser?.games_played || 0 }}</div>
+                  <div class="text-blue-600">Partidas Jugadas</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="stat-card bg-green-50">
+              <div class="flex align-items-center gap-3">
+                <div class="stat-icon bg-green-500">
+                  <i class="pi pi-chart-line text-white"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-bold text-green-700">{{ userStats.avgScore || 0 }}%</div>
+                  <div class="text-green-600">Puntuación Promedio</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 md:col-4">
+            <div class="stat-card bg-orange-50">
+              <div class="flex align-items-center gap-3">
+                <div class="stat-icon bg-orange-500">
+                  <i class="pi pi-star text-white"></i>
+                </div>
+                <div>
+                  <div class="text-xl font-bold text-orange-700">{{ userStats.bestScore || 0 }}</div>
+                  <div class="text-orange-600">Mejor Puntuación</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Configuration -->
+      <form [formGroup]="gameForm">
+        <div class="grid">
+          <!-- Category Selection -->
+          <div class="col-12 lg:col-8">
+            <p-card header="🗂️ Selecciona las Categorías" styleClass="h-full">
+              <p class="text-600 mb-4">
+                Elige las temáticas que quieres incluir en tu EcoChallenge
+              </p>
+              
+              <div *ngIf="!loadingCategories; else loadingTemplate">
+                <div class="grid">
+                  <div class="col-12 mb-3">
+                    <div class="flex justify-content-between align-items-center">
+                      <span class="font-medium">
+                        {{ selectedCategoriesCount }} de {{ categories.length }} categorías seleccionadas
+                      </span>
+                      <div class="flex gap-2">
+                        <p-button 
+                          label="Seleccionar Todo"
+                          size="small"
+                          [text]="true"
+                          (onClick)="selectAllCategories()"
+                        />
+                        <p-button 
+                          label="Limpiar"
+                          size="small"
+                          [text]="true"
+                          severity="secondary"
+                          (onClick)="clearAllCategories()"
+                        />
+                      </div>
+                    </div>
+                    <p-progressBar 
+                      [value]="(selectedCategoriesCount / categories.length) * 100"
+                      [showValue]="false"
+                      styleClass="h-0.5rem mt-2"
+                    />
+                  </div>
+                  
+                  <div class="col-12 md:col-6" *ngFor="let category of categories; trackBy: trackByCategory">
+                    <div 
+                      class="category-card"
+                      [class.selected]="isCategorySelected(category.id)"
+                      (click)="toggleCategory(category.id)"
+                    >
+                      <div class="flex align-items-start gap-3">
+                        <p-checkbox 
+                          [binary]="true"
+                          [ngModel]="isCategorySelected(category.id)"
+                          [inputId]="'cat_' + category.id"
+                        />
+                        
+                        <div class="flex-1">
+                          <div class="flex align-items-center gap-3 mb-2">
+                            <div 
+                              class="category-icon"
+                              [style.background-color]="category.color"
+                            >
+                              <i [class]="category.icon" class="text-white"></i>
+                            </div>
+                            <div>
+                              <h4 class="m-0 font-semibold">{{ category.name }}</h4>
+                              <small class="text-500">{{ category.questions_count }} preguntas</small>
+                            </div>
+                          </div>
+                          
+                          <p class="text-600 text-sm mb-3">{{ category.description }}</p>
+                          
+                          <!-- Category Stats -->
+                          <div class="flex justify-content-between align-items-center">
+                            <div class="flex gap-3">
+                              <div class="text-center">
+                                <div class="text-sm font-semibold text-900">{{ category.avg_score }}%</div>
+                                <div class="text-xs text-500">Promedio</div>
+                              </div>
+                              <div class="text-center">
+                                <div class="text-sm font-semibold text-900">{{ category.user_best_score || 0 }}</div>
+                                <div class="text-xs text-500">Tu mejor</div>
+                              </div>
+                            </div>
+                            
+                            <p-knob 
+                              [ngModel]="category.completion_rate"
+                              [readonly]="true"
+                              [size]="40"
+                              [strokeWidth]="4"
+                              [valueColor]="category.color"
+                              rangeColor="#e5e7eb"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #loadingTemplate>
+                <div class="grid">
+                  <div class="col-12 md:col-6" *ngFor="let item of [1,2,3,4]">
+                    <p-skeleton height="150px" styleClass="mb-3" />
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+
+          <!-- Game Settings -->
+          <div class="col-12 lg:col-4">
+            <div class="flex flex-column gap-4 h-full">
+              <!-- Difficulty Selection -->
+              <p-card header="🎯 Configuración del Juego">
+                <div class="mb-4">
+                  <label class="block text-900 font-medium mb-3">Modo de Juego</label>
+                  <p-selectButton 
+                    [options]="difficultyOptions"
+                    formControlName="difficulty"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-full"
+                  >
+                    <ng-template pTemplate="option" let-option>
+                      <div class="flex flex-column align-items-center p-2">
+                        <i [class]="option.icon" [style.color]="option.color" class="text-xl mb-1"></i>
+                        <span class="font-medium">{{ option.label }}</span>
+                        <small class="text-500 text-center">{{ option.description }}</small>
+                      </div>
+                    </ng-template>
+                  </p-selectButton>
+                </div>
+
+                <!-- Time Challenge -->
+                <div class="mb-4">
+                  <div class="flex align-items-center gap-2 mb-2">
+                    <p-checkbox 
+                      formControlName="timeChallenge"
+                      [binary]="true"
+                      inputId="timeChallenge"
+                    />
+                    <label for="timeChallenge" class="font-medium">⏱️ Desafío de Tiempo</label>
+                  </div>
+                  <small class="text-500">
+                    Gana puntos extra respondiendo rápidamente
+                  </small>
+                </div>
+
+                <!-- Estimated Duration -->
+                <div class="bg-blue-50 p-3 border-round">
+                  <div class="flex align-items-center gap-2 mb-2">
+                    <i class="pi pi-clock text-blue-500"></i>
+                    <span class="font-medium text-blue-700">Duración Estimada</span>
+                  </div>
+                  <div class="text-blue-600">{{ estimatedDuration }} minutos</div>
+                  <small class="text-blue-500">{{ totalQuestions }} preguntas aprox.</small>
+                </div>
+              </p-card>
+
+              <!-- Recent Achievements -->
+              <p-card header="🏆 Logros Recientes" *ngIf="recentAchievements.length > 0">
+                <div class="flex flex-column gap-2">
+                  <div 
+                    *ngFor="let achievement of recentAchievements.slice(0, 3)"
+                    class="flex align-items-center gap-2 p-2 border-round surface-hover"
+                  >
+                    <div 
+                      class="achievement-icon"
+                      [style.background-color]="achievement.badge_color"
+                    >
+                      <i [class]="achievement.icon" class="text-white text-sm"></i>
+                    </div>
+                    <div class="flex-1">
+                      <div class="font-medium text-sm">{{ achievement.name }}</div>
+                      <small class="text-500">{{ achievement.earned_at | date:'short' }}</small>
+                    </div>
+                  </div>
+                </div>
+                
+                <p-divider />
+                
+                <p-button 
+                  label="Ver Todos los Logros"
+                  [text]="true"
+                  size="small"
+                  [routerLink]="['/user/achievements']"
+                  styleClass="w-full"
+                />
+              </p-card>
+
+              <!-- Start Game Button -->
+              <p-button 
+                label="🚀 Comenzar EcoChallenge"
+                size="large"
+                styleClass="w-full p-3 text-xl"
+                [disabled]="!canStartGame"
+                [loading]="startingGame"
+                (onClick)="startGame()"
+              />
+              
+              <small *ngIf="!canStartGame" class="text-center text-500">
+                Selecciona al menos una categoría para comenzar
+              </small>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Quick Access -->
+      <div class="grid mt-6">
+        <div class="col-12">
+          <p-card header="⚡ Acceso Rápido">
+            <div class="grid">
+              <div class="col-12 md:col-3">
+                <p-button 
+                  label="Ver Ranking"
+                  icon="pi pi-trophy"
+                  [routerLink]="['/game/leaderboard']"
+                  severity="secondary"
+                  [outlined]="true"
+                  styleClass="w-full"
+                />
+              </div>
+              <div class="col-12 md:col-3">
+                <p-button 
+                  label="Mi Historial"
+                  icon="pi pi-history"
+                  [routerLink]="['/game/history']"
+                  severity="secondary"
+                  [outlined]="true"
+                  styleClass="w-full"
+                />
+              </div>
+              <div class="col-12 md:col-3">
+                <p-button 
+                  label="Mi Perfil"
+                  icon="pi pi-user"
+                  [routerLink]="['/user/profile']"
+                  severity="secondary"
+                  [outlined]="true"
+                  styleClass="w-full"
+                />
+              </div>
+              <div class="col-12 md:col-3">
+                <p-button 
+                  label="Dashboard"
+                  icon="pi pi-home"
+                  [routerLink]="['/user/dashboard']"
+                  severity="secondary"
+                  [outlined]="true"
+                  styleClass="w-full"
+                />
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <p-toast />
