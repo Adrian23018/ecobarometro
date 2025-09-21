@@ -1,334 +1,347 @@
-    <div class="game-lobby">
-      <!-- Welcome Header -->
-      <div class="welcome-section">
-        <div class="flex align-items-center justify-content-between mb-4">
-          <div class="flex align-items-center gap-4">
-            <p-avatar 
-              [image]="currentUser?.avatar_url"
-              [label]="currentUser?.full_name?.charAt(0) || '?'"
-              size="xlarge"
-              shape="circle"
-              styleClass="user-avatar"
-            />
-            <div>
-              <h1 class="text-4xl font-bold text-900 mb-1">
-                ¡Hola Adrian! 👋
-              </h1>
-              <p class="text-600 text-lg">¿Listo para el EcoChallenge?</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold text-primary">{{ currentUser?.total_points | number }}</div>
-            <div class="text-600">puntos totales</div>
-            <p-badge 
-              [value]="'Nivel ' + (currentUser?.level || 1)" 
-              severity="success"
-              size="large"
-            />
-          </div>
+<!-- Header con botón atrás -->
+<div class="gradient-bg text-white relative overflow-hidden">
+  <!-- Botón Atrás -->
+  <button 
+    class="back-button absolute top-4 left-4 z-20 p-3 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg"
+    [routerLink]="['/user/dashboard']"
+    pRipple>
+    <i class="fas fa-arrow-left text-lg"></i>
+    <span class="hidden sm:inline">Atrás</span>
+  </button>
+  
+  <!-- Elementos decorativos -->
+  <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -translate-y-20 translate-x-20"></div>
+  <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full translate-y-16 -translate-x-16"></div>
+  
+  <!-- Sección de Bienvenida -->
+  <div class="px-6 pt-20 pb-8 relative z-10">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <p-avatar 
+            [image]="currentUser?.avatar_url"
+            [label]="currentUser?.full_name?.charAt(0) || '?'"
+            size="xlarge"
+            shape="circle"
+            styleClass="user-avatar bounce-in" />
+          <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white pulse-animation"></div>
         </div>
-
-        <!-- Quick Stats -->
-        <div class="grid mb-6">
-          <div class="col-12 md:col-4">
-            <div class="stat-card bg-blue-50">
-              <div class="flex align-items-center gap-3">
-                <div class="stat-icon bg-blue-500">
-                  <i class="pi pi-play text-white"></i>
-                </div>
-                <div>
-                  <div class="text-xl font-bold text-blue-700">{{ currentUser?.games_played || 0 }}</div>
-                  <div class="text-blue-600">Partidas Jugadas</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 md:col-4">
-            <div class="stat-card bg-green-50">
-              <div class="flex align-items-center gap-3">
-                <div class="stat-icon bg-green-500">
-                  <i class="pi pi-chart-line text-white"></i>
-                </div>
-                <div>
-                  <div class="text-xl font-bold text-green-700">{{ userStats.avgScore || 0 }}%</div>
-                  <div class="text-green-600">Puntuación Promedio</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 md:col-4">
-            <div class="stat-card bg-orange-50">
-              <div class="flex align-items-center gap-3">
-                <div class="stat-icon bg-orange-500">
-                  <i class="pi pi-star text-white"></i>
-                </div>
-                <div>
-                  <div class="text-xl font-bold text-orange-700">{{ userStats.bestScore || 0 }}</div>
-                  <div class="text-orange-600">Mejor Puntuación</div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div class="slide-in">
+          <h1 class="text-2xl font-bold mb-1">
+            ¡Hola {{currentUser?.full_name || 'Adrian'}}! 
+            <span class="wave-animation inline-block">👋</span>
+          </h1>
+          <p class="text-blue-100 text-lg">¿Listo para el EcoChallenge?</p>
         </div>
       </div>
-
-      <!-- Game Configuration -->
-      <form [formGroup]="gameForm">
-        <div class="grid">
-          <!-- Category Selection -->
-          <div class="col-12 lg:col-8">
-            <p-card header="🗂️ Selecciona las Categorías" styleClass="h-full">
-              <p class="text-600 mb-4">
-                Elige las temáticas que quieres incluir en tu EcoChallenge
-              </p>
-              
-              <div *ngIf="!loadingCategories; else loadingTemplate">
-                <div class="grid">
-                  <div class="col-12 mb-3">
-                    <div class="flex justify-content-between align-items-center">
-                      <span class="font-medium">
-                        {{ selectedCategoriesCount }} de {{ categories.length }} categorías seleccionadas
-                      </span>
-                      <div class="flex gap-2">
-                        <p-button 
-                          label="Seleccionar Todo"
-                          size="small"
-                          [text]="true"
-                          (onClick)="selectAllCategories()"
-                        />
-                        <p-button 
-                          label="Limpiar"
-                          size="small"
-                          [text]="true"
-                          severity="secondary"
-                          (onClick)="clearAllCategories()"
-                        />
-                      </div>
-                    </div>
-                    <p-progressBar 
-                      [value]="(selectedCategoriesCount / categories.length) * 100"
-                      [showValue]="false"
-                      styleClass="h-0.5rem mt-2"
-                    />
-                  </div>
-                  
-                  <div class="col-12 md:col-6" *ngFor="let category of categories; trackBy: trackByCategory">
-                    <div 
-                      class="category-card"
-                      [class.selected]="isCategorySelected(category.id)"
-                      (click)="toggleCategory(category.id)"
-                    >
-                      <div class="flex align-items-start gap-3">
-                        <p-checkbox 
-                          [binary]="true"
-                          [ngModel]="isCategorySelected(category.id)"
-                          [inputId]="'cat_' + category.id"
-                        />
-                        
-                        <div class="flex-1">
-                          <div class="flex align-items-center gap-3 mb-2">
-                            <div 
-                              class="category-icon"
-                              [style.background-color]="category.color"
-                            >
-                              <i [class]="category.icon" class="text-white"></i>
-                            </div>
-                            <div>
-                              <h4 class="m-0 font-semibold">{{ category.name }}</h4>
-                              <small class="text-500">{{ category.questions_count }} preguntas</small>
-                            </div>
-                          </div>
-                          
-                          <p class="text-600 text-sm mb-3">{{ category.description }}</p>
-                          
-                          <!-- Category Stats -->
-                          <div class="flex justify-content-between align-items-center">
-                            <div class="flex gap-3">
-                              <div class="text-center">
-                                <div class="text-sm font-semibold text-900">{{ category.avg_score }}%</div>
-                                <div class="text-xs text-500">Promedio</div>
-                              </div>
-                              <div class="text-center">
-                                <div class="text-sm font-semibold text-900">{{ category.user_best_score || 0 }}</div>
-                                <div class="text-xs text-500">Tu mejor</div>
-                              </div>
-                            </div>
-                            
-                            <p-knob 
-                              [ngModel]="category.completion_rate"
-                              [readonly]="true"
-                              [size]="40"
-                              [strokeWidth]="4"
-                              [valueColor]="category.color"
-                              rangeColor="#e5e7eb"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <ng-template #loadingTemplate>
-                <div class="grid">
-                  <div class="col-12 md:col-6" *ngFor="let item of [1,2,3,4]">
-                    <p-skeleton height="150px" styleClass="mb-3" />
-                  </div>
-                </div>
-              </ng-template>
-            </p-card>
-          </div>
-
-          <!-- Game Settings -->
-          <div class="col-12 lg:col-4">
-            <div class="flex flex-column gap-4 h-full">
-              <!-- Difficulty Selection -->
-              <p-card header="🎯 Configuración del Juego">
-                <div class="mb-4">
-                  <label class="block text-900 font-medium mb-3">Modo de Juego</label>
-                  <p-selectButton 
-                    [options]="difficultyOptions"
-                    formControlName="difficulty"
-                    optionLabel="label"
-                    optionValue="value"
-                    styleClass="w-full"
-                  >
-                    <ng-template pTemplate="option" let-option>
-                      <div class="flex flex-column align-items-center p-2">
-                        <i [class]="option.icon" [style.color]="option.color" class="text-xl mb-1"></i>
-                        <span class="font-medium">{{ option.label }}</span>
-                        <small class="text-500 text-center">{{ option.description }}</small>
-                      </div>
-                    </ng-template>
-                  </p-selectButton>
-                </div>
-
-                <!-- Time Challenge -->
-                <div class="mb-4">
-                  <div class="flex align-items-center gap-2 mb-2">
-                    <p-checkbox 
-                      formControlName="timeChallenge"
-                      [binary]="true"
-                      inputId="timeChallenge"
-                    />
-                    <label for="timeChallenge" class="font-medium">⏱️ Desafío de Tiempo</label>
-                  </div>
-                  <small class="text-500">
-                    Gana puntos extra respondiendo rápidamente
-                  </small>
-                </div>
-
-                <!-- Estimated Duration -->
-                <div class="bg-blue-50 p-3 border-round">
-                  <div class="flex align-items-center gap-2 mb-2">
-                    <i class="pi pi-clock text-blue-500"></i>
-                    <span class="font-medium text-blue-700">Duración Estimada</span>
-                  </div>
-                  <div class="text-blue-600">{{ estimatedDuration }} minutos</div>
-                  <small class="text-blue-500">{{ totalQuestions }} preguntas aprox.</small>
-                </div>
-              </p-card>
-
-              <!-- Recent Achievements -->
-              <p-card header="🏆 Logros Recientes" *ngIf="recentAchievements.length > 0">
-                <div class="flex flex-column gap-2">
-                  <div 
-                    *ngFor="let achievement of recentAchievements.slice(0, 3)"
-                    class="flex align-items-center gap-2 p-2 border-round surface-hover"
-                  >
-                    <div 
-                      class="achievement-icon"
-                      [style.background-color]="achievement.badge_color"
-                    >
-                      <i [class]="achievement.icon" class="text-white text-sm"></i>
-                    </div>
-                    <div class="flex-1">
-                      <div class="font-medium text-sm">{{ achievement.name }}</div>
-                      <small class="text-500">{{ achievement.earned_at | date:'short' }}</small>
-                    </div>
-                  </div>
-                </div>
-                
-                <p-divider />
-                
-                <p-button 
-                  label="Ver Todos los Logros"
-                  [text]="true"
-                  size="small"
-                  [routerLink]="['/user/achievements']"
-                  styleClass="w-full"
-                />
-              </p-card>
-
-              <!-- Start Game Button -->
-              <p-button 
-                label="🚀 Comenzar EcoChallenge"
-                size="large"
-                styleClass="w-full p-3 text-xl"
-                [disabled]="!canStartGame"
-                [loading]="startingGame"
-                (onClick)="startGame()"
-              />
-              
-              <small *ngIf="!canStartGame" class="text-center text-500">
-                Selecciona al menos una categoría para comenzar
-              </small>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <!-- Quick Access -->
-      <div class="grid mt-6">
-        <div class="col-12">
-          <p-card header="⚡ Acceso Rápido">
-            <div class="grid">
-              <div class="col-12 md:col-3">
-                <p-button 
-                  label="Ver Ranking"
-                  icon="pi pi-trophy"
-                  [routerLink]="['/game/leaderboard']"
-                  severity="secondary"
-                  [outlined]="true"
-                  styleClass="w-full"
-                />
-              </div>
-              <div class="col-12 md:col-3">
-                <p-button 
-                  label="Mi Historial"
-                  icon="pi pi-history"
-                  [routerLink]="['/game/history']"
-                  severity="secondary"
-                  [outlined]="true"
-                  styleClass="w-full"
-                />
-              </div>
-              <div class="col-12 md:col-3">
-                <p-button 
-                  label="Mi Perfil"
-                  icon="pi pi-user"
-                  [routerLink]="['/user/profile']"
-                  severity="secondary"
-                  [outlined]="true"
-                  styleClass="w-full"
-                />
-              </div>
-              <div class="col-12 md:col-3">
-                <p-button 
-                  label="Dashboard"
-                  icon="pi pi-home"
-                  [routerLink]="['/user/dashboard']"
-                  severity="secondary"
-                  [outlined]="true"
-                  styleClass="w-full"
-                />
-              </div>
-            </div>
-          </p-card>
-        </div>
+      <div class="text-right slide-in">
+        <div class="text-2xl font-bold">{{ currentUser?.total_points | number }}</div>
+        <div class="text-blue-100 text-sm">puntos totales</div>
+        <p-badge 
+          [value]="'Nivel ' + (currentUser?.level || 1)" 
+          severity="success"
+          size="large"
+          styleClass="mt-2 bg-green-500 text-white px-3 py-1 rounded-full" />
       </div>
     </div>
 
-    <!-- Toast -->
-    <p-toast />
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-3 gap-4 slide-in">
+      <div class="stat-card-header bg-blue-500 bg-opacity-20">
+        <div class="flex items-center gap-3">
+          <div class="stat-icon-header bg-blue-500">
+            <i class="pi pi-play text-white"></i>
+          </div>
+          <div>
+            <div class="text-xl font-bold">{{ currentUser?.games_played || 0 }}</div>
+            <div class="text-blue-100 text-sm">Partidas</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card-header bg-green-500 bg-opacity-20">
+        <div class="flex items-center gap-3">
+          <div class="stat-icon-header bg-green-500">
+            <i class="pi pi-chart-line text-white"></i>
+          </div>
+          <div>
+            <div class="text-xl font-bold">{{ userStats.avgScore || 0 }}%</div>
+            <div class="text-blue-100 text-sm">Promedio</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card-header bg-orange-500 bg-opacity-20">
+        <div class="flex items-center gap-3">
+          <div class="stat-icon-header bg-orange-500">
+            <i class="pi pi-star text-white"></i>
+          </div>
+          <div>
+            <div class="text-xl font-bold">{{ userStats.bestScore || 0 }}</div>
+            <div class="text-blue-100 text-sm">Mejor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contenido Principal -->
+<div class="px-6 -mt-6 relative z-10">
+  <form [formGroup]="gameForm" class="space-y-6">
+    
+    <!-- Selección de Categorías -->
+    <div class="glass-effect rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-4">
+        <i class="fas fa-folder text-purple-600 text-xl"></i>
+        <h2 class="text-xl font-bold text-gray-800">Selecciona las Categorías</h2>
+      </div>
+      <p class="text-gray-600 mb-6">
+        Elige las temáticas que quieres incluir en tu EcoChallenge
+      </p>
+      
+      <div *ngIf="!loadingCategories; else loadingTemplate">
+        <!-- Progress Header -->
+        <div class="bg-purple-50 p-4 rounded-xl mb-6">
+          <div class="flex justify-between items-center mb-3">
+            <span class="font-medium text-purple-800">
+              {{ selectedCategoriesCount }} de {{ categories.length }} categorías seleccionadas
+            </span>
+            <div class="flex gap-2">
+              <button 
+                type="button"
+                class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors"
+                (click)="selectAllCategories()">
+                Seleccionar Todo
+              </button>
+              <span class="text-gray-400">|</span>
+              <button 
+                type="button"
+                class="text-gray-600 text-sm font-medium hover:text-gray-800 transition-colors"
+                (click)="clearAllCategories()">
+                Limpiar
+              </button>
+            </div>
+          </div>
+          <div class="w-full bg-purple-200 rounded-full h-2">
+            <div 
+              class="bg-purple-600 h-2 rounded-full transition-all duration-300"
+              [style.width.%]="(selectedCategoriesCount / categories.length) * 100">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div 
+            *ngFor="let category of categories; trackBy: trackByCategory"
+            class="category-card"
+            [class.selected]="isCategorySelected(category.id)"
+            (click)="toggleCategory(category.id)"
+            pRipple>
+            <div class="flex items-start gap-3">
+              <div class="category-checkbox">
+                <i 
+                  class="fas"
+                  [class.fa-check-circle]="isCategorySelected(category.id)"
+                  [class.fa-circle]="!isCategorySelected(category.id)"
+                  [class.text-purple-600]="isCategorySelected(category.id)"
+                  [class.text-gray-300]="!isCategorySelected(category.id)">
+                </i>
+              </div>
+              
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <div 
+                    class="category-icon"
+                    [style.background-color]="category.color">
+                    <i [class]="category.icon" class="text-white"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-gray-800 mb-1">{{ category.name }}</h4>
+                    <small class="text-gray-500">{{ category.questions_count }} preguntas</small>
+                  </div>
+                </div>
+                
+                <p class="text-gray-600 text-sm mb-4">{{ category.description }}</p>
+                
+                <!-- Category Stats -->
+                <div class="flex justify-between items-center">
+                  <div class="flex gap-4">
+                    <div class="text-center">
+                      <div class="text-sm font-bold text-gray-700">{{ category.avg_score }}%</div>
+                      <div class="text-xs text-gray-500">Promedio</div>
+                    </div>
+                    <div class="text-center">
+                      <div class="text-sm font-bold text-gray-700">{{ category.user_best_score || 0 }}</div>
+                      <div class="text-xs text-gray-500">Tu mejor</div>
+                    </div>
+                  </div>
+                  
+                  <div class="completion-ring" [style.--progress]="category.completion_rate + '%'" [style.--color]="category.color">
+                    <span class="completion-text">{{ category.completion_rate }}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ng-template #loadingTemplate>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div *ngFor="let item of [1,2,3,4]" class="animate-pulse">
+            <div class="bg-gray-200 h-40 rounded-xl"></div>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Configuración del Juego -->
+    <div class="glass-effect rounded-2xl p-6 shadow-lg">
+      <div class="flex items-center gap-3 mb-4">
+        <i class="fas fa-cog text-blue-600 text-xl"></i>
+        <h2 class="text-xl font-bold text-gray-800">Configuración del Juego</h2>
+      </div>
+      
+      <!-- Difficulty Selection -->
+      <div class="mb-6">
+        <label class="block text-gray-700 font-medium mb-3">Modo de Juego</label>
+        <div class="grid grid-cols-3 gap-3">
+          <div 
+            *ngFor="let option of difficultyOptions"
+            class="difficulty-option"
+            [class.selected]="gameForm.get('difficulty')?.value === option.value"
+            (click)="gameForm.patchValue({difficulty: option.value})"
+            pRipple>
+            <i [class]="option.icon" [style.color]="option.color" class="text-2xl mb-2"></i>
+            <div class="font-medium text-gray-800">{{ option.label }}</div>
+            <small class="text-gray-500">{{ option.description }}</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Time Challenge Toggle -->
+      <div class="bg-yellow-50 p-4 rounded-xl mb-6">
+        <div class="flex items-center gap-3">
+          <div class="toggle-switch" [class.active]="gameForm.get('timeChallenge')?.value" (click)="toggleTimeChallenge()">
+            <div class="toggle-slider"></div>
+          </div>
+          <div>
+            <div class="font-medium text-gray-800">⏱️ Desafío de Tiempo</div>
+            <small class="text-gray-600">Gana puntos extra respondiendo rápidamente</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estimated Duration -->
+      <div class="bg-blue-50 p-4 rounded-xl border-l-4 border-blue-500">
+        <div class="flex items-center gap-3 mb-2">
+          <i class="fas fa-clock text-blue-500"></i>
+          <span class="font-medium text-blue-700">Duración Estimada</span>
+        </div>
+        <div class="text-blue-600 font-bold text-lg">{{ estimatedDuration }} minutos</div>
+        <small class="text-blue-500">{{ totalQuestions }} preguntas aproximadamente</small>
+      </div>
+    </div>
+
+    <!-- Logros Recientes -->
+    <div class="glass-effect rounded-2xl p-6 shadow-lg" *ngIf="recentAchievements.length > 0">
+      <div class="flex items-center gap-3 mb-4">
+        <i class="fas fa-trophy text-yellow-600 text-xl"></i>
+        <h2 class="text-xl font-bold text-gray-800">Logros Recientes</h2>
+      </div>
+      
+      <div class="space-y-3">
+        <div 
+          *ngFor="let achievement of recentAchievements.slice(0, 3)"
+          class="achievement-item">
+          <div 
+            class="achievement-icon"
+            [style.background-color]="achievement.badge_color">
+            <i [class]="achievement.icon" class="text-white"></i>
+          </div>
+          <div class="flex-1">
+            <div class="font-medium text-gray-800">{{ achievement.name }}</div>
+            <small class="text-gray-500">{{ achievement.earned_at | date:'short' }}</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-4 pt-4 border-t border-gray-200">
+        <button 
+          type="button"
+          [routerLink]="['/user/achievements']"
+          class="text-purple-600 text-sm font-medium hover:text-purple-800 transition-colors">
+          Ver Todos los Logros →
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón de Inicio -->
+    <div class="text-center">
+      <button 
+        type="button"
+        class="start-game-btn"
+        [disabled]="!canStartGame"
+        [class.loading]="startingGame"
+        (click)="startGame()">
+        <i class="fas fa-rocket mr-3" *ngIf="!startingGame"></i>
+        <i class="fas fa-spinner fa-spin mr-3" *ngIf="startingGame"></i>
+        {{ startingGame ? 'Iniciando...' : 'Comenzar EcoChallenge' }}
+      </button>
+      
+      <p *ngIf="!canStartGame" class="text-gray-500 text-sm mt-3">
+        Selecciona al menos una categoría para comenzar
+      </p>
+    </div>
+  </form>
+
+  <!-- Acceso Rápido -->
+  <div class="glass-effect rounded-2xl p-6 shadow-lg mt-6">
+    <div class="flex items-center gap-3 mb-4">
+      <i class="fas fa-bolt text-yellow-500 text-xl"></i>
+      <h2 class="text-xl font-bold text-gray-800">Acceso Rápido</h2>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <button 
+        type="button"
+        [routerLink]="['/game/leaderboard']"
+        class="quick-access-btn"
+        pRipple>
+        <i class="fas fa-trophy text-yellow-600 text-xl mb-2"></i>
+        <span>Ver Ranking</span>
+      </button>
+      
+      <button 
+        type="button"
+        [routerLink]="['/game/history']"
+        class="quick-access-btn"
+        pRipple>
+        <i class="fas fa-history text-blue-600 text-xl mb-2"></i>
+        <span>Mi Historial</span>
+      </button>
+      
+      <button 
+        type="button"
+        [routerLink]="['/user/profile']"
+        class="quick-access-btn"
+        pRipple>
+        <i class="fas fa-user text-green-600 text-xl mb-2"></i>
+        <span>Mi Perfil</span>
+      </button>
+      
+      <button 
+        type="button"
+        [routerLink]="['/user/dashboard']"
+        class="quick-access-btn"
+        pRipple>
+        <i class="fas fa-home text-purple-600 text-xl mb-2"></i>
+        <span>Dashboard</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<p-toast />

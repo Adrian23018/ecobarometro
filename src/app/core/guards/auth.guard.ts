@@ -25,8 +25,8 @@ export class AuthGuard implements CanActivate {
   private checkAuthStatus(): boolean {
     try {
       // Verificar si hay datos de autenticación en localStorage
-      const authToken = localStorage.getItem('ecobarometro_auth_token');
-      const userProfile = localStorage.getItem('ecobarometro_user_profile');
+      const authToken = localStorage.getItem('ecobarometro_token');
+      const userProfile = localStorage.getItem('ecobarometro_user');
       
       return !!(authToken && userProfile);
     } catch (error) {

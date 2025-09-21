@@ -89,6 +89,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       };
 
       const result = await this.authService.login(credentials);
+      console.log("result del login:", result);
+      
 
       if (result.success && result.data) {
         // Mostrar mensaje de éxito

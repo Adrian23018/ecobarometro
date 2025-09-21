@@ -235,24 +235,32 @@ export class AuthService {
       // Hash password
       const hashedPassword = await this.hashPassword(userData.password);
 
-      // Create user record
+      // Create user record - coincide exactamente con tu esquema
+      const userRecord = {
+        admin_id: admin.id,
+        email: userData.email,
+        username: userData.username,
+        full_name: userData.full_name,
+        admin_code: userData.admin_code,
+        password_hash: hashedPassword,
+        total_points: 0,
+        level: 1,
+        experience_points: 0,
+        games_played: 0,
+        is_active: true,
+        avatar_url: null,
+        last_game_at: null
+      };
+
+      console.log('Insertando usuario:', userRecord);
+
       const { data: user, error } = await this.supabase
         .from('users')
-        .insert([{
-          admin_id: admin.id,
-          email: userData.email,
-          username: userData.username,
-          full_name: userData.full_name,
-          admin_code: userData.admin_code,
-          password_hash: hashedPassword,
-          total_points: 0,
-          level: 1,
-          experience_points: 0,
-          games_played: 0,
-          is_active: true
-        }])
+        .insert([userRecord])
         .select()
         .single();
+
+      console.log('Resultado inserción usuario:', { user, error });
 
       if (error) {
         throw new Error(error.message);
@@ -415,15 +423,50 @@ export class AuthService {
   // Verificar código de admin
   async verifyAdminCode(code: string): Promise<boolean> {
     try {
+      // Limpiar el código de espacios y convertir a uppercase
+      const cleanCode = code.trim().toUpperCase();
+      
+      console.log('Verificando código:', cleanCode);
+      
       const { data, error } = await this.supabase
         .from('admins')
-        .select('id')
-        .eq('admin_code', code)
-        .eq('is_active', true)
-        .single();
+        .select('id, admin_code, is_active')
+        .eq('admin_code', cleanCode)
+        .eq('is_active', true);
 
-      return !error && !!data;
-    } catch {
+      console.log('Resultado búsqueda directa:', { data, error });
+
+      // Si encuentra resultado directo
+      if (!error && data && data.length > 0) {
+        return true;
+      }
+
+      // Si no encuentra, buscar todos los códigos activos para debugging
+      const { data: allAdmins, error: allError } = await this.supabase
+        .from('admins')
+        .select('admin_code, is_active')
+        .eq('is_active', true);
+
+      if (!allError && allAdmins) {
+        console.log('Todos los códigos en DB:', allAdmins);
+        
+        // Buscar coincidencia exacta
+        const matchingAdmin = allAdmins.find(admin => 
+          admin.admin_code.trim().toUpperCase() === cleanCode
+        );
+        
+        if (matchingAdmin) {
+          console.log('Encontrado por coincidencia:', matchingAdmin);
+          return true;
+        }
+        
+        console.log('No se encontró coincidencia para:', cleanCode);
+        console.log('Códigos disponibles:', allAdmins.map(a => `"${a.admin_code}"`));
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error verificando código:', error);
       return false;
     }
   }

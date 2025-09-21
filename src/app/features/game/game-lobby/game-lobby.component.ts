@@ -123,7 +123,7 @@ export class GameLobbyComponent implements OnInit {
   }
 
   ngOnInit(): void {
- 
+
 
 
     this.loadUserData();
@@ -165,11 +165,23 @@ export class GameLobbyComponent implements OnInit {
   }
 
   loadCategories(): void {
-    if (!this.currentUser) return;
 
-    this.categoryService.getAvailableCategories(this.currentUser.admin_code).subscribe({
+    console.log("llega aqui ");
+
+    if (!localStorage.getItem('ecobarometro_user') && localStorage.getItem('ecobarometro_token')) {
+      return;
+    }
+
+    let userLogin = localStorage.getItem('ecobarometro_user');
+    const userLoginData = userLogin ? JSON.parse(userLogin) : null;
+    console.log("userLoginData", userLoginData);
+    
+
+    this.categoryService.getAvailableCategories(userLoginData.admin_id).subscribe({
       next: (categories) => {
         // Convert to CategoryWithStats (mock stats for now)
+        console.log("CATEGORIES", categories);
+
         this.categories = categories.map(cat => ({
           ...cat,
           questions_count: Math.floor(Math.random() * 20) + 5,
@@ -267,7 +279,7 @@ export class GameLobbyComponent implements OnInit {
     };
 
     this.gameSessionService.createGameSession(this.currentUser.id, gameRequest).subscribe({
-      next: (session:any) => {
+      next: (session: any) => {
         this.messageService.add({
           severity: 'success',
           summary: '¡Comenzando!',
@@ -280,7 +292,7 @@ export class GameLobbyComponent implements OnInit {
           this.router.navigate(['/game/play', session.id]);
         }, 1000);
       },
-      error: (error:any) => {
+      error: (error: any) => {
         console.error('Error starting game:', error);
         this.messageService.add({
           severity: 'error',
@@ -294,5 +306,10 @@ export class GameLobbyComponent implements OnInit {
 
   trackByCategory(index: number, category: CategoryWithStats): string {
     return category.id;
+  }
+
+  toggleTimeChallenge(): void {
+    const currentValue = this.gameForm.get('timeChallenge')?.value;
+    this.gameForm.patchValue({ timeChallenge: !currentValue });
   }
 }

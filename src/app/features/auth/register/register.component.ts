@@ -62,8 +62,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(async (code) => {
-      if (code && code.length >= 6 && this.activeTab === 0) {
+      if (code && code.length >= 4 && this.activeTab === 0) { // Cambié de 6 a 4 caracteres
         this.adminCodeValidating = true;
+        console.log('Validando código en componente:', code); // Debug
         this.adminCodeValid = await this.authService.verifyAdminCode(code);
         this.adminCodeValidating = false;
 
@@ -74,6 +75,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
             detail: '✓ Código de administrador verificado',
             life: 3000
           });
+        } else {
+          console.log('Código inválido:', code); // Debug
         }
       } else {
         this.adminCodeValid = false;

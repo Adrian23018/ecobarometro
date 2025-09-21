@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule,Location  } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG
@@ -189,7 +189,8 @@ export class UserDashboardComponent implements OnInit {
     private gameSessionService: GameSessionService,
     private achievementService: AchievementService,
     private rankingService: RankingService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private location: Location // Añadido para el botón atrás
   ) { }
 
   ngOnInit(): void {
@@ -330,5 +331,10 @@ export class UserDashboardComponent implements OnInit {
 
   get pendingAchievements(): number {
     return this.achievementProgress.length - this.completedAchievements;
+  }
+
+   // Método para el botón atrás
+  goBack(): void {
+    this.location.back();
   }
 }

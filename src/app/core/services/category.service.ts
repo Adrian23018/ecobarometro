@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Observable, from, map } from 'rxjs';
-import { 
-  Category, 
-  CreateCategoryRequest, 
+import {
+  Category,
+  CreateCategoryRequest,
   UpdateCategoryRequest,
-  CategoryWithStats 
+  CategoryWithStats
 } from '../models/category';
 import { environment } from '../../../environments/environment.development';
 
@@ -24,8 +24,8 @@ export class CategoryService {
     return from(
       this.supabase
         .from('categories')
-        .insert([{ 
-          ...categoryData, 
+        .insert([{
+          ...categoryData,
           admin_id: adminId,
           order_index: categoryData.order_index || 0
         }])
@@ -182,7 +182,7 @@ export class CategoryService {
 
           if (userResponses && userResponses.length > 0) {
             // Mejor puntaje del usuario en esta categoría
-            const sessionScores = userResponses.reduce((acc, r:any) => {
+            const sessionScores = userResponses.reduce((acc, r: any) => {
               const sessionId = r.game_session?.id;
               if (sessionId) {
                 acc[sessionId] = (acc[sessionId] || 0) + r.points_earned;
@@ -193,8 +193,8 @@ export class CategoryService {
             userBestScore = Math.max(...Object.values(sessionScores));
 
             // Tasa de finalización
-            const uniqueSessions = new Set(userResponses.map((r:any) => r.game_session?.id));
-            const completedSessions = userResponses.filter((r:any) => 
+            const uniqueSessions = new Set(userResponses.map((r: any) => r.game_session?.id));
+            const completedSessions = userResponses.filter((r: any) =>
               r.game_session?.status === 'completed'
             );
             completionRate = (completedSessions.length / uniqueSessions.size) * 100;
@@ -219,15 +219,33 @@ export class CategoryService {
   }
 
   // Get categories for user (for game selection)
-  getAvailableCategories(adminCode: string): Observable<Category[]> {
+  // getAvailableCategories(adminCode: string): Observable<Category[]> {
+  //   return from(
+  //     this.supabase
+  //       .from('categories')
+  //       .select(`
+  //         *,
+  //         admin:admins!inner(admin_code)
+  //       `)
+  //       .eq('admin.admin_code', adminCode)
+  //       .eq('is_active', true)
+  //       .order('order_index')
+  //   ).pipe(
+  //     map(response => {
+  //       if (response.error) throw response.error;
+  //       return response.data || [];
+  //     })
+  //   );
+  // }
+
+  getAvailableCategories(adminID: string): Observable<Category[]> {
     return from(
       this.supabase
         .from('categories')
         .select(`
-          *,
-          admin:admins!inner(admin_code)
+          *
         `)
-        .eq('admin.admin_code', adminCode)
+        .eq('admin_id', adminID)
         .eq('is_active', true)
         .order('order_index')
     ).pipe(
