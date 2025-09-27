@@ -1,276 +1,594 @@
+/* Leaderboard Component - Diseño Moderno EcoBarómetro */
+
 .leaderboard {
-    padding: 1.5rem;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  padding: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #a8e6cf 0%, #dcedc1 30%, #ffd3a5 70%, #a8edea 100%);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Efectos de fondo animados */
+.leaderboard::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="eco-pattern" patternUnits="userSpaceOnUse" width="20" height="20"><circle cx="10" cy="10" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23eco-pattern)"/></svg>');
+  pointer-events: none;
+  z-index: 0;
 }
 
 .header-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(30px);
+  border: none;
+  border-radius: 0 0 40px 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  margin: 0 0 3rem 0;
+  padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.header-section::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 6px;
+  background: linear-gradient(90deg, #4caf50, #2196f3, #ffc107);
+  border-radius: 3px;
+}
+
+.header-section h1 {
+  background: linear-gradient(135deg, #2e7d32, #1976d2, #f57c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.header-section p {
+  color: #5d4037;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 500;
 }
 
 .filters-section {
-    margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 25px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
 }
 
-.category-icon-sm {
-    width: 1.5rem;
-    height: 1.5rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+.filters-section label {
+  color: #2e7d32;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  display: block;
 }
 
+/* Contenedor principal con espaciado moderno */
+.leaderboard > div:not(.header-section) {
+  margin: 0 2rem 2rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Sección del Podio Mejorada */
 .podium-section {
-    margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
-.podium-card {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: white;
+::ng-deep .podium-card {
+  background: linear-gradient(135deg, #4caf50 0%, #2196f3 50%, #ffc107 100%) !important;
+  border: none !important;
+  border-radius: 30px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+::ng-deep .podium-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 100%);
+  pointer-events: none;
+}
+
+::ng-deep .podium-card .p-card-header {
+  background: transparent !important;
+  color: white !important;
+  border: none !important;
+  text-align: center !important;
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  padding: 2rem 2rem 1rem 2rem !important;
+}
+
+::ng-deep .podium-card .p-card-body {
+  background: transparent !important;
+  padding: 0 2rem 2rem 2rem !important;
 }
 
 .podium-container {
-    display: flex;
-    align-items: end;
-    justify-content: center;
-    gap: 2rem;
-    padding: 2rem 0;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 0;
+  flex-wrap: wrap;
 }
 
 .podium-position {
-    text-align: center;
-    position: relative;
+  text-align: center;
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 0 0 auto;
+}
+
+.podium-position:hover {
+  transform: translateY(-15px) scale(1.05);
 }
 
 .podium-user {
-    position: relative;
-    z-index: 2;
-    background: white;
-    padding: 1.5rem;
-    border-radius: 1rem;
-    color: #1f2937;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 2rem 1.5rem;
+  border-radius: 25px;
+  color: #2e7d32;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  min-width: 200px;
 }
 
 .crown {
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 2rem;
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5rem;
+  animation: bounce 3s infinite;
+  filter: drop-shadow(0 5px 10px rgba(255, 193, 7, 0.6));
 }
 
-.podium-avatar {
-    margin: 0 auto;
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-12px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-8px);
+  }
 }
 
-.first-place {
-    border: 4px solid #fbbf24;
+::ng-deep .podium-avatar {
+  margin: 0 auto 1rem auto !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
 }
 
-.second-place {
-    border: 4px solid #9ca3af;
+::ng-deep .first-place {
+  border: 5px solid #ffc107 !important;
+  box-shadow: 0 0 30px rgba(255, 193, 7, 0.7) !important;
 }
 
-.third-place {
-    border: 4px solid #cd7c2f;
+::ng-deep .second-place {
+  border: 5px solid #9e9e9e !important;
+  box-shadow: 0 0 30px rgba(158, 158, 158, 0.7) !important;
+}
+
+::ng-deep .third-place {
+  border: 5px solid #ff9800 !important;
+  box-shadow: 0 0 30px rgba(255, 152, 0, 0.7) !important;
 }
 
 .podium-medal {
-    position: absolute;
-    bottom: -10px;
-    right: -10px;
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: bold;
+  position: absolute;
+  bottom: -15px;
+  right: -15px;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 900;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  border: 3px solid white;
 }
 
 .gold {
-    background: #fbbf24;
+  background: linear-gradient(45deg, #ffc107, #ff9800);
 }
 
 .silver {
-    background: #9ca3af;
+  background: linear-gradient(45deg, #9e9e9e, #757575);
 }
 
 .bronze {
-    background: #cd7c2f;
+  background: linear-gradient(45deg, #ff9800, #f57c00);
 }
 
 .podium-base {
-    background: linear-gradient(to top, #4b5563, #6b7280);
-    width: 120px;
-    position: relative;
-    margin-top: 1rem;
+  background: linear-gradient(to top, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+  width: 120px;
+  position: relative;
+  margin-top: 1rem;
+  border-radius: 15px 15px 0 0;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
 }
 
-.first-base .podium-height {
-    height: 80px;
-}
-
-.second-base .podium-height {
-    height: 60px;
-}
-
-.third-base .podium-height {
-    height: 40px;
-}
-
+/* Mis Estadísticas Mejoradas */
 .my-stats-section {
-    margin-bottom: 2rem;
+  margin-bottom: 3rem;
 }
 
-.my-stats-card {
-    border: 2px solid #3b82f6;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+::ng-deep .my-stats-card {
+  border: none !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 30px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+::ng-deep .my-stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #4caf50, #2196f3, #ffc107);
+}
+
+::ng-deep .my-stats-card .p-card-header {
+  background: linear-gradient(135deg, rgba(76,175,80,0.1), rgba(33,150,243,0.1)) !important;
+  color: #2e7d32 !important;
+  border: none !important;
+  text-align: center !important;
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
 }
 
 .stat-item {
-    padding: 1rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--stat-color, #4caf50), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  border-color: var(--stat-color, #4caf50);
+}
+
+.stat-item:hover::before {
+  opacity: 0.05;
+}
+
+.stat-item div:first-child {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, var(--stat-color, #4caf50), var(--stat-color-light, #66bb6a));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 0.5rem;
 }
 
 .play-to-improve-btn {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border: none;
-    font-weight: bold;
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  border: none !important;
+  font-weight: 700 !important;
+  padding: 1.5rem 3rem !important;
+  border-radius: 25px !important;
+  font-size: 1.1rem !important;
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.ranking-table {
-    background: white;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.play-to-improve-btn:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 40px rgba(76, 175, 80, 0.5) !important;
 }
 
-.current-user-row {
-    background-color: #eff6ff !important;
-    border: 2px solid #3b82f6;
-    font-weight: 600;
+/* Tabla y Tabs Modernos */
+::ng-deep .ranking-table {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  border-radius: 25px !important;
+  overflow: hidden !important;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1) !important;
+  border: none !important;
 }
 
-.position-cell {
-    display: flex;
-    align-items: center;
+::ng-deep .ranking-table .p-datatable-thead > tr > th {
+  background: linear-gradient(135deg, rgba(76,175,80,0.15), rgba(33,150,243,0.15)) !important;
+  color: #2e7d32 !important;
+  font-weight: 700 !important;
+  border: none !important;
+  padding: 1.5rem 1rem !important;
+  font-size: 1rem !important;
 }
 
-.user-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+::ng-deep .ranking-table .p-datatable-tbody > tr {
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: #2e7d32 !important;
+  border: none !important;
+  transition: all 0.3s ease !important;
 }
 
-.user-info {
-    flex: 1;
+::ng-deep .ranking-table .p-datatable-tbody > tr:hover {
+  background: rgba(76, 175, 80, 0.1) !important;
+  transform: translateX(8px) !important;
 }
 
-.user-avatar {
-    flex-shrink: 0;
+::ng-deep .ranking-table .current-user-row {
+  background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(33,150,243,0.1)) !important;
+  border-left: 5px solid #4caf50 !important;
+  font-weight: 700 !important;
+  box-shadow: inset 0 0 20px rgba(76, 175, 80, 0.1) !important;
 }
 
-.avg-score-cell {
-    min-width: 100px;
+::ng-deep .p-tabview .p-tabview-nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  border-radius: 25px 25px 0 0 !important;
+  backdrop-filter: blur(30px) !important;
+  padding: 0.5rem !important;
 }
 
-.category-ranking-card {
-    height: 100%;
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  background: transparent !important;
+  border: none !important;
+  color: #5d4037 !important;
+  font-weight: 600 !important;
+  padding: 1.2rem 2rem !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease !important;
+  margin: 0 0.5rem !important;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link:hover {
+  background: rgba(76, 175, 80, 0.1) !important;
+  color: #4caf50 !important;
+  transform: translateY(-2px) !important;
+}
+
+::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  color: white !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4) !important;
+}
+
+::ng-deep .p-tabview .p-tabview-panels {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: none !important;
+  border-radius: 0 0 25px 25px !important;
+  backdrop-filter: blur(30px) !important;
+  padding: 2rem !important;
+}
+
+/* Botones y controles modernos */
+::ng-deep .p-button {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 15px !important;
+  padding: 0.8rem 1.8rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3) !important;
+}
+
+::ng-deep .p-button:hover {
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4) !important;
+}
+
+::ng-deep .p-button.p-button-outlined {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid #4caf50 !important;
+  color: #4caf50 !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2) !important;
+}
+
+::ng-deep .p-selectbutton .p-button {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 2px solid rgba(76, 175, 80, 0.3) !important;
+  color: #2e7d32 !important;
+  border-radius: 12px !important;
+  margin: 0 0.2rem !important;
+}
+
+::ng-deep .p-selectbutton .p-button.p-highlight {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  color: white !important;
+  border-color: #4caf50 !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4) !important;
+}
+
+::ng-deep .p-dropdown,
+::ng-deep .p-inputtext {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(76, 175, 80, 0.3) !important;
+  border-radius: 15px !important;
+  color: #2e7d32 !important;
+  padding: 1rem !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .p-dropdown:hover,
+::ng-deep .p-inputtext:hover {
+  border-color: #4caf50 !important;
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2) !important;
+}
+
+::ng-deep .p-dropdown:focus,
+::ng-deep .p-inputtext:focus {
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+}
+
+/* Cards de categorías y elementos */
+::ng-deep .category-ranking-card,
+::ng-deep .champions-card,
+::ng-deep .rising-stars-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  border: none !important;
+  border-radius: 25px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden !important;
+}
+
+::ng-deep .category-ranking-card:hover,
+::ng-deep .champions-card:hover,
+::ng-deep .rising-stars-card:hover {
+  transform: translateY(-10px) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
 }
 
 .category-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.category-rankings {
-    max-height: 300px;
-    overflow-y: auto;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.9);
 }
 
 .ranking-item {
-    padding: 0.75rem;
-    border-bottom: 1px solid #e5e7eb;
-    transition: background-color 0.2s ease;
+  padding: 1.2rem;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  margin-bottom: 0.8rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid transparent;
 }
 
 .ranking-item:hover {
-    background-color: #f9fafb;
+  background: rgba(76, 175, 80, 0.1);
+  transform: translateX(10px);
+  border-color: rgba(76, 175, 80, 0.3);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.2);
 }
 
 .ranking-item.highlight {
-    background-color: #eff6ff;
-    border-color: #3b82f6;
+  background: linear-gradient(135deg, rgba(76,175,80,0.2), rgba(33,150,243,0.1));
+  border-color: #4caf50;
+  box-shadow: 0 8px 30px rgba(76, 175, 80, 0.3);
 }
 
-.ranking-item:last-child {
-    border-bottom: none;
-}
-
-.champions-card,
-.rising-stars-card {
-    height: 100%;
-}
-
-.champion-item,
-.rising-star-item {
-    padding: 1rem;
-    border-bottom: 1px solid #e5e7eb;
-    transition: background-color 0.2s ease;
-}
-
-.champion-item:hover,
-.rising-star-item:hover {
-    background-color: #f9fafb;
-}
-
-.champion-item:last-child,
-.rising-star-item:last-child {
-    border-bottom: none;
-}
-
-.champion-badge,
-.rising-indicator {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.loading-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
+/* Responsive mejorado */
 @media (max-width: 768px) {
-    .leaderboard {
-        padding: 1rem;
-    }
+  .leaderboard > div:not(.header-section) {
+    margin: 0 1rem 2rem 1rem;
+  }
 
-    .header-section {
-        padding: 1.5rem;
-    }
+  .header-section {
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+  }
 
-    .podium-container {
-        gap: 1rem;
-        padding: 1rem 0;
-    }
+  .header-section h1 {
+    font-size: 2.2rem;
+  }
 
-    .podium-user {
-        padding: 1rem;
-    }
+  .podium-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .podium-user {
+    min-width: auto;
+    width: 280px;
+    max-width: 90vw;
+  }
+
+  .stat-item {
+    margin-bottom: 1rem;
+    padding: 1.5rem 1rem;
+  }
+
+  ::ng-deep .p-tabview .p-tabview-nav {
+    flex-direction: column;
+  }
+
+  ::ng-deep .p-tabview .p-tabview-nav li {
+    width: 100%;
+  }
 }
+
+/* Animaciones de entrada */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.leaderboard > div {
+  animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.leaderboard > div:nth-child(2) { animation-delay: 0.1s; }
+.leaderboard > div:nth-child(3) { animation-delay: 0.2s; }
+.leaderboard > div:nth-child(4) { animation-delay: 0.3s; }
