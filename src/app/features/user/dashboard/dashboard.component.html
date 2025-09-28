@@ -148,9 +148,9 @@
       </div>
       <h3 class="text-gray-600 font-medium mb-2">No hay actividad reciente</h3>
       <p class="text-gray-500 text-sm mb-4">¡Juega tu primer EcoChallenge para comenzar!</p>
-      <p-button 
-        label="Comenzar Ahora" 
-        [routerLink]="['/game/lobby']"
+      <p-button
+        label="Comenzar Ahora"
+        (click)="goToGame()"
         styleClass="floating-btn" />
     </div>
   </p-card>
@@ -294,10 +294,10 @@
 <div class="px-6 pb-8">
   <p-card header="⚡ Acciones Rápidas" styleClass="glass-effect">
     <div class="grid grid-cols-2 gap-4">
-      <div 
-        *ngFor="let action of quickActions" 
+      <div
+        *ngFor="let action of quickActions"
         class="quick-action-card cursor-pointer"
-        [routerLink]="[action.route]"
+        (click)="onQuickActionClick(action)"
         [style.border-color]="action.color"
         pRipple>
         <div class="action-icon" [style.background-color]="action.color">
@@ -311,9 +311,9 @@
 </div>
 
 <!-- Botón Flotante de Acción -->
-<p-button 
+<p-button
   icon="pi pi-play"
-  [routerLink]="['/game/lobby']"
+  (click)="goToGame()"
   styleClass="floating-btn fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg z-20"
-  pTooltip="Jugar EcoChallenge" 
+  pTooltip="Jugar EcoChallenge"
   tooltipPosition="left" />

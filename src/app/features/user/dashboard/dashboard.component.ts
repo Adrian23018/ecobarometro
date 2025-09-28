@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule,Location  } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -122,7 +122,7 @@ export class UserDashboardComponent implements OnInit {
       label: 'Jugar EcoChallenge',
       icon: 'pi pi-play',
       color: '#22c55e',
-      route: '/game/lobby',
+      route: '/game/play', // Cambiado para identificación
       description: 'Pon a prueba tus conocimientos'
     },
     {
@@ -190,19 +190,28 @@ export class UserDashboardComponent implements OnInit {
     private achievementService: AchievementService,
     private rankingService: RankingService,
     private categoryService: CategoryService,
-    private location: Location // Añadido para el botón atrás
+    private location: Location, // Añadido para el botón atrás
+    private router: Router // Añadido para navegación
   ) { }
 
   ngOnInit(): void {
+    console.log('Iniciando dashboard...');
+    console.log('Estado inicial del localStorage ecobarometro_user:', localStorage.getItem('ecobarometro_user'));
+
     this.loadUserData();
     this.loadDashboardData();
   }
 
   loadUserData(): void {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('ecobarometro_user');
+    console.log('Datos del localStorage:', userData);
+
     if (userData) {
       this.currentUser = JSON.parse(userData);
+      console.log('Usuario cargado:', this.currentUser);
       this.calculateLevelProgress();
+    } else {
+      console.error('No se encontró usuario en localStorage con clave ecobarometro_user');
     }
   }
 
@@ -336,5 +345,67 @@ export class UserDashboardComponent implements OnInit {
    // Método para el botón atrás
   goBack(): void {
     this.location.back();
+  }
+
+  // Método para ir directo al juego
+  goToGame(): void {
+    // Volver a cargar usuario por si acaso
+    this.loadUserData();
+
+    console.log('Creando sesión de juego y navegando...', this.currentUser);
+
+    if (!this.currentUser) {
+      console.error('No hay usuario logueado');
+      // Intentar cargar directamente del localStorage como respaldo
+      const userData = localStorage.getItem('ecobarometro_user');
+      if (userData) {
+        this.currentUser = JSON.parse(userData);
+        console.log('Usuario cargado como respaldo:', this.currentUser);
+      } else {
+        console.error('No se puede encontrar usuario en ecobarometro_user');
+        return;
+      }
+    }
+
+    // Crear una sesión de juego directamente
+    const gameRequest = {
+      session_name: 'EcoChallenge Rápido',
+      categories: [], // Sin filtros de categoría
+      total_questions: 15
+    };
+
+    this.gameSessionService.createGameSession(this.currentUser?.id, gameRequest).subscribe({
+      next: (session: any) => {
+        console.log('Sesión creada:', session);
+        // Navegar directo al juego
+        this.router.navigate(['/game/play', session.id]).then(
+          (success) => {
+            if (success) {
+              console.log('Navegación exitosa al juego');
+            } else {
+              console.error('Error en la navegación al juego');
+            }
+          }
+        );
+      },
+      error: (error: any) => {
+        console.error('Error creando sesión de juego:', error);
+        // Si falla, ir al lobby como respaldo
+        this.router.navigate(['/game/lobby']);
+      }
+    });
+  }
+
+  // Método para manejar clics en acciones rápidas
+  onQuickActionClick(action: QuickAction): void {
+    console.log('Acción seleccionada:', action.label, '- Ruta:', action.route);
+
+    if (action.route === '/game/play') {
+      // Ir directo al juego
+      this.goToGame();
+    } else {
+      // Para otras rutas usar navegación normal
+      this.router.navigate([action.route]);
+    }
   }
 }

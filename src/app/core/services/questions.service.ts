@@ -215,34 +215,66 @@ export class QuestionsService {
   }
 
   private async fetchRandomQuestions(adminId: string, categoryIds?: string[], limit: number = 20): Promise<GameQuestion[]> {
-    let query = this.supabase
-      .from('questions')
-      .select(`
-        *,
-        category:categories(*),
-        options:question_options(*)
-      `)
-      .eq('admin_id', adminId)
-      .eq('is_active', true);
+    try {
+      console.log('🔍 Buscando preguntas en la base de datos...');
+      console.log('📊 Parámetros de búsqueda:', { adminId, categoryIds, limit });
 
-    if (categoryIds && categoryIds.length > 0) {
-      query = query.in('category_id', categoryIds);
+      let query = this.supabase
+        .from('questions')
+        .select(`
+          *,
+          category:categories(*),
+          options:question_options(*)
+        `)
+        .eq('admin_id', adminId)
+        .eq('is_active', true);
+
+      if (categoryIds && categoryIds.length > 0) {
+        query = query.in('category_id', categoryIds);
+      }
+
+      console.log('🚀 Ejecutando consulta SQL...');
+      const { data: questions, error } = await query;
+
+      if (error) {
+        console.error('❌ Error en consulta SQL:', error);
+        throw new Error(`Error consultando preguntas: ${error.message}`);
+      }
+
+      console.log('📋 Preguntas encontradas:', questions?.length || 0);
+      console.log('📝 Preguntas completas:', questions);
+
+      if (!questions || questions.length === 0) {
+        console.warn('⚠️ No se encontraron preguntas para admin_id:', adminId);
+        return [];
+      }
+
+      // Verificar que las preguntas tengan opciones
+      const questionsWithOptions = questions.filter(q => q.options && q.options.length > 0);
+      console.log('✅ Preguntas con opciones válidas:', questionsWithOptions.length);
+
+      if (questionsWithOptions.length === 0) {
+        console.warn('⚠️ No se encontraron preguntas con opciones válidas');
+        return [];
+      }
+
+      // Mezclar preguntas aleatoriamente
+      const shuffled = questionsWithOptions.sort(() => Math.random() - 0.5);
+      const selected = shuffled.slice(0, limit);
+
+      console.log('🎯 Preguntas seleccionadas:', selected.length);
+
+      return selected.map(question => ({
+        question: question as Question,
+        options: (question.options || []).sort(() => Math.random() - 0.5), // Mezclar opciones
+        time_limit: this.getTimeLimitByDifficulty(question.difficulty_level),
+        bonus_points: this.getBonusPointsByDifficulty(question.difficulty_level)
+      }));
+
+    } catch (error) {
+      console.error('💥 Error completo en fetchRandomQuestions:', error);
+      throw error;
     }
-
-    const { data: questions } = await query;
-
-    if (!questions || questions.length === 0) return [];
-
-    // Mezclar preguntas aleatoriamente
-    const shuffled = questions.sort(() => Math.random() - 0.5);
-    const selected = shuffled.slice(0, limit);
-
-    return selected.map(question => ({
-      question: question as Question,
-      options: (question.options || []).sort(() => Math.random() - 0.5), // Mezclar opciones
-      time_limit: this.getTimeLimitByDifficulty(question.difficulty_level),
-      bonus_points: this.getBonusPointsByDifficulty(question.difficulty_level)
-    }));
   }
 
   private getTimeLimitByDifficulty(difficulty: number): number {
@@ -391,6 +423,41 @@ export class QuestionsService {
     }
 
     return newQuestion;
+  }
+
+  // Método para verificar existencia de preguntas
+  checkQuestionsExist(adminId: string): Observable<number> {
+    return from(this.supabase
+      .from('questions')
+      .select('id', { count: 'exact', head: true })
+      .eq('admin_id', adminId)
+      .eq('is_active', true)
+    ).pipe(
+      map(response => {
+        console.log('📊 Conteo de preguntas:', response);
+        return response.count || 0;
+      })
+    );
+  }
+
+  // Método para obtener preguntas de prueba para debugging
+  getTestQuestions(adminId: string): Observable<Question[]> {
+    return from(this.supabase
+      .from('questions')
+      .select(`
+        *,
+        options:question_options(*)
+      `)
+      .eq('admin_id', adminId)
+      .eq('is_active', true)
+      .limit(5)
+    ).pipe(
+      map(response => {
+        console.log('🧪 Preguntas de prueba:', response);
+        if (response.error) throw response.error;
+        return response.data || [];
+      })
+    );
   }
 
   // Bulk operations

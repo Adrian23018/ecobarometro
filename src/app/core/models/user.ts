@@ -1,6 +1,6 @@
 // src/app/core/models/user.ts
 export interface User {
-  id: string;
+  id?: any;
   email: string;
   username: string;
   full_name: string;

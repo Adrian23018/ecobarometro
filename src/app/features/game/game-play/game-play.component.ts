@@ -138,22 +138,68 @@ String: any;
   async initializeGame(): Promise<void> {
     try {
       this.isLoading = true;
+      console.log('Inicializando juego con sessionId:', this.sessionId);
 
       // Cargar sesión de juego
       const session = await this.gameSessionService.getGameSession(this.sessionId).toPromise();
+      console.log('Sesión cargada:', session);
 
       if (!session) {
         this.handleGameError('Sesión de juego no encontrada');
         return;
       }
 
-      // Cargar preguntas para la sesión
-      const questions = await this.questionsService.getQuestionsForSession(this.sessionId).toPromise();
+      // Obtener el admin_id del usuario actual
+      const userData = localStorage.getItem('ecobarometro_user');
+      if (!userData) {
+        this.handleGameError('Usuario no encontrado');
+        return;
+      }
+
+      const user = JSON.parse(userData);
+      console.log('Usuario para obtener preguntas:', user);
+      console.log('admin_id del usuario:', user.admin_id);
+
+      if (!user.admin_id) {
+        this.handleGameError('Usuario no tiene admin_id asignado');
+        return;
+      }
+
+      // Verificar primero si existen preguntas
+      console.log('🔍 Verificando existencia de preguntas para admin_id:', user.admin_id);
+      const questionCount = await this.questionsService.checkQuestionsExist(user.admin_id).toPromise();
+      console.log('📊 Total de preguntas disponibles:', questionCount);
+
+      if (questionCount === 0) {
+        console.error('❌ No existen preguntas para este admin_id en la base de datos');
+        this.handleGameError(`No se encontraron preguntas para el administrador. Admin ID: ${user.admin_id}`);
+        return;
+      }
+
+      // Cargar preguntas aleatorias directamente del admin desde la base de datos
+      console.log('📋 Consultando base de datos para obtener preguntas...');
+      const gameQuestions = await this.questionsService.getRandomQuestions(
+        user.admin_id,
+        undefined, // Sin filtro de categorías
+        15 // 15 preguntas
+      ).toPromise();
+
+      console.log('Preguntas obtenidas:', gameQuestions);
+
+      if (!gameQuestions || gameQuestions.length === 0) {
+        console.error('❌ No se pudieron cargar preguntas de la base de datos');
+        this.handleGameError('No se pudieron cargar las preguntas. Verifica que existan preguntas activas para este administrador.');
+        return;
+      }
+
+      // Convertir GameQuestion[] a Question[]
+      const questions = gameQuestions.map(gq => gq.question);
+      console.log('✅ Preguntas convertidas exitosamente:', questions.length);
 
       this.gameSession = {
         session,
         current_question_index: 0,
-        questions: questions || [],
+        questions: questions,
         responses: [],
         start_time: new Date()
       };
@@ -167,24 +213,34 @@ String: any;
         streakCount: 0
       };
 
+      console.log('GameSession inicializada:', this.gameSession);
+      console.log('GameStats inicializadas:', this.gameStats);
+
       this.loadCurrentQuestion();
       this.startTimer();
 
     } catch (error) {
       console.error('Error initializing game:', error);
-      this.handleGameError('Error al inicializar el juego');
+      this.handleGameError('Error al inicializar el juego: ' + error);
     } finally {
       this.isLoading = false;
     }
   }
 
   loadCurrentQuestion(): void {
+    console.log('Cargando pregunta actual...');
+    console.log('gameSession:', this.gameSession);
+    console.log('current_question_index:', this.gameSession?.current_question_index);
+    console.log('total questions:', this.gameSession?.questions.length);
+
     if (!this.gameSession || this.gameSession.current_question_index >= this.gameSession.questions.length) {
+      console.log('No hay más preguntas, completando juego...');
       this.completeGame();
       return;
     }
 
     const question = this.gameSession.questions[this.gameSession.current_question_index];
+    console.log('Pregunta actual:', question);
 
     this.currentQuestion = {
       question,
@@ -193,9 +249,13 @@ String: any;
       bonus_points: this.calculateBonusPoints(question)
     };
 
+    console.log('currentQuestion configurada:', this.currentQuestion);
+
     this.selectedOption = null;
     this.gameStats.timeRemaining = this.timeLimit;
     this.gameStats.currentQuestionNumber = this.gameSession.current_question_index + 1;
+
+    console.log('gameStats actualizadas:', this.gameStats);
   }
 
   calculateBonusPoints(question: Question): number {
@@ -457,5 +517,164 @@ String: any;
   getAccuracyPercentage(): number {
     if (this.gameStats.totalQuestions === 0) return 0;
     return Math.round((this.gameStats.correctAnswers / this.gameStats.totalQuestions) * 100);
+  }
+
+  // Método para crear preguntas de ejemplo (para testing)
+  createSampleQuestions(): Question[] {
+    return [
+      {
+        id: 'sample-1',
+        admin_id: 'sample-admin',
+        category_id: 'sample-category',
+        question_text: '¿Cuál es la principal causa del cambio climático?',
+        question_type: 'multiple_choice',
+        points: 10,
+        difficulty_level: 1,
+        order_index: 1,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        options: [
+          {
+            id: 'opt-1',
+            question_id: 'sample-1',
+            option_text: 'Las emisiones de gases de efecto invernadero',
+            is_correct: true,
+            points: 10,
+            order_index: 1,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-2',
+            question_id: 'sample-1',
+            option_text: 'La deforestación únicamente',
+            is_correct: false,
+            points: 0,
+            order_index: 2,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-3',
+            question_id: 'sample-1',
+            option_text: 'Los volcanes',
+            is_correct: false,
+            points: 0,
+            order_index: 3,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-4',
+            question_id: 'sample-1',
+            option_text: 'Las manchas solares',
+            is_correct: false,
+            points: 0,
+            order_index: 4,
+            created_at: new Date().toISOString()
+          }
+        ]
+      },
+      {
+        id: 'sample-2',
+        admin_id: 'sample-admin',
+        category_id: 'sample-category',
+        question_text: '¿Qué significa "desarrollo sostenible"?',
+        question_type: 'multiple_choice',
+        points: 15,
+        difficulty_level: 2,
+        order_index: 2,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        options: [
+          {
+            id: 'opt-5',
+            question_id: 'sample-2',
+            option_text: 'Crecimiento económico sin límites',
+            is_correct: false,
+            points: 0,
+            order_index: 1,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-6',
+            question_id: 'sample-2',
+            option_text: 'Satisfacer necesidades actuales sin comprometer futuras generaciones',
+            is_correct: true,
+            points: 15,
+            order_index: 2,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-7',
+            question_id: 'sample-2',
+            option_text: 'Solo proteger el medio ambiente',
+            is_correct: false,
+            points: 0,
+            order_index: 3,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-8',
+            question_id: 'sample-2',
+            option_text: 'Usar solo energías renovables',
+            is_correct: false,
+            points: 0,
+            order_index: 4,
+            created_at: new Date().toISOString()
+          }
+        ]
+      },
+      {
+        id: 'sample-3',
+        admin_id: 'sample-admin',
+        category_id: 'sample-category',
+        question_text: '¿Cuál es el principal gas de efecto invernadero?',
+        question_type: 'multiple_choice',
+        points: 20,
+        difficulty_level: 3,
+        order_index: 3,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        options: [
+          {
+            id: 'opt-9',
+            question_id: 'sample-3',
+            option_text: 'Oxígeno (O2)',
+            is_correct: false,
+            points: 0,
+            order_index: 1,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-10',
+            question_id: 'sample-3',
+            option_text: 'Dióxido de carbono (CO2)',
+            is_correct: true,
+            points: 20,
+            order_index: 2,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-11',
+            question_id: 'sample-3',
+            option_text: 'Nitrógeno (N2)',
+            is_correct: false,
+            points: 0,
+            order_index: 3,
+            created_at: new Date().toISOString()
+          },
+          {
+            id: 'opt-12',
+            question_id: 'sample-3',
+            option_text: 'Hidrógeno (H2)',
+            is_correct: false,
+            points: 0,
+            order_index: 4,
+            created_at: new Date().toISOString()
+          }
+        ]
+      }
+    ];
   }
 }
