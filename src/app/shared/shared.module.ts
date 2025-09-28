@@ -55,6 +55,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 // Shared Components
 import { HeaderComponent } from './components/header/header.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { ScoreDisplayComponent } from './components/score-display/score-display.component';
@@ -124,6 +125,7 @@ const PRIMENG_MODULES = [
 
 const SHARED_COMPONENTS = [
   HeaderComponent,
+  NavbarComponent,
   FooterComponent,
   LoadingSpinnerComponent,
   ScoreDisplayComponent,

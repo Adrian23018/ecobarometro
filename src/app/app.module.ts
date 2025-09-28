@@ -24,30 +24,43 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { AppComponent } from './app.component';
 import { environment } from '../environments/environment';
+import { SharedModule } from './shared/shared.module';
 
 // Configuración básica de rutas aquí mismo
 import { RouterModule, Routes } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 const routes: Routes = [
-  { 
-    path: '', 
-    redirectTo: '/auth/login', 
-    pathMatch: 'full' 
+  {
+    path: '',
+    redirectTo: '/auth/login',
+    pathMatch: 'full'
   },
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
-  { 
-    path: '**', 
-    redirectTo: '/auth/login' 
+  {
+    path: 'user',
+    loadChildren: () => import('./features/user/user.module').then(m => m.UserModule)
+  },
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.module').then(m => m.AdminModule)
+  },
+  {
+    path: 'game',
+    loadChildren: () => import('./features/game/game.module').then(m => m.GameModule)
+  },
+  {
+    path: '**',
+    redirectTo: '/auth/login'
   }
 ];
 
 @NgModule({
   declarations: [
-    // AppComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -56,24 +69,7 @@ const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot(routes),
-    
-    // PrimeNG
-    ButtonModule,
-    CardModule,
-    InputTextModule,
-    PasswordModule,
-    ToastModule,
-    ProgressBarModule,
-    TableModule,
-    DialogModule,
-    ConfirmDialogModule,
-    AvatarModule,
-    BadgeModule,
-    ChipModule,
-    RippleModule,
-    ConfirmDialogModule,
-    CommonModule,
-    RouterModule,
+    SharedModule,
     
     // PWA
     ServiceWorkerModule.register('ngsw-worker.js', {
@@ -85,9 +81,6 @@ const routes: Routes = [
     MessageService,
     ConfirmationService
   ],
-  // bootstrap: [AppComponent],
-  exports: [RouterModule,
-    ToastModule,
-    ConfirmDialogModule,]
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -287,6 +287,8 @@ export class AuthService {
   // Login unificado - Compatible con LoginComponent
   async login(credentials: { email: string; password: string; rememberMe?: boolean }): Promise<AuthResponse> {
     try {
+      console.log('🔐 Iniciando login...');
+
       // Primero intentar como admin
       const adminResult = await this.attemptAdminLogin({
         email: credentials.email,
@@ -294,6 +296,7 @@ export class AuthService {
       });
 
       if (adminResult.success) {
+        console.log('✅ Login exitoso como admin');
         // Guardar sesión si rememberMe está habilitado
         if (credentials.rememberMe) {
           localStorage.setItem('ecobarometro_remember', 'true');
@@ -301,13 +304,14 @@ export class AuthService {
         return adminResult;
       }
 
-      // Si no es admin, intentar como usuario
+      // Si no es admin, intentar como usuario normal
       const userResult = await this.attemptUserLogin({
         email_or_username: credentials.email,
         password: credentials.password
       });
 
       if (userResult.success) {
+        console.log('✅ Login exitoso como usuario');
         // Guardar sesión si rememberMe está habilitado
         if (credentials.rememberMe) {
           localStorage.setItem('ecobarometro_remember', 'true');
@@ -321,6 +325,7 @@ export class AuthService {
       };
 
     } catch (error: any) {
+      console.error('💥 Error en login:', error);
       return {
         success: false,
         error: 'Error de conexión. Intenta nuevamente.'
@@ -397,11 +402,11 @@ export class AuthService {
 
       // Generate token
       const token = this.generateToken(user.id, 'user');
-      
+
       // Store session
       localStorage.setItem('ecobarometro_user', JSON.stringify(user));
       localStorage.setItem('ecobarometro_token', token);
-      
+
       // Update auth state
       this.updateAuthState(true, user, null, 'user');
 
@@ -412,6 +417,87 @@ export class AuthService {
       };
 
     } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  private async attemptUserLoginWithAdminCode(credentials: { email_or_username: string; password: string; admin_code: string }): Promise<AuthResponse> {
+    try {
+      console.log('🔍 Buscando administrador con admin_code:', credentials.admin_code);
+
+      // Primero buscar el admin por admin_code
+      const { data: admin, error: adminError } = await this.supabase
+        .from('admins')
+        .select('id, admin_code, name')
+        .eq('admin_code', credentials.admin_code)
+        .eq('is_active', true)
+        .single();
+
+      if (adminError || !admin) {
+        console.error('❌ Admin_code no encontrado:', credentials.admin_code);
+        return { success: false, error: 'Código de administrador inválido' };
+      }
+
+      console.log('✅ Admin encontrado:', admin);
+
+      // Buscar usuario por email o username Y admin_id
+      let query = this.supabase
+        .from('users')
+        .select('*')
+        .eq('admin_id', admin.id)
+        .eq('is_active', true);
+
+      if (credentials.email_or_username.includes('@')) {
+        query = query.eq('email', credentials.email_or_username);
+      } else {
+        query = query.eq('username', credentials.email_or_username);
+      }
+
+      console.log('🔍 Buscando usuario con admin_id:', admin.id);
+      const { data: user, error: userError } = await query.single();
+
+      if (userError || !user) {
+        console.error('❌ Usuario no encontrado para este admin:', userError);
+        return { success: false, error: 'Usuario no encontrado para este administrador' };
+      }
+
+      console.log('✅ Usuario encontrado:', user);
+
+      // Verificar contraseña
+      const isPasswordValid = await this.verifyPassword(credentials.password, user.password_hash || '');
+      if (!isPasswordValid) {
+        console.error('❌ Contraseña incorrecta');
+        return { success: false, error: 'Contraseña incorrecta' };
+      }
+
+      // Agregar información del admin al usuario
+      const userWithAdmin = {
+        ...user,
+        admin_id: admin.id,
+        admin_code: admin.admin_code,
+        admin_name: admin.name
+      };
+
+      // Generar token
+      const token = this.generateToken(user.id, 'user');
+
+      // Guardar sesión con información completa
+      localStorage.setItem('ecobarometro_user', JSON.stringify(userWithAdmin));
+      localStorage.setItem('ecobarometro_token', token);
+
+      console.log('💾 Sesión guardada en localStorage:', userWithAdmin);
+
+      // Actualizar estado de autenticación
+      this.updateAuthState(true, userWithAdmin, null, 'user');
+
+      return {
+        success: true,
+        message: '¡Bienvenido Jugador!',
+        data: { user: userWithAdmin, role: 'user' }
+      };
+
+    } catch (error: any) {
+      console.error('💥 Error en attemptUserLoginWithAdminCode:', error);
       return { success: false, error: error.message };
     }
   }

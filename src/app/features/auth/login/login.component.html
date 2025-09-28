@@ -70,7 +70,7 @@
           <label for="password" class="block text-sm font-medium text-gray-700">
             <i class="pi pi-lock mr-2"></i>Contraseña
           </label>
-          <p-password 
+          <p-password
             id="password"
             formControlName="password"
             placeholder="Tu contraseña segura"
@@ -80,12 +80,13 @@
             inputStyleClass="w-full p-3 border rounded-lg"
             [class.border-red-500]="isFieldInvalid('password')">
           </p-password>
-          <p-message 
-            *ngIf="isFieldInvalid('password')" 
-            severity="error" 
+          <p-message
+            *ngIf="isFieldInvalid('password')"
+            severity="error"
             [text]="getFieldError('password')">
           </p-message>
         </div>
+
 
         <!-- Remember me y forgot password -->
         <div class="flex items-center justify-between">

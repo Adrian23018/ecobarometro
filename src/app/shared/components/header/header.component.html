@@ -1,21 +1,18 @@
-<!-- src/app/shared/components/header/header.component.html -->
-<header class="header-container" [class]="'header-' + variant" (click)="closeMenus()">
-  
-  <!-- Contenedor principal -->
-  <div class="flex items-center justify-between h-16 px-4 bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm">
-    
-    <!-- Lado izquierdo - Logo y navegación -->
-    <div class="flex items-center space-x-4">
-      
-      <!-- Botón menú móvil -->
-      <button 
-        *ngIf="variant !== 'game'"
-        (click)="menuToggle.emit(); $event.stopPropagation()"
-        class="p-2 rounded-lg hover:bg-gray-100 lg:hidden transition-colors">
-        <i class="pi pi-bars text-gray-600"></i>
+<!-- Header Universal con Botón Atrás y Logout -->
+<header class="bg-white shadow-md border-b-4 border-emerald-500 relative">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex justify-between items-center">
+
+      <!-- Lado Izquierdo - Botón Atrás -->
+      <button
+        class="back-button flex items-center gap-2 p-2 rounded-xl text-gray-700 hover:bg-gray-100 font-medium transition-all duration-300"
+        (click)="goBack()"
+        pRipple>
+        <i class="pi pi-arrow-left text-lg"></i>
+        <span class="hidden sm:inline">Atrás</span>
       </button>
 
-      <!-- Logo -->
+      <!-- Centro - Logo y Título -->
       <div class="flex items-center space-x-3 cursor-pointer" (click)="navigateToDashboard()">
         <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center shadow-md">
           <i class="pi pi-globe text-white text-xl"></i>
@@ -23,233 +20,36 @@
         <div class="hidden sm:block">
           <h1 class="text-xl font-bold text-gray-800">EcoBarómetro</h1>
           <p class="text-xs text-gray-500" *ngIf="user?.role === 'admin'">Panel Admin</p>
+          <p class="text-xs text-emerald-600" *ngIf="user?.role === 'user'">Nivel {{ user?.level || 1 }}</p>
         </div>
       </div>
-    </div>
 
-    <!-- Centro - Barra de búsqueda (opcional) -->
-    <div class="flex-1 max-w-lg mx-4" *ngIf="showSearch && variant !== 'game'">
-      <div class="relative">
-        <input 
-          type="text"
-          [(ngModel)]="searchText"
-          (keyup.enter)="onSearch()"
-          placeholder="Buscar preguntas, categorías, usuarios..."
-          class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all">
-        <i class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-        <button 
-          *ngIf="searchText"
-          (click)="onSearch()"
-          class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-green-600 hover:text-green-700">
-          <i class="pi pi-arrow-right text-sm"></i>
+      <!-- Lado Derecho - Usuario y Logout -->
+      <div class="flex items-center gap-3">
+
+        <!-- Info del Usuario -->
+        <div *ngIf="user" class="hidden sm:flex items-center gap-3">
+          <div class="text-right">
+            <p class="text-sm font-medium text-gray-800">{{ user.name || user.username }}</p>
+            <p class="text-xs text-gray-500">{{ user.points || 0 }} puntos</p>
+          </div>
+          <div class="w-10 h-10 bg-gradient-to-r from-emerald-400 to-blue-400 rounded-full flex items-center justify-center">
+            <span class="text-white font-bold text-sm">{{ getAvatarInitials(user.name || user.username) }}</span>
+          </div>
+        </div>
+
+        <!-- Botón Logout -->
+        <button
+          class="logout-button flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg"
+          (click)="logout()"
+          pRipple>
+          <i class="pi pi-sign-out text-sm"></i>
+          <span class="hidden sm:inline">Salir</span>
         </button>
       </div>
     </div>
-
-    <!-- Lado derecho - Usuario y notificaciones -->
-    <div class="flex items-center space-x-3">
-      
-      <!-- Estadísticas rápidas del usuario -->
-      <div *ngIf="user && variant === 'default'" class="hidden md:flex items-center space-x-4 pr-4 border-r border-gray-200">
-        
-        <!-- Puntos -->
-        <div class="text-center">
-          <div class="text-lg font-bold text-yellow-600">{{ user.points | scoreFormat:'compact' }}</div>
-          <div class="text-xs text-gray-500">Puntos</div>
-        </div>
-        
-        <!-- Nivel -->
-        <div class="text-center">
-          <div class="text-lg font-bold" [style.color]="getLevelColor(user.level)">{{ user.level }}</div>
-          <div class="text-xs text-gray-500">Nivel</div>
-        </div>
-      </div>
-
-      <!-- Notificaciones -->
-      <div *ngIf="showNotifications" class="relative">
-        <button 
-          (click)="toggleNotifications(); $event.stopPropagation()"
-          class="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
-          <i class="pi pi-bell text-gray-600 text-lg"></i>
-          
-          <!-- Badge de notificaciones -->
-          <span 
-            *ngIf="unreadCount > 0"
-            class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center animate-pulse">
-            {{ unreadCount > 9 ? '9+' : unreadCount }}
-          </span>
-        </button>
-
-        <!-- Panel de notificaciones -->
-        <div 
-          *ngIf="showNotificationPanel"
-          class="absolute right-0 top-12 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden"
-          (click)="$event.stopPropagation()">
-          
-          <!-- Header del panel -->
-          <div class="p-4 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold text-gray-800">Notificaciones</h3>
-              <span class="text-sm text-gray-500">{{ unreadCount }} nuevas</span>
-            </div>
-          </div>
-
-          <!-- Lista de notificaciones -->
-          <div class="max-h-64 overflow-y-auto">
-            <div 
-              *ngFor="let notification of notifications"
-              (click)="onNotificationClick(notification)"
-              class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
-              [class.bg-blue-50]="!notification.read">
-              
-              <div class="flex items-start space-x-3">
-                <div 
-                  class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm"
-                  [style.background-color]="notification.color">
-                  <i [class]="'pi ' + notification.icon"></i>
-                </div>
-                
-                <div class="flex-1 min-w-0">
-                  <p class="font-medium text-gray-800 text-sm">{{ notification.title }}</p>
-                  <p class="text-gray-600 text-xs mt-1">{{ notification.message }}</p>
-                  <p class="text-gray-400 text-xs mt-1">{{ notification.time }}</p>
-                </div>
-                
-                <div *ngIf="!notification.read" class="w-2 h-2 bg-blue-500 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer del panel -->
-          <div class="p-3 text-center border-t border-gray-200">
-            <button class="text-sm text-green-600 hover:text-green-700 font-medium">
-              Ver todas las notificaciones
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Avatar y menú de usuario -->
-      <div class="relative" *ngIf="user">
-        <button 
-          (click)="toggleUserMenu(); $event.stopPropagation()"
-          class="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors">
-          
-          <!-- Avatar -->
-          <div class="relative">
-            <div 
-              *ngIf="user.avatar; else avatarInitials"
-              class="w-8 h-8 rounded-full bg-cover bg-center border-2 border-gray-200"
-              [style.background-image]="'url(' + user.avatar + ')'">
-            </div>
-            <ng-template #avatarInitials>
-              <div 
-                class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold border-2 border-gray-200"
-                [style.background-color]="getLevelColor(user.level)">
-                {{ getAvatarInitials(user.name) }}
-              </div>
-            </ng-template>
-            
-            <!-- Indicador de nivel -->
-            <div 
-              class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-md"
-              [style.background-color]="getLevelColor(user.level)">
-              {{ user.level }}
-            </div>
-          </div>
-
-          <!-- Nombre (oculto en móvil) -->
-          <div class="hidden sm:block">
-            <p class="text-sm font-medium text-gray-800">{{ user.name }}</p>
-            <p class="text-xs text-gray-500">{{ user.username }}</p>
-          </div>
-
-          <i class="pi pi-chevron-down text-gray-400 text-xs"></i>
-        </button>
-
-        <!-- Menú desplegable de usuario -->
-        <div 
-          *ngIf="showUserMenu"
-          class="absolute right-0 top-12 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
-          (click)="$event.stopPropagation()">
-          
-          <!-- Info del usuario -->
-          <div class="p-4 border-b border-gray-200">
-            <p class="font-medium text-gray-800">{{ user.name }}</p>
-            <p class="text-sm text-gray-500">{{ user.points | scoreFormat }} puntos</p>
-            <p class="text-xs text-gray-400">{{ user.level | levelName }}</p>
-          </div>
-
-          <!-- Opciones del menú -->
-          <div class="py-2">
-            <button 
-              (click)="navigateToProfile()"
-              class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2">
-              <i class="pi pi-user text-gray-400"></i>
-              <span>Mi Perfil</span>
-            </button>
-            
-            <button 
-              *ngIf="user.role === 'user'"
-              (click)="router.navigate(['/user/achievements'])"
-              class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2">
-              <i class="pi pi-trophy text-gray-400"></i>
-              <span>Mis Logros</span>
-            </button>
-            
-            <button 
-              *ngIf="user.role === 'user'"
-              (click)="router.navigate(['/user/ranking'])"
-              class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2">
-              <i class="pi pi-chart-bar text-gray-400"></i>
-              <span>Ranking</span>
-            </button>
-            
-            <button 
-              (click)="navigateToSettings()"
-              class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors flex items-center space-x-2">
-              <i class="pi pi-cog text-gray-400"></i>
-              <span>Configuración</span>
-            </button>
-          </div>
-
-          <!-- Logout -->
-          <div class="border-t border-gray-200 py-2">
-            <button 
-              (click)="logout()"
-              class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center space-x-2">
-              <i class="pi pi-sign-out text-red-500"></i>
-              <span>Cerrar Sesión</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Botón de login si no hay usuario -->
-      <div *ngIf="!user" class="flex items-center space-x-2">
-        <button 
-          (click)="router.navigate(['/auth/login'])"
-          class="px-4 py-2 text-sm font-medium text-green-600 hover:text-green-700 transition-colors">
-          Iniciar Sesión
-        </button>
-        <button 
-          (click)="router.navigate(['/auth/register'])"
-          class="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-          Registrarse
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Barra de progreso para modo juego -->
-  <div *ngIf="variant === 'game'" class="h-1 bg-gray-200">
-    <div class="h-full bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-300" style="width: 45%"></div>
   </div>
 </header>
 
-<!-- Overlay para cerrar menús en móvil -->
-<div 
-  *ngIf="showUserMenu || showNotificationPanel"
-  class="fixed inset-0 z-40 lg:hidden"
-  (click)="closeMenus()">
-</div>
+<!-- Notificaciones Toast para Feedback -->
+<p-toast></p-toast>

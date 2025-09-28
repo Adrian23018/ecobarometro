@@ -229,15 +229,7 @@
     transform: none;
   }
 
-  @keyframes correctAnswer,
-  @keyframes incorrectAnswer,
-  @keyframes fadeInOut,
-  @keyframes pulse,
-  @keyframes shimmer,
-  @keyframes gradientShift,
-  @keyframes spin {
-    animation-duration: 0.01ms !important;
-  }
+
 }
 
 /* Dark mode considerations */

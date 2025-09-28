@@ -158,10 +158,13 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout().subscribe(() => {
-      this.router.navigate(['/auth/login']);
-    });
+    console.log('🚪 Cerrando sesión...');
+    this.authService.logout();
     this.showUserMenu = false;
+  }
+
+  goBack() {
+    window.history.back();
   }
 
   getLevelColor(level: number): string {
