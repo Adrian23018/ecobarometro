@@ -17,11 +17,11 @@ const routes: Routes = [
         loadComponent: () => import('./game-lobby/game-lobby.component').then(m => m.GameLobbyComponent),
         title: 'Lobby - EcoBarómetro'
       },
-      // {
-      //   path: 'play/:sessionId',
-      //   loadComponent: () => import('./game-play/game-play.component').then(m => m.GamePlayComponent),
-      //   title: 'Jugando - EcoBarómetro'
-      // },
+      {
+        path: 'play/:sessionId',
+        loadComponent: () => import('./game-play/game-play.component').then(m => m.GamePlayComponent),
+        title: 'Jugando - EcoBarómetro'
+      },
       {
         path: 'result/:sessionId',
         loadComponent: () => import('./game-results/game-results.component').then(m => m.GameResultComponent),

@@ -611,6 +611,70 @@ export class GameSessionService {
   }
 
   /**
+   * Obtener sesión por ID
+   */
+  getGameSession(sessionId: string): Observable<GameSession> {
+    return from(this.supabase
+      .from('game_sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single()
+    ).pipe(
+      map(response => {
+        if (response.error) throw new Error(response.error.message);
+        return response.data;
+      })
+    );
+  }
+
+  /**
+   * Abandonar sesión de juego
+   */
+  abandonSession(sessionId: string): Observable<GameSession> {
+    return this.updateGameSession(sessionId, {
+      status: 'abandoned',
+      completed_at: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Completar sesión con datos finales
+   */
+  completeSession(sessionId: string, completionData: any): Observable<GameSession> {
+    return this.updateGameSession(sessionId, {
+      ...completionData,
+      status: 'completed',
+      completed_at: new Date().toISOString()
+    });
+  }
+
+  /**
+   * Guardar respuesta del usuario
+   */
+  submitResponse(response: any): Observable<any> {
+    return from(this.supabase
+      .from('user_responses')
+      .insert([{
+        game_session_id: response.session_id,
+        user_id: response.user_id,
+        question_id: response.question_id,
+        selected_option_id: response.selected_option_id,
+        is_correct: response.is_correct,
+        points_earned: response.points_earned,
+        time_taken: response.time_taken,
+        responded_at: response.responded_at
+      }])
+      .select()
+      .single()
+    ).pipe(
+      map(result => {
+        if (result.error) throw new Error(result.error.message);
+        return result.data;
+      })
+    );
+  }
+
+  /**
    * Calcular métricas de rendimiento de una sesión
    */
   calculateSessionPerformance(sessionId: string): Observable<SessionPerformanceMetrics> {

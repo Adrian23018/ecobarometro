@@ -1,0 +1,259 @@
+/* Game Play Component Styles */
+
+/* Option Cards */
+.option-card {
+  transition: all 0.3s ease;
+}
+
+.option-card .option-indicator {
+  @apply w-10 h-10 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center font-bold text-lg;
+  transition: all 0.3s ease;
+}
+
+.option-card:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.option-card:hover:not(.disabled) .option-indicator {
+  @apply bg-blue-500 text-white;
+}
+
+.option-card.selected {
+  @apply border-blue-500 bg-blue-50;
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+}
+
+.option-card.selected .option-indicator {
+  @apply bg-blue-500 text-white;
+}
+
+.option-card.correct {
+  @apply border-green-500 bg-green-50;
+  animation: correctAnswer 0.6s ease-in-out;
+}
+
+.option-card.correct .option-indicator {
+  @apply bg-green-500 text-white;
+}
+
+.option-card.incorrect {
+  @apply border-red-500 bg-red-50;
+  animation: incorrectAnswer 0.6s ease-in-out;
+}
+
+.option-card.incorrect .option-indicator {
+  @apply bg-red-500 text-white;
+}
+
+.option-card.disabled {
+  @apply cursor-not-allowed opacity-70;
+}
+
+/* Animations */
+@keyframes correctAnswer {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); background-color: rgb(220, 252, 231); }
+  100% { transform: scale(1); }
+}
+
+@keyframes incorrectAnswer {
+  0% { transform: scale(1); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); background-color: rgb(254, 226, 226); }
+  75% { transform: translateX(-5px); }
+  100% { transform: scale(1); }
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Timer warning animation */
+.timer-warning {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Question transition */
+.question-enter {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.question-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: all 0.5s ease-in-out;
+}
+
+.question-leave {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.question-leave-active {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: all 0.5s ease-in-out;
+}
+
+/* Eco Button Enhancement */
+.eco-button {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  border: none;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.eco-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);
+}
+
+.eco-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Progress enhancements */
+.progress-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Card enhancements */
+.game-card {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Streak effects */
+.streak-effect {
+  background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+  background-size: 400% 400%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Loading states */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .option-card {
+    margin-bottom: 0.75rem;
+  }
+
+  .option-card .option-indicator {
+    @apply w-8 h-8 text-base;
+  }
+
+  .game-header {
+    @apply px-2 py-2;
+  }
+
+  .game-content {
+    @apply px-2;
+  }
+}
+
+/* Accessibility improvements */
+.option-card:focus {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.option-card.selected:focus {
+  outline-color: #1d4ed8;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .option-card {
+    border-width: 3px;
+  }
+
+  .option-card.selected {
+    background-color: #dbeafe;
+    border-color: #1d4ed8;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .option-card,
+  .eco-button {
+    transition: none;
+  }
+
+  .option-card:hover {
+    transform: none;
+  }
+
+  @keyframes correctAnswer,
+  @keyframes incorrectAnswer,
+  @keyframes fadeInOut,
+  @keyframes pulse,
+  @keyframes shimmer,
+  @keyframes gradientShift,
+  @keyframes spin {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode considerations */
+@media (prefers-color-scheme: dark) {
+  .game-card {
+    background: rgba(17, 24, 39, 0.95);
+    border-color: rgba(75, 85, 99, 0.3);
+  }
+
+  .option-card {
+    background-color: rgb(31, 41, 55);
+    border-color: rgb(75, 85, 99);
+  }
+
+  .option-card:hover {
+    border-color: rgb(96, 165, 250);
+    background-color: rgb(30, 58, 138);
+  }
+}

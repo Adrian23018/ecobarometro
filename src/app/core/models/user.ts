@@ -169,6 +169,30 @@ export interface UserNotification {
 
 // Tipos de respuesta de API
 export interface UserResponse {
+  id: string;
+  user_id: string;
+  question_id: string;
+  selected_option_id?: string;
+  is_correct: boolean;
+  points_earned: number;
+  time_taken: number;
+  session_id: string;
+  responded_at: string;
+  created_at: string;
+  custom_answer?: string;
+  question?: {
+    id: string;
+    question_text: string;
+    category_id: string;
+    category?: {
+      name: string;
+      color: string;
+      icon: string;
+    };
+  };
+}
+
+export interface AuthUserResponse {
   user: User;
   token?: string;
   refresh_token?: string;

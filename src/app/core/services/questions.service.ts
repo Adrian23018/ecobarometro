@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
 @Injectable({
   providedIn: 'root'
 })
-export class QuestionService {
+export class QuestionsService {
   private supabase: SupabaseClient;
 
   constructor() {
@@ -191,6 +191,27 @@ export class QuestionService {
   // Game-specific methods
   getRandomQuestions(adminId: string, categoryIds?: string[], limit: number = 20): Observable<GameQuestion[]> {
     return from(this.fetchRandomQuestions(adminId, categoryIds, limit));
+  }
+
+  getQuestionsForSession(sessionId: string): Observable<Question[]> {
+    return from(this.fetchSessionQuestions(sessionId));
+  }
+
+  private async fetchSessionQuestions(sessionId: string): Promise<Question[]> {
+    // Obtener la información de la sesión para saber qué categorías y admin
+    const { data: session } = await this.supabase
+      .from('game_sessions')
+      .select('admin_id, total_questions')
+      .eq('id', sessionId)
+      .single();
+
+    if (!session) throw new Error('Sesión no encontrada');
+
+    // Para simplificar, obtenemos preguntas aleatorias del admin
+    // En una implementación más avanzada, podrías guardar las preguntas específicas por sesión
+    const questions = await this.fetchRandomQuestions(session.admin_id, undefined, session.total_questions);
+
+    return questions.map(gq => gq.question);
   }
 
   private async fetchRandomQuestions(adminId: string, categoryIds?: string[], limit: number = 20): Promise<GameQuestion[]> {

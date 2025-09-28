@@ -112,7 +112,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     private categoryService: CategoryService,
     private userService: UserService,
     private messageService: MessageService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadCurrentUser();
@@ -181,7 +181,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
       ...entry,
       is_current_user: entry.user_id === this.currentUser?.id
     }));
-    
+
     this.filteredLeaderboard = [...this.leaderboard];
     this.topUsers = this.leaderboard.slice(0, 3);
     this.categoryRankings = globalRanking.category_rankings;
@@ -322,7 +322,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   getUserRankInCategory(categoryId: string): number {
     const categoryRanking = this.categoryRankings.find(cr => cr.category.id === categoryId);
     if (!categoryRanking || !this.currentUser) return 0;
-    
+
     const userEntry = categoryRanking.rankings.find(r => r.user_id === this.currentUser!.id);
     return userEntry?.rank_position || 0;
   }
@@ -371,5 +371,9 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   // Manejar errores de imágenes de avatar
   onAvatarError(event: any): void {
     event.target.style.display = 'none';
+  }
+
+  getInitial(name?: string): string {
+    return name && name.length > 0 ? name.charAt(0) : '?';
   }
 }

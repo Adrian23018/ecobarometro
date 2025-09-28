@@ -307,7 +307,7 @@
                     <div class="champion-position">
                       <p-badge [value]="i + 1" [severity]="getPositionSeverity(i + 1)" />
                     </div>
-                    <p-avatar [image]="champion.avatar_url" [label]="champion.full_name?.charAt(0) || '?'" size="normal"
+                    <p-avatar [image]="champion.avatar_url" [label]="getInitial(champion.full_name)" size="normal"
                       shape="circle" />
                     <div class="flex-1">
                       <div class="font-medium">{{ champion.full_name }}</div>
@@ -328,8 +328,9 @@
               <div class="rising-stars-list">
                 <div *ngFor="let star of risingStars; let i = index" class="rising-star-item">
                   <div class="flex align-items-center gap-3">
-                    <p-avatar [image]="star.avatar_url" [label]="star.full_name?.charAt(0) || '?'" size="normal"
+                    <p-avatar [image]="star.avatar_url" [label]="getInitial(star.full_name)" size="normal"
                       shape="circle" />
+
                     <div class="flex-1">
                       <div class="font-medium">{{ star.full_name }}</div>
                       <small class="text-500">+{{ star.improvement }}% de mejora</small>

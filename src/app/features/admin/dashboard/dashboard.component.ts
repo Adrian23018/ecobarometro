@@ -18,7 +18,7 @@ import { AdminService } from '../../../core/services/admin.service';
 import { User } from '../../../core/models/user';
 import { CategoryService } from '../../../core/services/category.service';
 import { UserService } from '../../../core/services/user.service';
-import { QuestionService } from '../../../core/services/questions.service';
+import { QuestionsService } from '../../../core/services/questions.service';
 import { Admin } from '../../../core/models/admin';
 
 // Services
@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
     private adminService: AdminService,
     private userService: UserService,
     private categoryService: CategoryService,
-    private questionService: QuestionService,
+    private questionService: QuestionsService,
     // private gameSessionService: GameSessionService
   ) {
     this.initializeChartOptions();

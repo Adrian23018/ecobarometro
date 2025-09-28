@@ -26,9 +26,9 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
 import { Question, QuestionWithStats } from '../../../core/models/question';
 import { Category } from '../../../core/models/category';
-import { QuestionService } from '../../../core/services/questions.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { QuestionsService } from '../../../core/services/questions.service';
 
 // Models
 
@@ -118,7 +118,7 @@ export class QuestionManagerComponent implements OnInit {
 String: any;
 
   constructor(
-    private questionService: QuestionService,
+    private questionService: QuestionsService,
     private categoryService: CategoryService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
