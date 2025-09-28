@@ -27,12 +27,15 @@ export interface QuestionOption {
 }
 
 export interface CreateQuestionRequest {
+  admin_id: any;
   category_id: string;
   question_text: string;
   question_type: 'multiple_choice' | 'true_false' | 'scale';
   points: number;
   difficulty_level: 1 | 2 | 3;
   options: CreateQuestionOptionRequest[];
+  explanation?: any;
+  time_limit?: any;
 }
 
 export interface CreateQuestionOptionRequest {

@@ -19,6 +19,7 @@ import { User } from '../../../core/models/user';
 import { CategoryService } from '../../../core/services/category.service';
 import { UserService } from '../../../core/services/user.service';
 import { QuestionsService } from '../../../core/services/questions.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Admin } from '../../../core/models/admin';
 
 // Services
@@ -98,7 +99,7 @@ export class DashboardComponent implements OnInit {
     private userService: UserService,
     private categoryService: CategoryService,
     private questionService: QuestionsService,
-    // private gameSessionService: GameSessionService
+    private authService: AuthService
   ) {
     this.initializeChartOptions();
   }
@@ -109,11 +110,10 @@ export class DashboardComponent implements OnInit {
 
   private loadDashboardData(): void {
     this.loading = true;
-    
+
     // Obtener admin actual
-    const adminData = localStorage.getItem('admin');
-    if (adminData) {
-      this.currentAdmin = JSON.parse(adminData);
+    this.currentAdmin = this.authService.getCurrentAdmin();
+    if (this.currentAdmin) {
       this.loadStats();
       this.loadRecentActivity();
       this.loadTopUsers();

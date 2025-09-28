@@ -9,7 +9,7 @@
                 <div class="flex gap-2">
                     <p-button label="Importar" icon="pi pi-upload" severity="secondary" [outlined]="true"
                         (onClick)="showImportDialog = true" />
-                    <p-button label="Nueva Pregunta" icon="pi pi-plus" [routerLink]="['/admin/questions/create']"
+                    <p-button label="Nueva Pregunta" icon="pi pi-plus" (onClick)="openQuestionForm()"
                         severity="success" />
                 </div>
             </div>
@@ -198,6 +198,25 @@
     </p-card>
 </div>
 
+<!-- Question Form Dialog -->
+<p-dialog
+  [header]="editingQuestion ? 'Editar Pregunta' : 'Nueva Pregunta'"
+  [(visible)]="showQuestionForm"
+  [modal]="true"
+  [style]="{width: '90vw', height: '90vh'}"
+  [maximizable]="true"
+  [closable]="true"
+  styleClass="question-form-dialog">
+
+  <app-question-form
+    *ngIf="showQuestionForm"
+    [editQuestion]="editingQuestion"
+    [visible]="showQuestionForm"
+    (questionSaved)="onQuestionSaved($event)"
+    (formClosed)="onQuestionFormClosed()">
+  </app-question-form>
+</p-dialog>
+
 <!-- Preview Dialog -->
 <p-dialog header="Vista Previa de Pregunta" [(visible)]="showPreviewDialog" [modal]="true" [style]="{width: '600px'}">
     <div *ngIf="selectedQuestion" class="question-preview">
@@ -241,8 +260,7 @@
 
     <ng-template pTemplate="footer">
         <p-button label="Cerrar" icon="pi pi-times" (onClick)="showPreviewDialog = false" severity="secondary" />
-        <p-button label="Editar" icon="pi pi-pencil" [routerLink]="['/admin/questions/edit', selectedQuestion?.id]"
-            (onClick)="showPreviewDialog = false" />
+        <p-button label="Editar" icon="pi pi-pencil" (onClick)="editQuestion(selectedQuestion!); showPreviewDialog = false" />
     </ng-template>
 </p-dialog>
 

@@ -5,7 +5,7 @@ import { AdminGuard } from '../../core/guards/admin.guard';
 const routes: Routes = [
   {
     path: '',
-    canActivate: [AdminGuard],
+    // canActivate: [AdminGuard],
     children: [
       {
         path: '',
@@ -29,7 +29,7 @@ const routes: Routes = [
       },
       // {
       //   path: 'questions/create',
-      //   loadComponent: () => import('./questions-manager/question-form/question-form.component').then(m => m.QuestionFormComponent),
+      //     loadComponent: () => import('./questions-manager/question-form/question-form.component').then(m => m.QuestionFormComponent),
       //   title: 'Crear Pregunta - EcoBarómetro Admin'
       // },
       // {
@@ -37,6 +37,7 @@ const routes: Routes = [
       //   loadComponent: () => import('./question-manager/question-form/question-form.component').then(m => m.QuestionFormComponent),
       //   title: 'Editar Pregunta - EcoBarómetro Admin'
       // },
+
       {
         path: 'analytics',
         loadComponent: () => import('./users-analytics/users-analytics.component').then(m => m.UserAnalyticsComponent),

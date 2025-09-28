@@ -1,0 +1,528 @@
+<!-- src/app/features/admin/users-manager/users-manager.component.html -->
+<div class="users-manager p-4">
+  <!-- Header -->
+  <p-card styleClass="mb-4">
+    <p-toolbar>
+      <div class="p-toolbar-group-left">
+        <h2 class="m-0">👥 Gestión de Usuarios</h2>
+      </div>
+      <div class="p-toolbar-group-right">
+        <div class="flex gap-2">
+          <p-button
+            label="Acciones Masivas"
+            icon="pi pi-cog"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="showBulkActions()"
+            [disabled]="selectedUsers.length === 0">
+          </p-button>
+          <p-button
+            label="Exportar"
+            icon="pi pi-download"
+            severity="help"
+            [outlined]="true"
+            (onClick)="exportUsers()">
+          </p-button>
+        </div>
+      </div>
+    </p-toolbar>
+
+    <!-- Statistics Cards -->
+    <div class="grid mt-4">
+      <div class="col-12 md:col-3">
+        <div class="bg-blue-50 border-left-4 border-blue-500 p-4 rounded-lg">
+          <div class="flex align-items-center">
+            <div class="text-blue-600 mr-3">
+              <i class="pi pi-users text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-blue-700">{{ totalUsers }}</div>
+              <div class="text-blue-600 text-sm">Total Usuarios</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="bg-green-50 border-left-4 border-green-500 p-4 rounded-lg">
+          <div class="flex align-items-center">
+            <div class="text-green-600 mr-3">
+              <i class="pi pi-check-circle text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-green-700">{{ activeUsers }}</div>
+              <div class="text-green-600 text-sm">Usuarios Activos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="bg-orange-50 border-left-4 border-orange-500 p-4 rounded-lg">
+          <div class="flex align-items-center">
+            <div class="text-orange-600 mr-3">
+              <i class="pi pi-star text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-orange-700">{{ averageLevel | number:'1.1-1' }}</div>
+              <div class="text-orange-600 text-sm">Nivel Promedio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <div class="bg-purple-50 border-left-4 border-purple-500 p-4 rounded-lg">
+          <div class="flex align-items-center">
+            <div class="text-purple-600 mr-3">
+              <i class="pi pi-play text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-2xl font-bold text-purple-700">{{ totalGamesPlayed }}</div>
+              <div class="text-purple-600 text-sm">Juegos Totales</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid mt-4">
+      <div class="col-12 md:col-6">
+        <p-card header="Distribución por Nivel">
+          <p-chart
+            type="bar"
+            [data]="userLevelChart"
+            [options]="chartOptions"
+            height="300px">
+          </p-chart>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <p-card header="Actividad (Última Semana)">
+          <p-chart
+            type="line"
+            [data]="activityChart"
+            [options]="chartOptions"
+            height="300px">
+          </p-chart>
+        </p-card>
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Users Table -->
+  <p-card>
+    <!-- Filters -->
+    <div class="grid mb-4">
+      <div class="col-12 md:col-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="globalFilter"
+            placeholder="Buscar usuarios..."
+            class="w-full">
+        </span>
+      </div>
+
+      <div class="col-12 md:col-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
+        <p-dropdown
+          [options]="levelOptions"
+          [(ngModel)]="filters.level"
+          placeholder="Todos"
+          [showClear]="true"
+          class="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="col-12 md:col-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+        <p-dropdown
+          [options]="statusOptions"
+          [(ngModel)]="filters.status"
+          placeholder="Todos"
+          [showClear]="true"
+          class="w-full">
+        </p-dropdown>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Rango de Fechas</label>
+        <p-calendar
+          [(ngModel)]="filters.dateRange"
+          selectionMode="range"
+          [readonlyInput]="true"
+          placeholder="Seleccionar rango"
+          class="w-full">
+        </p-calendar>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <p-table
+      [value]="users"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
+      [(selection)]="selectedUsers"
+      [globalFilterFields]="['full_name', 'username', 'email']"
+      [globalFilter]="globalFilter"
+      styleClass="p-datatable-striped"
+      responsiveLayout="scroll">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th pSortableColumn="full_name">
+            Usuario
+            <p-sortIcon field="full_name"></p-sortIcon>
+          </th>
+          <th pSortableColumn="level">
+            Nivel
+            <p-sortIcon field="level"></p-sortIcon>
+          </th>
+          <th pSortableColumn="total_points">
+            Puntos
+            <p-sortIcon field="total_points"></p-sortIcon>
+          </th>
+          <th>Progreso</th>
+          <th pSortableColumn="last_activity">
+            Última Actividad
+            <p-sortIcon field="last_activity"></p-sortIcon>
+          </th>
+          <th>Estado</th>
+          <th style="width: 8rem">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="user"></p-tableCheckbox>
+          </td>
+
+          <td>
+            <div class="flex align-items-center gap-3">
+              <p-avatar
+                [label]="getUserInitials(user)"
+                styleClass="mr-2"
+                size="large"
+                shape="circle"
+                [style.background-color]="getLevelColor(user.level)">
+              </p-avatar>
+              <div>
+                <div class="font-medium text-gray-900">{{ user.full_name }}</div>
+                <div class="text-sm text-gray-500">@{{ user.username }}</div>
+                <div class="text-xs text-gray-400">{{ user.email }}</div>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <div class="flex align-items-center gap-2">
+              <p-badge
+                [value]="user.level"
+                [style.background-color]="getLevelColor(user.level)">
+              </p-badge>
+              <div class="text-sm text-gray-600">
+                {{ user.experience_points }} XP
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <div class="font-medium text-gray-900">
+              {{ user.total_points | number }}
+            </div>
+            <div class="text-sm text-gray-500">
+              {{ user.games_played || 0 }} juegos
+            </div>
+          </td>
+
+          <td>
+            <div class="w-full">
+              <div class="flex justify-between text-sm mb-1">
+                <span>Avg: {{ user.avg_score || 0 }}%</span>
+                <span>{{ user.achievements_count || 0 }} logros</span>
+              </div>
+              <p-progressBar
+                [value]="user.avg_score || 0"
+                [showValue]="false"
+                styleClass="h-2">
+              </p-progressBar>
+            </div>
+          </td>
+
+          <td>
+            <div class="text-sm">
+              <div>{{ formatDate(user.last_activity) }}</div>
+              <p-tag
+                [value]="getActivityStatus(user).label"
+                [severity]="getActivityStatus(user).severity"
+                styleClass="text-xs">
+              </p-tag>
+            </div>
+          </td>
+
+          <td>
+            <p-tag
+              [value]="getStatusLabel(user.is_active)"
+              [severity]="getStatusSeverity(user.is_active)">
+            </p-tag>
+          </td>
+
+          <td>
+            <div class="flex gap-1">
+              <p-button
+                icon="pi pi-eye"
+                size="small"
+                [text]="true"
+                severity="info"
+                (onClick)="viewUserDetails(user)"
+                pTooltip="Ver detalles">
+              </p-button>
+
+              <p-button
+                icon="pi pi-chart-bar"
+                size="small"
+                [text]="true"
+                severity="help"
+                (onClick)="viewUserStats(user)"
+                pTooltip="Estadísticas">
+              </p-button>
+
+              <p-button
+                [icon]="user.is_active ? 'pi pi-ban' : 'pi pi-check'"
+                size="small"
+                [text]="true"
+                [severity]="user.is_active ? 'warning' : 'success'"
+                (onClick)="toggleUserStatus(user)"
+                [pTooltip]="user.is_active ? 'Desactivar' : 'Activar'">
+              </p-button>
+
+              <p-button
+                icon="pi pi-refresh"
+                size="small"
+                [text]="true"
+                severity="secondary"
+                (onClick)="resetUserProgress(user)"
+                pTooltip="Reiniciar progreso">
+              </p-button>
+
+              <p-button
+                icon="pi pi-trash"
+                size="small"
+                [text]="true"
+                severity="danger"
+                (onClick)="deleteUser(user)"
+                pTooltip="Eliminar">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center p-4">
+            <div class="text-center">
+              <i class="pi pi-users text-4xl text-gray-400 mb-3"></i>
+              <h4 class="text-gray-500">No hay usuarios registrados</h4>
+              <p class="text-gray-400">Los usuarios aparecerán aquí cuando se registren con tu código de administrador</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- User Details Dialog -->
+<p-dialog
+  header="Detalles del Usuario"
+  [(visible)]="showUserDialog"
+  [modal]="true"
+  [style]="{width: '600px'}"
+  [closable]="true">
+
+  <div *ngIf="selectedUser" class="user-details">
+    <!-- User Header -->
+    <div class="flex align-items-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+      <p-avatar
+        [label]="getUserInitials(selectedUser)"
+        size="xlarge"
+        shape="circle"
+        [style.background-color]="getLevelColor(selectedUser.level)">
+      </p-avatar>
+      <div class="flex-1">
+        <h3 class="m-0 text-xl font-bold">{{ selectedUser.full_name }}</h3>
+        <p class="text-gray-600 m-0">@{{ selectedUser.username }}</p>
+        <p class="text-gray-500 m-0 text-sm">{{ selectedUser.email }}</p>
+        <div class="flex gap-2 mt-2">
+          <p-badge
+            [value]="'Nivel ' + selectedUser.level"
+            [style.background-color]="getLevelColor(selectedUser.level)">
+          </p-badge>
+          <p-tag
+            [value]="getStatusLabel(selectedUser.is_active)"
+            [severity]="getStatusSeverity(selectedUser.is_active)">
+          </p-tag>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Stats Grid -->
+    <div class="grid">
+      <div class="col-6">
+        <div class="text-center p-3 border-1 surface-border rounded-lg">
+          <div class="text-2xl font-bold text-blue-600">{{ selectedUser.total_points | number }}</div>
+          <div class="text-sm text-gray-600">Puntos Totales</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="text-center p-3 border-1 surface-border rounded-lg">
+          <div class="text-2xl font-bold text-green-600">{{ selectedUser.games_played || 0 }}</div>
+          <div class="text-sm text-gray-600">Juegos Jugados</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="text-center p-3 border-1 surface-border rounded-lg">
+          <div class="text-2xl font-bold text-orange-600">{{ selectedUser.avg_score || 0 }}%</div>
+          <div class="text-sm text-gray-600">Promedio</div>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="text-center p-3 border-1 surface-border rounded-lg">
+          <div class="text-2xl font-bold text-purple-600">{{ formatTime(selectedUser.time_played) }}</div>
+          <div class="text-sm text-gray-600">Tiempo Jugado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="mt-4">
+      <h4>Información Adicional</h4>
+      <div class="grid">
+        <div class="col-12">
+          <label class="font-medium text-gray-700">Categoría Favorita:</label>
+          <span class="ml-2">{{ selectedUser.favorite_category || 'N/A' }}</span>
+        </div>
+        <div class="col-12">
+          <label class="font-medium text-gray-700">Logros Obtenidos:</label>
+          <span class="ml-2">{{ selectedUser.achievements_count || 0 }}</span>
+        </div>
+        <div class="col-12">
+          <label class="font-medium text-gray-700">Miembro desde:</label>
+          <span class="ml-2">{{ formatDate(new Date(selectedUser.created_at)) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex gap-2">
+      <p-button
+        label="Cerrar"
+        icon="pi pi-times"
+        severity="secondary"
+        (onClick)="showUserDialog = false">
+      </p-button>
+      <p-button
+        label="Ver Estadísticas"
+        icon="pi pi-chart-bar"
+        severity="info"
+        (onClick)="viewUserStats(selectedUser!); showUserDialog = false">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- User Stats Dialog -->
+<p-dialog
+  header="Estadísticas Detalladas"
+  [(visible)]="showStatsDialog"
+  [modal]="true"
+  [style]="{width: '800px'}"
+  [closable]="true">
+
+  <div *ngIf="selectedUser" class="user-stats">
+    <p class="text-gray-600 mb-4">
+      Estadísticas detalladas de {{ selectedUser.full_name }}
+    </p>
+
+    <!-- Stats implementation would go here -->
+    <div class="text-center p-4 bg-gray-50 rounded-lg">
+      <i class="pi pi-chart-bar text-4xl text-gray-400 mb-3"></i>
+      <p class="text-gray-600">Estadísticas detalladas próximamente</p>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="showStatsDialog = false">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Bulk Actions Dialog -->
+<p-dialog
+  header="Acciones Masivas"
+  [(visible)]="showBulkActionsDialog"
+  [modal]="true"
+  [style]="{width: '500px'}"
+  [closable]="true">
+
+  <div class="bulk-actions">
+    <p class="text-gray-600 mb-4">
+      Tienes {{ selectedUsers.length }} usuario(s) seleccionado(s)
+    </p>
+
+    <div class="flex flex-column gap-3">
+      <p-button
+        label="Activar Seleccionados"
+        icon="pi pi-check"
+        severity="success"
+        [outlined]="true"
+        class="w-full"
+        (onClick)="bulkActivateUsers()">
+      </p-button>
+
+      <p-button
+        label="Desactivar Seleccionados"
+        icon="pi pi-ban"
+        severity="warning"
+        [outlined]="true"
+        class="w-full"
+        (onClick)="bulkDeactivateUsers()">
+      </p-button>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      severity="secondary"
+      (onClick)="showBulkActionsDialog = false">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

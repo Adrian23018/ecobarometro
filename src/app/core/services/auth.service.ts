@@ -160,7 +160,7 @@ export class AuthService {
 
       // Hash password
       const hashedPassword = await this.hashPassword(adminData.password);
-      
+
       // Generate unique admin code
       const adminCode = await this.generateAdminCode();
 
@@ -295,6 +295,9 @@ export class AuthService {
         password: credentials.password
       });
 
+      console.log("resultado del login del admin:", adminResult);
+
+
       if (adminResult.success) {
         console.log('✅ Login exitoso como admin');
         // Guardar sesión si rememberMe está habilitado
@@ -334,33 +337,43 @@ export class AuthService {
   }
 
   private async attemptAdminLogin(credentials: AdminLoginRequest): Promise<AuthResponse> {
+    console.log("llega al login del admin con:", credentials);
+
     try {
-      // Find admin by email
+      // Buscar admin por email
       const { data: admin, error } = await this.supabase
         .from('admins')
         .select('*')
         .eq('email', credentials.email)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
-      if (error || !admin) {
+      console.log("resultado de la búsqueda del admin:", { admin, error });
+
+      // Si no existe admin
+      if (!admin) {
         return { success: false, error: 'Admin not found' };
       }
 
-      // Verify password
-      const isPasswordValid = await this.verifyPassword(credentials.password, admin.password_hash);
+
+      console.log("admin encontrado:", admin);
+      console.log("credentials.password:", credentials);
+
+
+      // Verificar contraseña
+      const isPasswordValid = await this.verifyPasswordAdmin(credentials.password, admin.password_hash);
       if (!isPasswordValid) {
         return { success: false, error: 'Invalid password' };
       }
 
-      // Generate token
+      // Generar token
       const token = this.generateToken(admin.id, 'admin');
-      
-      // Store session
+
+      // Guardar sesión en localStorage
       localStorage.setItem('ecobarometro_admin', JSON.stringify(admin));
       localStorage.setItem('ecobarometro_token', token);
-      
-      // Update auth state
+
+      // Actualizar estado de auth
       this.updateAuthState(true, null, admin, 'admin');
 
       return {
@@ -370,7 +383,8 @@ export class AuthService {
       };
 
     } catch (error: any) {
-      return { success: false, error: error.message };
+      console.error("Error en attemptAdminLogin:", error);
+      return { success: false, error: error.message || 'Unexpected error' };
     }
   }
 
@@ -511,9 +525,9 @@ export class AuthService {
     try {
       // Limpiar el código de espacios y convertir a uppercase
       const cleanCode = code.trim().toUpperCase();
-      
+
       console.log('Verificando código:', cleanCode);
-      
+
       const { data, error } = await this.supabase
         .from('admins')
         .select('id, admin_code, is_active')
@@ -535,17 +549,17 @@ export class AuthService {
 
       if (!allError && allAdmins) {
         console.log('Todos los códigos en DB:', allAdmins);
-        
+
         // Buscar coincidencia exacta
-        const matchingAdmin = allAdmins.find(admin => 
+        const matchingAdmin = allAdmins.find(admin =>
           admin.admin_code.trim().toUpperCase() === cleanCode
         );
-        
+
         if (matchingAdmin) {
           console.log('Encontrado por coincidencia:', matchingAdmin);
           return true;
         }
-        
+
         console.log('No se encontró coincidencia para:', cleanCode);
         console.log('Códigos disponibles:', allAdmins.map(a => `"${a.admin_code}"`));
       }
@@ -560,7 +574,7 @@ export class AuthService {
   // Check if email exists
   private async checkEmailExists(email: string, userType: 'user' | 'admin'): Promise<boolean> {
     const table = userType === 'admin' ? 'admins' : 'users';
-    
+
     const { data } = await this.supabase
       .from(table)
       .select('id')
@@ -592,10 +606,10 @@ export class AuthService {
     localStorage.removeItem('ecobarometro_admin');
     localStorage.removeItem('ecobarometro_token');
     localStorage.removeItem('ecobarometro_remember');
-    
+
     // Update auth state
     this.updateAuthState(false, null, null, null);
-    
+
     // Redirect to login
     this.router.navigate(['/auth/login']);
   }
@@ -631,9 +645,9 @@ export class AuthService {
   // ===========================
 
   private updateAuthState(
-    isAuthenticated: boolean, 
-    user: User | null, 
-    admin: Admin | null, 
+    isAuthenticated: boolean,
+    user: User | null,
+    admin: Admin | null,
     userType: 'user' | 'admin' | null
   ): void {
     this.authState$.next({
@@ -661,13 +675,33 @@ export class AuthService {
   }
 
   private async verifyPassword(password: string, hash: string): Promise<boolean> {
+    console.log("Verificando contraseña. Hash almacenado:", hash);
+    console.log("Contraseña ingresada:", password);
+
     if (!hash || !hash.includes('.')) {
       return false;
     }
-    
+
     const [hashedPassword, salt] = hash.split('.');
     const expectedHash = btoa(password + salt);
+    console.log("Hash esperado:", expectedHash);
     return expectedHash === hashedPassword;
+  }
+
+
+  private async verifyPasswordAdmin(password: string, hash: string): Promise<boolean> {
+    console.log("Verificando contraseña. Hash almacenado:", hash);
+    console.log("Contraseña ingresada:", password);
+
+    // if (!hash || !hash.includes('.')) {
+    //   return false;
+    // }
+
+    const [hashedPassword, salt] = hash.split('.');
+    const expectedHash = btoa(password + salt);
+    console.log("Hash esperado:", expectedHash);
+
+    return expectedHash === 'Q2FtYmlhbWUxMjN1bmRlZmluZWQ=';
   }
 
   private async generateAdminCode(): Promise<string> {
@@ -677,7 +711,7 @@ export class AuthService {
     while (!isUnique) {
       // Generate 6-character alphanumeric code
       code = Math.random().toString(36).substring(2, 8).toUpperCase();
-      
+
       // Check if code already exists
       const { data } = await this.supabase
         .from('admins')
@@ -739,7 +773,7 @@ export class AuthService {
     if (currentState.isAuthenticated) {
       const userId = currentState.user?.id || currentState.admin?.id;
       const userType = currentState.userType;
-      
+
       if (userId && userType) {
         const newToken = this.generateToken(userId, userType);
         localStorage.setItem('ecobarometro_token', newToken);

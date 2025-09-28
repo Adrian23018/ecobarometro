@@ -1,0 +1,391 @@
+<!-- src/app/features/admin/question-form/question-form.component.html -->
+<div class="question-form-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-800">
+        {{ isEditMode ? 'Editar Pregunta' : 'Nueva Pregunta' }}
+      </h2>
+      <p class="text-gray-600 mt-1">
+        {{ isEditMode ? 'Modifica los datos de la pregunta' : 'Crea una nueva pregunta para tu banco de preguntas' }}
+      </p>
+    </div>
+    <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-rounded" (click)="closeForm()"
+      pTooltip="Cerrar formulario">
+    </button>
+  </div>
+
+  <!-- Tab View -->
+  <p-tabView [(activeIndex)]="activeTab" class="question-form-tabs">
+
+    <!-- Tab 1: Información Básica -->
+    <p-tabPanel header="Información Básica" leftIcon="pi pi-info-circle">
+      <form [formGroup]="questionForm" class="space-y-6">
+
+        <!-- Pregunta -->
+        <div class="form-field">
+          <label for="question_text" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="pi pi-question-circle mr-2"></i>Pregunta *
+          </label>
+          <textarea id="question_text" formControlName="question_text" pInputTextarea rows="3"
+            placeholder="Escribe aquí tu pregunta..." class="w-full resize-none"
+            [class.p-invalid]="isFieldInvalid('question_text')">
+          </textarea>
+          <div class="flex justify-between items-center mt-1">
+            <small class="text-red-500" *ngIf="isFieldInvalid('question_text')">
+              {{ getFieldError('question_text') }}
+            </small>
+            <small class="text-gray-500">
+              {{ getCharacterCount('question_text') }}/{{ getMaxCharacters('question_text') }} caracteres
+            </small>
+          </div>
+        </div>
+
+        <!-- Categoría y Tipo -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Categoría -->
+          <div class="form-field">
+            <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="pi pi-tag mr-2"></i>Categoría *
+            </label>
+            <p-dropdown id="category_id" formControlName="category_id" [options]="categories" optionLabel="name"
+              optionValue="id" placeholder="Selecciona una categoría" class="w-full"
+              [class.p-invalid]="isFieldInvalid('category_id')">
+            </p-dropdown>
+            <small class="text-red-500" *ngIf="isFieldInvalid('category_id')">
+              {{ getFieldError('category_id') }}
+            </small>
+          </div>
+
+          <!-- Tipo de Pregunta -->
+          <div class="form-field">
+            <label for="question_type" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="pi pi-list mr-2"></i>Tipo de Pregunta *
+            </label>
+            <p-dropdown id="question_type" formControlName="question_type" [options]="questionTypes" optionLabel="label"
+              optionValue="value" placeholder="Selecciona el tipo" class="w-full">
+              <ng-template pTemplate="selectedItem" let-item>
+                <div class="flex items-center">
+                  <i [class]="item.icon + ' mr-2'"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="item" let-item>
+                <div class="flex items-center">
+                  <i [class]="item.icon + ' mr-2'"></i>
+                  <span>{{ item.label }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+
+        <!-- Dificultad -->
+        <div class="form-field">
+          <label class="block text-sm font-medium text-gray-700 mb-3">
+            <i class="pi pi-star mr-2"></i>Nivel de Dificultad *
+          </label>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div *ngFor="let level of difficultyLevels" class="difficulty-option"
+              [class.selected]="questionForm.get('difficulty_level')?.value === level.value">
+              <input type="radio" [id]="'difficulty_' + level.value" formControlName="difficulty_level"
+                [value]="level.value" class="hidden">
+              <label [for]="'difficulty_' + level.value"
+                class="block p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md"
+                [style.border-color]="questionForm.get('difficulty_level')?.value === level.value ? level.color : '#e5e7eb'">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-medium" [style.color]="level.color">{{ level.label }}</div>
+                    <div class="text-sm text-gray-500">{{ level.description }}</div>
+                  </div>
+                  <div class="w-4 h-4 rounded-full border-2"
+                    [style.background-color]="questionForm.get('difficulty_level')?.value === level.value ? level.color : 'transparent'"
+                    [style.border-color]="level.color">
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Puntos y Tiempo -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Puntos -->
+          <div class="form-field">
+            <label for="points" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="pi pi-star-fill mr-2"></i>Puntos *
+            </label>
+            <input id="points" type="number" formControlName="points" pInputText min="1" max="100" placeholder="Ej: 10"
+              class="w-full" [class.p-invalid]="isFieldInvalid('points')">
+            <small class="text-gray-500">Puntos que otorga esta pregunta (1-100)</small>
+          </div>
+
+          <!-- Tiempo Límite -->
+          <div class="form-field">
+            <label for="time_limit" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="pi pi-clock mr-2"></i>Tiempo Límite (segundos) *
+            </label>
+            <input id="time_limit" type="number" formControlName="time_limit" pInputText min="5" max="300"
+              placeholder="Ej: 30" class="w-full" [class.p-invalid]="isFieldInvalid('time_limit')">
+            <small class="text-gray-500">Tiempo para responder (5-300 segundos)</small>
+          </div>
+        </div>
+
+        <!-- Explicación -->
+        <div class="form-field">
+          <label for="explanation" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="pi pi-info mr-2"></i>Explicación (Opcional)
+          </label>
+          <textarea id="explanation" formControlName="explanation" pInputTextarea rows="3"
+            placeholder="Explica por qué esta es la respuesta correcta..." class="w-full resize-none">
+          </textarea>
+          <div class="flex justify-between items-center mt-1">
+            <small class="text-gray-500">Se mostrará después de responder</small>
+            <small class="text-gray-500">
+              {{ getCharacterCount('explanation') }}/{{ getMaxCharacters('explanation') }} caracteres
+            </small>
+          </div>
+        </div>
+
+      </form>
+    </p-tabPanel>
+
+    <!-- Tab 2: Opciones/Respuestas -->
+    <p-tabPanel header="Opciones/Respuestas" leftIcon="pi pi-list">
+
+      <!-- Multiple Choice Options -->
+      <div *ngIf="questionForm.get('question_type')?.value === 'multiple_choice'" class="space-y-4">
+        <div class="flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-800">Opciones de Respuesta</h3>
+          <button pButton type="button" icon="pi pi-plus" label="Agregar Opción" class="p-button-outlined p-button-sm"
+            (click)="addOption()" [disabled]="!canAddOption()">
+          </button>
+        </div>
+
+        <div formArrayName="options" class="space-y-3">
+          <div *ngFor="let option of optionsArray.controls; let i = index" [formGroupName]="i"
+            class="option-item p-4 border rounded-lg bg-gray-50">
+
+            <div class="flex items-start space-x-3">
+              <!-- Correct Option Radio -->
+              <div class="flex items-center pt-2">
+                <p-radioButton name="correctOption" [value]="i" [(ngModel)]="correctOption"
+                  (onClick)="setCorrectOption(i)" styleClass="custom-radio">
+                </p-radioButton>
+                <label class="ml-2 text-sm text-gray-600">Correcta</label>
+              </div>
+
+              <!-- Option Content -->
+              <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                  <span class="option-letter">{{ String.fromCharCode(65 + i) }}</span>
+                  <input type="text" formControlName="option_text" pInputText placeholder="Escribe la opción..."
+                    class="flex-1"
+                    [class.p-invalid]="option.get('option_text')?.invalid && option.get('option_text')?.touched">
+
+                  <button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-sm p-button-danger"
+                    (click)="removeOption(i)" [disabled]="!canRemoveOption()" pTooltip="Eliminar opción">
+                  </button>
+                </div>
+
+                <!-- Option Explanation -->
+                <input type="text" formControlName="explanation" pInputText
+                  placeholder="Explicación de esta opción (opcional)" class="w-full text-sm">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p-divider></p-divider>
+        <div class="text-sm text-gray-600">
+          <i class="pi pi-info-circle mr-2"></i>
+          Selecciona la opción correcta marcando el radio button correspondiente.
+          Puedes tener entre {{ validationRules.minOptions }} y {{ validationRules.maxOptions }} opciones.
+        </div>
+      </div>
+
+      <!-- True/False Options -->
+      <div *ngIf="questionForm.get('question_type')?.value === 'true_false'" class="space-y-4">
+        <h3 class="text-lg font-semibold text-gray-800">Respuesta Correcta</h3>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="true-false-option" [class.selected]="questionForm.get('correct_answer')?.value === 'true'">
+            <input type="radio" id="answer_true" formControlName="correct_answer" value="true" class="hidden">
+            <label for="answer_true"
+              class="block p-6 border-2 border-green-200 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md text-center">
+              <div class="text-4xl text-green-600 mb-2">✓</div>
+              <div class="font-medium text-green-700">Verdadero</div>
+            </label>
+          </div>
+
+          <div class="true-false-option" [class.selected]="questionForm.get('correct_answer')?.value === 'false'">
+            <input type="radio" id="answer_false" formControlName="correct_answer" value="false" class="hidden">
+            <label for="answer_false"
+              class="block p-6 border-2 border-red-200 rounded-lg cursor-pointer transition-all duration-200 hover:shadow-md text-center">
+              <div class="text-4xl text-red-600 mb-2">✗</div>
+              <div class="font-medium text-red-700">Falso</div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scale Options -->
+      <div *ngIf="questionForm.get('question_type')?.value === 'scale'" class="space-y-6">
+        <h3 class="text-lg font-semibold text-gray-800">Configuración de Escala</h3>
+
+        <!-- Scale Range -->
+        <div class="grid grid-cols-2 gap-6">
+          <div class="form-field">
+            <label for="scale_min" class="block text-sm font-medium text-gray-700 mb-2">
+              Valor Mínimo
+            </label>
+            <input id="scale_min" type="number" formControlName="scale_min" pInputText min="1" max="10" class="w-full">
+          </div>
+
+          <div class="form-field">
+            <label for="scale_max" class="block text-sm font-medium text-gray-700 mb-2">
+              Valor Máximo
+            </label>
+            <input id="scale_max" type="number" formControlName="scale_max" pInputText min="2" max="10" class="w-full">
+          </div>
+        </div>
+
+        <!-- Scale Labels -->
+        <div class="grid grid-cols-2 gap-6">
+          <div class="form-field">
+            <label for="scale_min_label" class="block text-sm font-medium text-gray-700 mb-2">
+              Etiqueta Mínima
+            </label>
+            <input id="scale_min_label" type="text" formControlName="scale_min_label" pInputText
+              placeholder="Ej: Muy malo" class="w-full">
+          </div>
+
+          <div class="form-field">
+            <label for="scale_max_label" class="block text-sm font-medium text-gray-700 mb-2">
+              Etiqueta Máxima
+            </label>
+            <input id="scale_max_label" type="text" formControlName="scale_max_label" pInputText
+              placeholder="Ej: Excelente" class="w-full">
+          </div>
+        </div>
+
+        <!-- Correct Value -->
+        <div class="form-field">
+          <label for="scale_correct_value" class="block text-sm font-medium text-gray-700 mb-2">
+            Valor Correcto/Esperado
+          </label>
+          <p-slider formControlName="scale_correct_value" [min]="questionForm.get('scale_min')?.value || 1"
+            [max]="questionForm.get('scale_max')?.value || 5" class="w-full">
+          </p-slider>
+          <div class="flex justify-between text-sm text-gray-500 mt-1">
+            <span>{{ questionForm.get('scale_min_label')?.value || questionForm.get('scale_min')?.value }}</span>
+            <span class="font-medium">Valor: {{ questionForm.get('scale_correct_value')?.value }}</span>
+            <span>{{ questionForm.get('scale_max_label')?.value || questionForm.get('scale_max')?.value }}</span>
+          </div>
+        </div>
+      </div>
+
+    </p-tabPanel>
+
+    <!-- Tab 3: Vista Previa -->
+    <p-tabPanel header="Vista Previa" leftIcon="pi pi-eye">
+      <div class="preview-container">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Vista Previa de la Pregunta</h3>
+
+        <div class="question-preview p-6 border rounded-lg bg-white shadow-sm">
+          <!-- Question Header -->
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center space-x-2">
+              <p-tag [value]="getDifficultyLabel(previewData.difficulty_level)"
+                [severity]="getDifficultySeverity(previewData.difficulty_level)">
+              </p-tag>
+              <span class="text-sm text-gray-500">{{ previewData.points }} puntos</span>
+              <span class="text-sm text-gray-500">{{ previewData.time_limit }}s</span>
+            </div>
+          </div>
+
+          <!-- Question Text -->
+          <div class="question-text text-lg text-gray-800 mb-6">
+            {{ previewData.question_text }}
+          </div>
+
+          <!-- Options Preview -->
+          <div class="options-preview">
+            <!-- Multiple Choice -->
+            <div *ngIf="previewData.question_type === 'multiple_choice'" class="space-y-3">
+              <div *ngFor="let option of previewData.options; let i = index"
+                class="option-preview p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                [class.correct-option]="option.is_correct">
+                <div class="flex items-center space-x-3">
+                  <span class="option-letter-preview">{{ String.fromCharCode(65 + i) }}</span>
+                  <span>{{ option.option_text }}</span>
+                  <i *ngIf="option.is_correct" class="pi pi-check-circle text-green-600 ml-auto"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- True/False -->
+            <div *ngIf="previewData.question_type === 'true_false'" class="grid grid-cols-2 gap-4">
+              <div class="option-preview p-4 border rounded-lg text-center"
+                [class.correct-option]="previewData.correct_answer === 'true'">
+                <div class="text-2xl text-green-600 mb-2">✓</div>
+                <div>Verdadero</div>
+              </div>
+              <div class="option-preview p-4 border rounded-lg text-center"
+                [class.correct-option]="previewData.correct_answer === 'false'">
+                <div class="text-2xl text-red-600 mb-2">✗</div>
+                <div>Falso</div>
+              </div>
+            </div>
+
+            <!-- Scale -->
+            <div *ngIf="previewData.question_type === 'scale'" class="scale-preview">
+              <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span>{{ previewData.scale_min_label || previewData.scale_min }}</span>
+                <span>{{ previewData.scale_max_label || previewData.scale_max }}</span>
+              </div>
+              <div class="scale-display flex justify-between items-center">
+                <span
+                  *ngFor="let num of [].constructor(previewData.scale_max - previewData.scale_min + 1); let i = index"
+                  class="scale-value"
+                  [class.correct-value]="(previewData.scale_min + i) === previewData.scale_correct_value">
+                  {{ previewData.scale_min + i }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Explanation Preview -->
+          <div *ngIf="previewData.explanation"
+            class="explanation-preview mt-6 p-4 bg-blue-50 border-l-4 border-blue-400">
+            <div class="text-sm font-medium text-blue-800 mb-1">Explicación:</div>
+            <div class="text-sm text-blue-700">{{ previewData.explanation }}</div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
+  </p-tabView>
+
+  <!-- Action Buttons -->
+  <div class="form-actions flex justify-between items-center mt-8 pt-6 border-t">
+    <div>
+      <button pButton type="button" label="Vista Previa" icon="pi pi-eye" class="p-button-outlined"
+        (click)="previewQuestion()" [disabled]="!questionForm.valid">
+      </button>
+    </div>
+
+    <div class="flex space-x-3">
+      <button pButton type="button" label="Cancelar" class="p-button-text" (click)="closeForm()">
+      </button>
+
+      <button pButton type="button" [label]="isEditMode ? 'Actualizar Pregunta' : 'Crear Pregunta'"
+        [icon]="isLoading ? 'pi pi-spin pi-spinner' : (isEditMode ? 'pi pi-check' : 'pi pi-plus')" [loading]="isLoading"
+        [disabled]="!questionForm.valid || isLoading" (click)="onSubmit()">
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast></p-toast>

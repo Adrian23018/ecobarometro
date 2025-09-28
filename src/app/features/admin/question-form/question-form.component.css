@@ -1,0 +1,243 @@
+/* src/app/features/admin/question-form/question-form.component.css */
+
+/* Container styles */
+.question-form-container {
+  @apply max-w-6xl mx-auto p-6;
+}
+
+/* Form field styles */
+.form-field {
+  @apply space-y-2;
+}
+
+.form-field label {
+  @apply flex items-center font-medium text-gray-700;
+}
+
+/* Tab styles */
+.question-form-tabs {
+  @apply bg-white rounded-lg shadow-sm border;
+}
+
+.question-form-tabs ::ng-deep .p-tabview-nav {
+  @apply bg-gray-50 border-b;
+}
+
+.question-form-tabs ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
+  @apply font-medium transition-all duration-200;
+}
+
+.question-form-tabs ::ng-deep .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  @apply border-emerald-500 text-emerald-600;
+}
+
+.question-form-tabs ::ng-deep .p-tabview-panels {
+  @apply p-6;
+}
+
+/* Difficulty option styles */
+.difficulty-option.selected label {
+  @apply shadow-md transform scale-105;
+}
+
+.difficulty-option:hover label {
+  @apply shadow-sm;
+}
+
+/* Option item styles */
+.option-item {
+  @apply transition-all duration-200;
+}
+
+.option-item:hover {
+  @apply shadow-sm border-gray-300;
+}
+
+.option-letter {
+  @apply w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm;
+}
+
+/* True/False option styles */
+.true-false-option.selected label {
+  @apply border-blue-500 bg-blue-50 shadow-md transform scale-105;
+}
+
+.true-false-option:hover label {
+  @apply shadow-sm;
+}
+
+/* Preview styles */
+.question-preview {
+  @apply border-l-4 border-emerald-500;
+}
+
+.option-preview {
+  @apply transition-all duration-200;
+}
+
+.option-preview.correct-option {
+  @apply bg-green-50 border-green-300;
+}
+
+.option-letter-preview {
+  @apply w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center font-bold text-xs;
+}
+
+.correct-option .option-letter-preview {
+  @apply bg-green-600;
+}
+
+/* Scale preview styles */
+.scale-display {
+  @apply bg-gray-100 rounded-lg p-4;
+}
+
+.scale-value {
+  @apply w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center font-medium cursor-pointer transition-all duration-200;
+}
+
+.scale-value:hover {
+  @apply border-gray-400 shadow-sm;
+}
+
+.scale-value.correct-value {
+  @apply bg-emerald-500 text-white border-emerald-500;
+}
+
+/* Explanation preview */
+.explanation-preview {
+  @apply rounded-lg;
+}
+
+/* Form actions */
+.form-actions {
+  @apply bg-gray-50 rounded-lg p-4;
+}
+
+/* Custom radio button */
+.custom-radio ::ng-deep .p-radiobutton-box {
+  @apply border-2 border-gray-300;
+}
+
+.custom-radio ::ng-deep .p-radiobutton-box.p-highlight {
+  @apply border-emerald-500 bg-emerald-500;
+}
+
+/* Slider customization */
+::ng-deep .p-slider .p-slider-handle {
+  @apply bg-emerald-500 border-emerald-500;
+}
+
+::ng-deep .p-slider .p-slider-range {
+  @apply bg-emerald-500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .question-form-container {
+    @apply p-4;
+  }
+
+  .grid.grid-cols-2 {
+    @apply grid-cols-1;
+  }
+
+  .grid.grid-cols-3 {
+    @apply grid-cols-1;
+  }
+
+  .form-actions {
+    @apply flex-col space-y-3;
+  }
+
+  .form-actions > div {
+    @apply w-full;
+  }
+}
+
+/* Animation for adding/removing options */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.option-item {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Character count styling */
+.character-count {
+  @apply text-xs text-gray-500;
+}
+
+.character-count.warning {
+  @apply text-yellow-600;
+}
+
+.character-count.error {
+  @apply text-red-600;
+}
+
+/* Validation styles */
+.form-field .p-invalid {
+  @apply border-red-500;
+}
+
+.form-field .p-invalid:focus {
+  @apply border-red-500 shadow-sm shadow-red-200;
+}
+
+/* Progress indicator */
+.form-progress {
+  @apply w-full bg-gray-200 rounded-full h-2 mb-6;
+}
+
+.form-progress-bar {
+  @apply bg-emerald-500 h-2 rounded-full transition-all duration-300;
+}
+
+/* Tab content spacing */
+.question-form-tabs ::ng-deep .p-tabview-panel {
+  @apply pt-6;
+}
+
+/* Hover effects */
+.hover-card {
+  @apply transition-all duration-200 hover:shadow-md hover:border-gray-300;
+}
+
+/* Focus styles */
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field .p-dropdown:focus-within {
+  @apply ring-2 ring-emerald-500 ring-opacity-20;
+}
+
+/* Success state */
+.form-success {
+  @apply border-green-500 bg-green-50;
+}
+
+/* Loading state */
+.form-loading {
+  @apply opacity-50 pointer-events-none;
+}
+
+/* Custom dropdown styling */
+::ng-deep .p-dropdown-panel .p-dropdown-item {
+  @apply transition-colors duration-200;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item:hover {
+  @apply bg-emerald-50;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight {
+  @apply bg-emerald-500 text-white;
+}

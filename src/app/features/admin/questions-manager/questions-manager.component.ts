@@ -22,13 +22,16 @@ import { ChartModule } from 'primeng/chart';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 
 // Services
-
 import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
 import { Question, QuestionWithStats } from '../../../core/models/question';
 import { Category } from '../../../core/models/category';
 import { CategoryService } from '../../../core/services/category.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { QuestionsService } from '../../../core/services/questions.service';
+import { AuthService } from '../../../core/services/auth.service';
+
+// Components
+import { QuestionFormComponent } from '../question-form/question-form.component';
 
 // Models
 
@@ -63,9 +66,9 @@ interface QuestionFilter {
     TabViewModule,
     ChartModule,
     OverlayPanelModule,
-    CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    QuestionFormComponent
   ],
   templateUrl: './questions-manager.component.html',
   styleUrls: ['./questions-manager.component.css'],
@@ -85,6 +88,8 @@ export class QuestionManagerComponent implements OnInit {
   showPreviewDialog = false;
   showStatsDialog = false;
   showImportDialog = false;
+  showQuestionForm = false;
+  editingQuestion: Question | null = null;
 
   // Filters
   filters: QuestionFilter = {};
@@ -120,6 +125,7 @@ String: any;
   constructor(
     private questionService: QuestionsService,
     private categoryService: CategoryService,
+    private authService: AuthService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) {
@@ -133,10 +139,9 @@ String: any;
 
   loadData(): void {
     this.loading = true;
-    const adminData = localStorage.getItem('admin');
-    
-    if (adminData) {
-      const admin = JSON.parse(adminData);
+    const admin = this.authService.getCurrentAdmin();
+
+    if (admin) {
       
       // Load categories first
       this.categoryService.getCategoriesByAdmin(admin.id).subscribe({
@@ -297,12 +302,45 @@ String: any;
     // Aquí mostrarías el menu contextual
   }
 
-  duplicateQuestion(question: Question): void {
-    const adminData = localStorage.getItem('admin');
-    if (!adminData) return;
+  // Question form methods
+  openQuestionForm(): void {
+    this.editingQuestion = null;
+    this.showQuestionForm = true;
+  }
 
-    const admin = JSON.parse(adminData);
-    
+  editQuestion(question: Question): void {
+    this.editingQuestion = question;
+    this.showQuestionForm = true;
+  }
+
+  onQuestionSaved(savedQuestion: Question): void {
+    if (this.editingQuestion) {
+      // Update existing question
+      const index = this.questions.findIndex(q => q.id === savedQuestion.id);
+      if (index !== -1) {
+        this.questions[index] = savedQuestion;
+      }
+    } else {
+      // Add new question
+      this.questions.push(savedQuestion);
+    }
+
+    this.applyFilters();
+    this.calculateStats();
+    this.updateCharts();
+    this.showQuestionForm = false;
+    this.editingQuestion = null;
+  }
+
+  onQuestionFormClosed(): void {
+    this.showQuestionForm = false;
+    this.editingQuestion = null;
+  }
+
+  duplicateQuestion(question: Question): void {
+    const admin = this.authService.getCurrentAdmin();
+    if (!admin) return;
+
     this.questionService.duplicateQuestion(question.id, admin.id).subscribe({
       next: (duplicatedQuestion:any) => {
         this.questions.push(duplicatedQuestion);
