@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\shared\\components\" /s /b)",
-      "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\features\\admin\" /b /ad)"
+      "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\features\\admin\" /b /ad)",
+      "Bash(npm start)",
+      "Bash(ng serve:*)",
+      "Bash(timeout /t 5)"
     ],
     "deny": [],
     "ask": []

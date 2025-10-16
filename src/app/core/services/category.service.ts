@@ -44,6 +44,8 @@ export class CategoryService {
   }
 
   private async getCategoriesWithCount(adminId: string): Promise<Category[]> {
+    console.log("adminsss",adminId);
+    
     // Primero obtenemos las categorías
     const { data: categories, error } = await this.supabase
       .from('categories')
@@ -53,6 +55,8 @@ export class CategoryService {
       .order('order_index', { ascending: true });
 
     if (error) throw error;
+    console.log("categories:",categories);
+    
     if (!categories) return [];
 
     // Luego contamos las preguntas para cada categoría

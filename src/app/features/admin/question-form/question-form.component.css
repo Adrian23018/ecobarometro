@@ -1,161 +1,756 @@
-/* src/app/features/admin/question-form/question-form.component.css */
-
-/* Container styles */
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
 .question-form-container {
-  @apply max-w-6xl mx-auto p-6;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: white;
 }
 
-/* Form field styles */
+/* ============================================
+   HEADER
+   ============================================ */
+.question-form-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.question-form-container p {
+  color: #64748b;
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+::ng-deep .question-form-tabs .p-tabview {
+  background: white;
+}
+
+::ng-deep .question-form-tabs .p-tabview-nav {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+  border-radius: 12px 12px 0 0;
+  padding: 0.5rem 1rem;
+}
+
+::ng-deep .question-form-tabs .p-tabview-nav li {
+  margin-right: 0.5rem;
+}
+
+::ng-deep .question-form-tabs .p-tabview-nav li .p-tabview-nav-link {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  color: #64748b;
+  background: transparent;
+  border: none;
+}
+
+::ng-deep .question-form-tabs .p-tabview-nav li .p-tabview-nav-link:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+::ng-deep .question-form-tabs .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+::ng-deep .question-form-tabs .p-tabview-panels {
+  padding: 2rem;
+  background: white;
+  border-radius: 0 0 12px 12px;
+}
+
+::ng-deep .question-form-tabs .p-tabview-panel {
+  padding-top: 1.5rem;
+}
+
+/* ============================================
+   FORM FIELDS
+   ============================================ */
 .form-field {
-  @apply space-y-2;
+  margin-bottom: 1.5rem;
 }
 
 .form-field label {
-  @apply flex items-center font-medium text-gray-700;
+  display: flex;
+  align-items: center;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.625rem;
 }
 
-/* Tab styles */
-.question-form-tabs {
-  @apply bg-white rounded-lg shadow-sm border;
+.form-field label i {
+  color: #667eea;
+  margin-right: 0.5rem;
 }
 
-.question-form-tabs ::ng-deep .p-tabview-nav {
-  @apply bg-gray-50 border-b;
+.form-field input,
+.form-field textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+  background: white;
 }
 
-.question-form-tabs ::ng-deep .p-tabview-nav li .p-tabview-nav-link {
-  @apply font-medium transition-all duration-200;
+.form-field input:focus,
+.form-field textarea:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
 
-.question-form-tabs ::ng-deep .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-  @apply border-emerald-500 text-emerald-600;
+.form-field textarea {
+  resize: none;
+  font-family: inherit;
 }
 
-.question-form-tabs ::ng-deep .p-tabview-panels {
-  @apply p-6;
+.form-field small {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.8125rem;
 }
 
-/* Difficulty option styles */
+.text-red-500 {
+  color: #ef4444;
+}
+
+.text-gray-500 {
+  color: #64748b;
+}
+
+.text-gray-600 {
+  color: #475569;
+}
+
+.text-gray-700 {
+  color: #334155;
+}
+
+.text-gray-800 {
+  color: #1e293b;
+}
+
+/* ============================================
+   GRID SYSTEM
+   ============================================ */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ============================================
+   DIFFICULTY SELECTOR
+   ============================================ */
+.difficulty-option {
+  position: relative;
+}
+
+.difficulty-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.difficulty-option label {
+  display: block;
+  padding: 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.difficulty-option label:hover {
+  border-color: #cbd5e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .difficulty-option.selected label {
-  @apply shadow-md transform scale-105;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
-.difficulty-option:hover label {
-  @apply shadow-sm;
+.difficulty-option .font-medium {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
 }
 
-/* Option item styles */
+.difficulty-option .text-sm {
+  font-size: 0.8125rem;
+}
+
+.difficulty-option .w-4 {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid;
+  transition: all 0.2s ease;
+}
+
+/* ============================================
+   DROPDOWN CUSTOMIZATION
+   ============================================ */
+::ng-deep .form-field .p-dropdown {
+  width: 100%;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .form-field .p-dropdown:not(.p-disabled):hover {
+  border-color: #cbd5e0;
+}
+
+::ng-deep .form-field .p-dropdown:not(.p-disabled).p-focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+::ng-deep .form-field .p-dropdown .p-dropdown-label {
+  padding: 0.875rem 1rem;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item {
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item:hover {
+  background: #eff6ff;
+}
+
+::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight {
+  background: #667eea;
+  color: white;
+}
+
+/* ============================================
+   OPTIONS LIST (MULTIPLE CHOICE)
+   ============================================ */
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
 .option-item {
-  @apply transition-all duration-200;
+  padding: 1.25rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  animation: slideIn 0.3s ease-out;
 }
 
 .option-item:hover {
-  @apply shadow-sm border-gray-300;
+  border-color: #cbd5e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .option-letter {
-  @apply w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-/* True/False option styles */
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+.space-x-3 > * + * {
+  margin-left: 0.75rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-1 {
+  margin-top: 0.25rem;
+}
+
+.mt-3 {
+  margin-top: 0.75rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+.pt-2 {
+  padding-top: 0.5rem;
+}
+
+.pt-6 {
+  padding-top: 1.5rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+/* ============================================
+   TRUE/FALSE OPTIONS
+   ============================================ */
+.true-false-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.true-false-option label {
+  display: block;
+  padding: 2rem;
+  border: 2px solid;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+  background: white;
+}
+
+.true-false-option:first-child label {
+  border-color: #86efac;
+}
+
+.true-false-option:last-child label {
+  border-color: #fca5a5;
+}
+
+.true-false-option label:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .true-false-option.selected label {
-  @apply border-blue-500 bg-blue-50 shadow-md transform scale-105;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: scale(1.05);
 }
 
-.true-false-option:hover label {
-  @apply shadow-sm;
+.true-false-option.selected:first-child label {
+  background: #f0fdf4;
+  border-color: #22c55e;
 }
 
-/* Preview styles */
-.question-preview {
-  @apply border-l-4 border-emerald-500;
+.true-false-option.selected:last-child label {
+  background: #fef2f2;
+  border-color: #ef4444;
 }
 
-.option-preview {
-  @apply transition-all duration-200;
+.text-4xl {
+  font-size: 2.5rem;
+  line-height: 1;
 }
 
-.option-preview.correct-option {
-  @apply bg-green-50 border-green-300;
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 1.2;
 }
 
-.option-letter-preview {
-  @apply w-6 h-6 bg-gray-500 text-white rounded-full flex items-center justify-center font-bold text-xs;
+.text-xl {
+  font-size: 1.25rem;
 }
 
-.correct-option .option-letter-preview {
-  @apply bg-green-600;
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.5;
 }
 
-/* Scale preview styles */
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-green-600 {
+  color: #16a34a;
+}
+
+.text-green-700 {
+  color: #15803d;
+}
+
+.text-red-600 {
+  color: #dc2626;
+}
+
+.text-red-700 {
+  color: #b91c1c;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+.text-blue-700 {
+  color: #1d4ed8;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.block {
+  display: block;
+}
+
+.hidden {
+  display: none;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.border {
+  border: 1px solid #e2e8f0;
+}
+
+.border-2 {
+  border: 2px solid;
+}
+
+.border-l-4 {
+  border-left: 4px solid;
+}
+
+.border-t {
+  border-top: 1px solid #e2e8f0;
+}
+
+.rounded-lg {
+  border-radius: 12px;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* ============================================
+   SCALE CONFIGURATION
+   ============================================ */
 .scale-display {
-  @apply bg-gray-100 rounded-lg p-4;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 1.5rem;
 }
 
 .scale-value {
-  @apply w-8 h-8 bg-white border-2 border-gray-300 rounded-full flex items-center justify-center font-medium cursor-pointer transition-all duration-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: white;
+  border: 2px solid #cbd5e0;
+  border-radius: 50%;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .scale-value:hover {
-  @apply border-gray-400 shadow-sm;
+  border-color: #64748b;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .scale-value.correct-value {
-  @apply bg-emerald-500 text-white border-emerald-500;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
 }
 
-/* Explanation preview */
+/* ============================================
+   PREVIEW
+   ============================================ */
+.preview-container h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.question-preview {
+  padding: 2rem;
+  border: 2px solid #e2e8f0;
+  border-left: 4px solid #667eea;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.question-text {
+  font-size: 1.125rem;
+  color: #1e293b;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.option-preview {
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background: white;
+}
+
+.option-preview:hover {
+  background: #f8fafc;
+  border-color: #cbd5e0;
+}
+
+.option-preview.correct-option {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.option-letter-preview {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #64748b;
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.correct-option .option-letter-preview {
+  background: #16a34a;
+}
+
 .explanation-preview {
-  @apply rounded-lg;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 8px;
 }
 
-/* Form actions */
+/* ============================================
+   FORM ACTIONS
+   ============================================ */
 .form-actions {
-  @apply bg-gray-50 rounded-lg p-4;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 1.5rem;
 }
 
-/* Custom radio button */
-.custom-radio ::ng-deep .p-radiobutton-box {
-  @apply border-2 border-gray-300;
+/* ============================================
+   BUTTONS
+   ============================================ */
+::ng-deep .p-button {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s ease;
 }
 
-.custom-radio ::ng-deep .p-radiobutton-box.p-highlight {
-  @apply border-emerald-500 bg-emerald-500;
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Slider customization */
+::ng-deep .p-button-outlined {
+  background: transparent;
+}
+
+::ng-deep .p-button-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+::ng-deep .p-button-text {
+  background: transparent;
+  border: none;
+}
+
+/* ============================================
+   RADIO BUTTONS
+   ============================================ */
+::ng-deep .custom-radio .p-radiobutton-box {
+  border: 2px solid #cbd5e0;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+::ng-deep .custom-radio .p-radiobutton-box.p-highlight {
+  border-color: #667eea;
+  background: #667eea;
+}
+
+::ng-deep .custom-radio .p-radiobutton-icon {
+  background: white;
+}
+
+/* ============================================
+   SLIDER
+   ============================================ */
+::ng-deep .p-slider {
+  background: #e2e8f0;
+}
+
 ::ng-deep .p-slider .p-slider-handle {
-  @apply bg-emerald-500 border-emerald-500;
+  background: #667eea;
+  border: 2px solid #667eea;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 ::ng-deep .p-slider .p-slider-range {
-  @apply bg-emerald-500;
+  background: #667eea;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .question-form-container {
-    @apply p-4;
-  }
-
-  .grid.grid-cols-2 {
-    @apply grid-cols-1;
-  }
-
-  .grid.grid-cols-3 {
-    @apply grid-cols-1;
-  }
-
-  .form-actions {
-    @apply flex-col space-y-3;
-  }
-
-  .form-actions > div {
-    @apply w-full;
-  }
+/* ============================================
+   DIVIDER
+   ============================================ */
+::ng-deep .p-divider {
+  margin: 1.5rem 0;
 }
 
-/* Animation for adding/removing options */
+/* ============================================
+   VALIDATION
+   ============================================ */
+.p-invalid {
+  border-color: #ef4444 !important;
+}
+
+.p-invalid:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -167,77 +762,79 @@
   }
 }
 
-.option-item {
-  animation: slideIn 0.3s ease-out;
+/* ============================================
+   UTILITIES
+   ============================================ */
+.bg-gray-50 {
+  background-color: #f8fafc;
 }
 
-/* Character count styling */
-.character-count {
-  @apply text-xs text-gray-500;
+.bg-white {
+  background-color: white;
 }
 
-.character-count.warning {
-  @apply text-yellow-600;
+.bg-green-50 {
+  background-color: #f0fdf4;
 }
 
-.character-count.error {
-  @apply text-red-600;
+.bg-blue-50 {
+  background-color: #eff6ff;
 }
 
-/* Validation styles */
-.form-field .p-invalid {
-  @apply border-red-500;
+.border-green-200 {
+  border-color: #bbf7d0;
 }
 
-.form-field .p-invalid:focus {
-  @apply border-red-500 shadow-sm shadow-red-200;
+.border-green-300 {
+  border-color: #86efac;
 }
 
-/* Progress indicator */
-.form-progress {
-  @apply w-full bg-gray-200 rounded-full h-2 mb-6;
+.border-red-200 {
+  border-color: #fecaca;
 }
 
-.form-progress-bar {
-  @apply bg-emerald-500 h-2 rounded-full transition-all duration-300;
+.border-blue-400 {
+  border-color: #60a5fa;
 }
 
-/* Tab content spacing */
-.question-form-tabs ::ng-deep .p-tabview-panel {
-  @apply pt-6;
+.border-gray-300 {
+  border-color: #cbd5e0;
 }
 
-/* Hover effects */
-.hover-card {
-  @apply transition-all duration-200 hover:shadow-md hover:border-gray-300;
+.shadow-sm {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Focus styles */
-.form-field input:focus,
-.form-field textarea:focus,
-.form-field .p-dropdown:focus-within {
-  @apply ring-2 ring-emerald-500 ring-opacity-20;
+.shadow-md {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Success state */
-.form-success {
-  @apply border-green-500 bg-green-50;
-}
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .question-form-container {
+    padding: 1rem;
+  }
 
-/* Loading state */
-.form-loading {
-  @apply opacity-50 pointer-events-none;
-}
+  ::ng-deep .question-form-tabs .p-tabview-panels {
+    padding: 1rem;
+  }
 
-/* Custom dropdown styling */
-::ng-deep .p-dropdown-panel .p-dropdown-item {
-  @apply transition-colors duration-200;
-}
+  .form-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
 
-::ng-deep .p-dropdown-panel .p-dropdown-item:hover {
-  @apply bg-emerald-50;
-}
+  .form-actions > div {
+    width: 100%;
+  }
 
-::ng-deep .p-dropdown-panel .p-dropdown-item.p-highlight {
-  @apply bg-emerald-500 text-white;
+  .option-item {
+    padding: 1rem;
+  }
+
+  .difficulty-option label {
+    padding: 1rem;
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
@@ -20,27 +20,29 @@ import { MenuModule } from 'primeng/menu';
 import { TabViewModule } from 'primeng/tabview';
 import { ChartModule } from 'primeng/chart';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { PanelModule } from 'primeng/panel';
+import { ChipModule } from 'primeng/chip';
+import { MenuItem, ConfirmationService, MessageService } from 'primeng/api';
+import { Menu } from 'primeng/menu';
 
-// Services
-import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
+// Forms
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+// Servicios y modelos
 import { Question, QuestionWithStats } from '../../../core/models/question';
 import { Category } from '../../../core/models/category';
 import { CategoryService } from '../../../core/services/category.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { QuestionsService } from '../../../core/services/questions.service';
 import { AuthService } from '../../../core/services/auth.service';
 
-// Components
+// Componentes
 import { QuestionFormComponent } from '../question-form/question-form.component';
 
-// Models
-
-
 interface QuestionFilter {
-  category?: string;
-  difficulty?: number;
-  type?: string;
-  search?: string;
+  category?: any | null;
+  difficulty?: any | null;
+  type?: any | null;
+  search?: any;
 }
 
 @Component({
@@ -49,6 +51,7 @@ interface QuestionFilter {
   imports: [
     CommonModule,
     RouterModule,
+    // PrimeNG
     CardModule,
     ButtonModule,
     TableModule,
@@ -66,15 +69,22 @@ interface QuestionFilter {
     TabViewModule,
     ChartModule,
     OverlayPanelModule,
+    PanelModule,
+    ChipModule,
+    // Forms
     FormsModule,
     ReactiveFormsModule,
+    // Formulario
     QuestionFormComponent
   ],
   templateUrl: './questions-manager.component.html',
-  styleUrls: ['./questions-manager.component.css'],
+  styleUrls: ['./questions-manager.component.css']
 })
 export class QuestionManagerComponent implements OnInit {
-  // Data
+  // Referencia al menú contextual
+  @ViewChild('questionMenu') questionMenu!: Menu;
+
+  // Datos
   questions: Question[] = [];
   categories: Category[] = [];
   filteredQuestions: Question[] = [];
@@ -82,7 +92,7 @@ export class QuestionManagerComponent implements OnInit {
   selectedQuestion: Question | null = null;
   selectedQuestionStats: QuestionWithStats | null = null;
 
-  // UI State
+  // UI
   loading = false;
   activeTabIndex = 0;
   showPreviewDialog = false;
@@ -91,11 +101,16 @@ export class QuestionManagerComponent implements OnInit {
   showQuestionForm = false;
   editingQuestion: Question | null = null;
 
-  // Filters
-  filters: QuestionFilter = {};
+  // Filtros
+  filters: QuestionFilter = {
+    category: null,
+    difficulty: null,
+    type: null,
+    search: ''
+  };
 
-  // Options
-  categoryOptions: any[] = [];
+  // Opciones de selects
+  categoryOptions: Array<{ label: string; value: string | null }> = [];
   difficultyOptions = [
     { label: 'Fácil', value: 1 },
     { label: 'Medio', value: 2 },
@@ -107,7 +122,7 @@ export class QuestionManagerComponent implements OnInit {
     { label: 'Escala', value: 'scale' }
   ];
 
-  // Menu
+  // Menú contextual
   menuItems: MenuItem[] = [];
 
   // Stats
@@ -120,7 +135,9 @@ export class QuestionManagerComponent implements OnInit {
   questionsByCategoryChart: any;
   questionsByDifficultyChart: any;
   chartOptions: any;
-String: any;
+
+  // Para usar String.fromCharCode en template
+  public String = String;
 
   constructor(
     private questionService: QuestionsService,
@@ -137,111 +154,106 @@ String: any;
     this.loadData();
   }
 
+  // ---------- Carga de datos ----------
   loadData(): void {
     this.loading = true;
     const admin = this.authService.getCurrentAdmin();
-
-    if (admin) {
-      
-      // Load categories first
-      this.categoryService.getCategoriesByAdmin(admin.id).subscribe({
-        next: (categories:any) => {
-          this.categories = categories;
-          this.setupCategoryOptions();
-          
-          // Then load questions
-          this.questionService.getQuestionsByAdmin(admin.id).subscribe({
-            next: (questions:any) => {
-              this.questions = questions;
-              this.applyFilters();
-              this.calculateStats();
-              this.updateCharts();
-              this.loading = false;
-            },
-            error: (error:any) => {
-              console.error('Error loading questions:', error);
-              this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'No se pudieron cargar las preguntas'
-              });
-              this.loading = false;
-            }
-          });
-        },
-        error: (error:any) => {
-          console.error('Error loading categories:', error);
-          this.loading = false;
-        }
-      });
+    if (!admin) {
+      this.loading = false;
+      return;
     }
+
+    // 1) Categorías
+    this.categoryService.getCategoriesByAdmin(admin.id).subscribe({
+      next: (categories: Category[]) => {
+        this.categories = categories || [];
+        this.setupCategoryOptions();
+
+        // 2) Preguntas
+        this.questionService.getQuestionsByAdmin(admin.id).subscribe({
+          next: (questions: Question[]) => {
+            this.questions = questions || [];
+            this.applyFilters();
+            this.calculateStats();
+            this.updateCharts();
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Error loading questions:', err);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudieron cargar las preguntas'
+            });
+            this.loading = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error loading categories:', err);
+        this.loading = false;
+      }
+    });
   }
 
   setupCategoryOptions(): void {
     this.categoryOptions = [
       { label: 'Todas las categorías', value: null },
-      ...this.categories.map(cat => ({
-        label: cat.name,
-        value: cat.id
-      }))
+      ...this.categories.map((c) => ({ label: c.name, value: c.id }))
     ];
   }
 
+  // ---------- Filtros ----------
   applyFilters(): void {
-    this.filteredQuestions = this.questions.filter(question => {
-      if (this.filters.category && question.category_id !== this.filters.category) {
-        return false;
-      }
-      if (this.filters.difficulty && question.difficulty_level !== this.filters.difficulty) {
-        return false;
-      }
-      if (this.filters.type && question.question_type !== this.filters.type) {
-        return false;
-      }
+    this.filteredQuestions = this.questions.filter((q) => {
+      if (this.filters.category && q.category_id !== this.filters.category) return false;
+      if (this.filters.difficulty && q.difficulty_level !== this.filters.difficulty) return false;
+      if (this.filters.type && q.question_type !== this.filters.type) return false;
       if (this.filters.search) {
-        const searchTerm = this.filters.search.toLowerCase();
-        return question.question_text.toLowerCase().includes(searchTerm);
+        const s = this.filters.search.toLowerCase();
+        return (q.question_text || '').toLowerCase().includes(s);
       }
       return true;
     });
   }
 
+  // ---------- Estadísticas y charts ----------
   calculateStats(): void {
     this.totalQuestions = this.questions.length;
-    // Aquí calcularías las estadísticas reales desde el backend
+    // Mock de estadísticas; sustituye por datos reales del backend si los tienes
     this.avgCorrectRate = 75;
     this.avgResponseTime = 25;
     this.totalResponses = 1250;
   }
 
   updateCharts(): void {
-    // Questions by category
-    const categoryCounts = this.categories.map(cat => {
-      const count = this.questions.filter(q => q.category_id === cat.id).length;
-      return { category: cat, count };
-    });
+    // Por categoría
+    const catCounts = this.categories.map((cat) => ({
+      cat,
+      count: this.questions.filter((q) => q.category_id === cat.id).length
+    }));
 
     this.questionsByCategoryChart = {
-      labels: categoryCounts.map(c => c.category.name),
-      datasets: [{
-        data: categoryCounts.map(c => c.count),
-        backgroundColor: categoryCounts.map(c => c.category.color)
-      }]
+      labels: catCounts.map((c) => c.cat.name),
+      datasets: [
+        {
+          data: catCounts.map((c) => c.count),
+          backgroundColor: catCounts.map((c) => c.cat.color || '#94a3b8')
+        }
+      ]
     };
 
-    // Questions by difficulty
-    const difficultyCounts = [1, 2, 3].map(level => {
-      const count = this.questions.filter(q => q.difficulty_level === level).length;
-      return count;
-    });
-
+    // Por dificultad
+    const diffs = [1, 2, 3].map((lvl) => this.questions.filter((q) => q.difficulty_level === lvl).length);
     this.questionsByDifficultyChart = {
       labels: ['Fácil', 'Medio', 'Difícil'],
-      datasets: [{
-        label: 'Número de Preguntas',
-        data: difficultyCounts,
-        backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
-      }]
+      datasets: [
+        {
+          label: 'Número de Preguntas',
+          data: diffs,
+          backgroundColor: ['#22c55e', '#f59e0b', '#ef4444']
+        }
+      ]
     };
   }
 
@@ -249,46 +261,49 @@ String: any;
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
+      plugins: { legend: { position: 'bottom' } }
     };
   }
 
+  // ---------- Menú contextual ----------
   setupMenuItems(): void {
     this.menuItems = [
       {
         label: 'Duplicar',
         icon: 'pi pi-copy',
-        command: () => this.duplicateQuestion(this.selectedQuestion!)
+        command: () => this.selectedQuestion && this.duplicateQuestion(this.selectedQuestion)
       },
       {
-        label: 'Ver Estadísticas',
+        label: 'Ver estadísticas',
         icon: 'pi pi-chart-bar',
-        command: () => this.showQuestionStats(this.selectedQuestion!)
+        command: () => this.selectedQuestion && this.showQuestionStats(this.selectedQuestion)
       },
-      {
-        separator: true
-      },
+      { separator: true },
       {
         label: 'Eliminar',
         icon: 'pi pi-trash',
-        command: () => this.deleteQuestion(this.selectedQuestion!)
+        command: () => this.selectedQuestion && this.deleteQuestion(this.selectedQuestion)
       }
     ];
   }
 
+  showQuestionMenu(event: Event, question: Question): void {
+    this.selectedQuestion = question;
+    if (this.questionMenu) {
+      this.questionMenu.toggle(event);
+    }
+  }
+
+  // ---------- Acciones de fila ----------
   previewQuestion(question: Question): void {
     this.selectedQuestion = question;
     this.showPreviewDialog = true;
   }
 
   showQuestionStats(question: Question): void {
-    // Aquí cargarías las estadísticas reales de la pregunta
+    // Demo de stats; reemplaza por fetch real si lo tienes
     this.selectedQuestionStats = {
-      question: question,
+      question,
       total_responses: 45,
       correct_responses: 34,
       avg_time: 28,
@@ -297,12 +312,7 @@ String: any;
     this.showStatsDialog = true;
   }
 
-  showQuestionMenu(event: Event, question: Question): void {
-    this.selectedQuestion = question;
-    // Aquí mostrarías el menu contextual
-  }
-
-  // Question form methods
+  // ---------- Formulario (QuestionFormComponent) ----------
   openQuestionForm(): void {
     this.editingQuestion = null;
     this.showQuestionForm = true;
@@ -313,18 +323,13 @@ String: any;
     this.showQuestionForm = true;
   }
 
-  onQuestionSaved(savedQuestion: Question): void {
+  onQuestionSaved(saved: Question): void {
     if (this.editingQuestion) {
-      // Update existing question
-      const index = this.questions.findIndex(q => q.id === savedQuestion.id);
-      if (index !== -1) {
-        this.questions[index] = savedQuestion;
-      }
+      const idx = this.questions.findIndex((q) => q.id === saved.id);
+      if (idx !== -1) this.questions[idx] = saved;
     } else {
-      // Add new question
-      this.questions.push(savedQuestion);
+      this.questions = [saved, ...this.questions];
     }
-
     this.applyFilters();
     this.calculateStats();
     this.updateCharts();
@@ -337,86 +342,70 @@ String: any;
     this.editingQuestion = null;
   }
 
+  // ---------- Duplicar / Eliminar ----------
   duplicateQuestion(question: Question): void {
     const admin = this.authService.getCurrentAdmin();
     if (!admin) return;
 
     this.questionService.duplicateQuestion(question.id, admin.id).subscribe({
-      next: (duplicatedQuestion:any) => {
-        this.questions.push(duplicatedQuestion);
+      next: (dup: Question) => {
+        this.questions = [dup, ...this.questions];
         this.applyFilters();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Pregunta duplicada correctamente'
-        });
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Pregunta duplicada' });
       },
-      error: (error:any) => {
-        console.error('Error duplicating question:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo duplicar la pregunta'
-        });
+      error: (err) => {
+        console.error('duplicateQuestion error', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo duplicar' });
       }
     });
   }
 
   deleteQuestion(question: Question): void {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de que deseas eliminar esta pregunta? Esta acción no se puede deshacer.`,
-      header: 'Confirmar Eliminación',
+      message: '¿Eliminar definitivamente esta pregunta?',
+      header: 'Confirmar eliminación',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
         this.questionService.deleteQuestion(question.id).subscribe({
           next: () => {
-            this.questions = this.questions.filter(q => q.id !== question.id);
+            this.questions = this.questions.filter((q) => q.id !== question.id);
             this.applyFilters();
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Éxito',
-              detail: 'Pregunta eliminada correctamente'
-            });
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Pregunta eliminada' });
           },
-          error: (error:any) => {
-            console.error('Error deleting question:', error);
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: 'No se pudo eliminar la pregunta'
-            });
+          error: (err) => {
+            console.error('deleteQuestion error', err);
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar' });
           }
         });
       }
     });
   }
 
+  // ---------- Acciones masivas (demo) ----------
   duplicateSelected(): void {
-    // Implementar duplicación masiva
     this.messageService.add({
       severity: 'info',
-      summary: 'Información',
-      detail: 'Funcionalidad en desarrollo'
+      summary: 'En desarrollo',
+      detail: 'Duplicación masiva próximamente'
     });
   }
 
   deleteSelected(): void {
-    if (this.selectedQuestions.length === 0) return;
-
+    if (!this.selectedQuestions?.length) return;
     this.confirmationService.confirm({
-      message: `¿Estás seguro de que deseas eliminar ${this.selectedQuestions.length} pregunta(s)?`,
-      header: 'Confirmar Eliminación Masiva',
+      message: `¿Eliminar ${this.selectedQuestions.length} pregunta(s)?`,
+      header: 'Eliminación masiva',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
       accept: () => {
-        // Implementar eliminación masiva
+        // Implementa la eliminación masiva si la tienes en tu API
         this.messageService.add({
           severity: 'info',
-          summary: 'Información',
-          detail: 'Funcionalidad en desarrollo'
+          summary: 'En desarrollo',
+          detail: 'Eliminación masiva próximamente'
         });
       }
     });
@@ -425,50 +414,66 @@ String: any;
   exportSelected(): void {
     this.messageService.add({
       severity: 'info',
-      summary: 'Información',
-      detail: 'Funcionalidad de exportación en desarrollo'
+      summary: 'En desarrollo',
+      detail: 'Exportación próximamente'
     });
   }
 
-  // Helper methods
+  // ---------- Helpers ----------
   getTypeLabel(type: string): string {
     switch (type) {
-      case 'multiple_choice': return 'Opción Múltiple';
-      case 'true_false': return 'V/F';
-      case 'scale': return 'Escala';
-      default: return type;
+      case 'multiple_choice':
+        return 'Opción Múltiple';
+      case 'true_false':
+        return 'V/F';
+      case 'scale':
+        return 'Escala';
+      default:
+        return type;
     }
   }
 
-  getTypeSeverity(type: string): any {
+  getTypeSeverity(type: string): 'info' | 'success' | 'warning' | 'secondary' {
     switch (type) {
-      case 'multiple_choice': return 'info';
-      case 'true_false': return 'success';
-      case 'scale': return 'warning';
-      default: return 'secondary';
+      case 'multiple_choice':
+        return 'info';
+      case 'true_false':
+        return 'success';
+      case 'scale':
+        return 'warning';
+      default:
+        return 'secondary';
     }
   }
 
   getDifficultyLabel(level: number): string {
     switch (level) {
-      case 1: return 'Fácil';
-      case 2: return 'Medio';
-      case 3: return 'Difícil';
-      default: return 'N/A';
+      case 1:
+        return 'Fácil';
+      case 2:
+        return 'Medio';
+      case 3:
+        return 'Difícil';
+      default:
+        return 'N/A';
     }
   }
 
-  getDifficultySeverity(level: number): any {
+  getDifficultySeverity(level: number): 'success' | 'warning' | 'danger' | 'secondary' {
     switch (level) {
-      case 1: return 'success';
-      case 2: return 'warning';
-      case 3: return 'danger';
-      default: return 'secondary';
+      case 1:
+        return 'success';
+      case 2:
+        return 'warning';
+      case 3:
+        return 'danger';
+      default:
+        return 'secondary';
     }
   }
 
   getSuccessRate(stats: QuestionWithStats): number {
-    if (stats.total_responses === 0) return 0;
+    if (!stats?.total_responses) return 0;
     return Math.round((stats.correct_responses / stats.total_responses) * 100);
-  }
+    }
 }

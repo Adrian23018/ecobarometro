@@ -1,480 +1,266 @@
-.question-manager {
-  padding: 2rem;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-/* Table Styling */
-::ng-deep .p-datatable {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  font-weight: 600;
-  padding: 1rem;
-  border: none;
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr {
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-  background-color: var(--surface-50) !important;
-  transform: scale(1.01);
-}
-
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--surface-200);
-}
-
-/* Toolbar Styling */
-::ng-deep .p-toolbar {
-  border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  margin-bottom: 1.5rem;
-  border: none;
-}
-
-::ng-deep .p-toolbar h2 {
-  color: white;
-  font-weight: 600;
-}
-
-/* TabView Styling */
-::ng-deep .p-tabview {
-  background: transparent;
-}
-
-::ng-deep .p-tabview .p-tabview-nav {
-  background: white;
-  border-radius: 10px 10px 0 0;
-  border: none;
-  padding: 0.5rem;
-}
-
-::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  color: var(--text-color);
-}
-
-::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: transparent;
-}
-
-::ng-deep .p-tabview .p-tabview-panels {
-  background: white;
-  border-radius: 0 0 10px 10px;
-  padding: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-/* Filters Section */
-.grid.mb-4 {
-  gap: 1rem;
-}
-
-::ng-deep .p-dropdown {
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s ease;
-}
-
-::ng-deep .p-dropdown:hover {
-  border-color: #cbd5e0;
-}
-
-::ng-deep .p-dropdown:focus-within {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-::ng-deep .p-inputtext {
-  border-radius: 8px;
-  border: 2px solid #e2e8f0;
-  padding: 0.75rem 1rem;
-  transition: all 0.3s ease;
-}
-
-::ng-deep .p-inputtext:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Question Preview */
-.question-preview {
-  min-height: 300px;
-}
-
-.options-list h4 {
-  color: var(--text-color);
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.options-list .border-green-500 {
-  border-color: #22c55e !important;
-  border-width: 2px !important;
-}
-
-.bg-green-50 {
-  background-color: #f0fdf4;
-}
-
-.options-list > .grid > div > div {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.options-list > .grid > div > div:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Stats Cards */
-::ng-deep .p-card.text-center {
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-::ng-deep .p-card.text-center:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-/* Charts */
-::ng-deep .p-chart {
-  padding: 1rem;
-}
-
-/* Tags */
-::ng-deep .p-tag {
-  border-radius: 6px;
-  font-weight: 500;
-  padding: 0.4rem 0.8rem;
-}
-
-/* Badges */
-::ng-deep .p-badge {
-  border-radius: 6px;
-  font-weight: 600;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.875rem;
-}
-
-/* Buttons */
-::ng-deep .p-button {
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-::ng-deep .p-button-text {
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-button-text:hover {
-  background-color: var(--surface-100);
-}
-
-/* Dialogs */
-::ng-deep .p-dialog {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-::ng-deep .p-dialog-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem;
-  border-bottom: none;
-}
-
-::ng-deep .p-dialog-content {
-  padding: 2rem;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-::ng-deep .p-dialog-footer {
-  padding: 1rem 2rem;
-  background: var(--surface-50);
-  border-top: 1px solid var(--surface-200);
-}
-
-::ng-deep .question-form-dialog .p-dialog-content {
-  padding: 0;
-}
-
-/* Empty State */
-.text-center.p-4 {
-  padding: 3rem !important;
-}
-
-.text-center i.pi {
+/* ============ LAYOUT BASE (mobile-first) ============ */
+:host {
   display: block;
-  margin-bottom: 1rem;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  min-height: 100vh;
 }
 
-/* Bulk Actions Bar */
-.flex.justify-content-between.align-items-center.mt-3 {
-  background: var(--surface-50);
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
+.page-wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 12px;
 }
 
-/* Progress Bar */
-::ng-deep .p-progressbar {
-  border-radius: 8px;
-  height: 1rem;
+/* ============ TOOLBAR ============ */
+:host ::ng-deep .p-toolbar {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border: 0;
+  border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(99,102,241,.18);
+}
+
+:host ::ng-deep .p-toolbar .p-toolbar-group-start,
+:host ::ng-deep .p-toolbar .p-toolbar-group-end {
+  gap: 10px;
+}
+
+:host ::ng-deep .p-toolbar h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+/* Botones más cómodos en mobile */
+:host ::ng-deep .p-toolbar .p-button {
+  border-radius: 12px;
+  padding: .65rem .9rem;
+}
+
+/* ============ TABS / CARD ============ */
+:host ::ng-deep .p-card {
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(2,6,23,.06);
+}
+
+:host ::ng-deep .p-tabview-nav {
+  background: #fff;
+  border: 0;
+  padding: 8px;
+  border-radius: 16px 16px 0 0;
+}
+
+:host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  border-radius: 10px;
+  border: 0;
+  padding: 10px 14px;
+}
+
+:host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 700;
+}
+
+:host ::ng-deep .p-tabview-panels {
+  background: #fff;
+  border-radius: 0 0 16px 16px;
+  padding: 14px;
+}
+
+/* ============ FILTROS ============ */
+.filters {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.filter-label {
+  display: block;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+/* Prime inputs */
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-dropdown {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  padding: .75rem .9rem;
+  transition: .15s ease;
+}
+
+:host ::ng-deep .p-inputtext:focus,
+:host ::ng-deep .p-dropdown.p-focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99,102,241,.12);
+}
+
+/* ============ TABLA → TARJETAS EN MOBILE ============ */
+:host ::ng-deep .p-datatable {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(2,6,23,.06);
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #f8fafc;
+  border: 0;
+  color: #475569;
+  font-weight: 700;
+  padding: 12px;
+}
+
+/* Filas */
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  border: 0;
+  padding: 12px;
+}
+
+/* --- Modo tarjetas (≤ 680px) --- */
+@media (max-width: 680px) {
+  /* Oculta cabecera y convierte filas a bloques */
+  :host ::ng-deep .p-datatable-thead {
+    display: none;
+  }
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+    display: block;
+    background: #fff;
+    margin: 10px 10px 14px;
+    border-radius: 14px;
+    box-shadow: 0 6px 18px rgba(2,6,23,.06);
+    overflow: hidden;
+  }
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 8px;
+    align-items: start;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  /* Etiquetas para cada celda basadas en la posición (sin tocar HTML) */
+  :host ::ng-deep td:nth-child(1)::before { content: "Sel."; }
+  :host ::ng-deep td:nth-child(2)::before { content: "Pregunta"; }
+  :host ::ng-deep td:nth-child(3)::before { content: "Categoría"; }
+  :host ::ng-deep td:nth-child(4)::before { content: "Tipo"; }
+  :host ::ng-deep td:nth-child(5)::before { content: "Dificultad"; }
+  :host ::ng-deep td:nth-child(6)::before { content: "Puntos"; }
+  :host ::ng-deep td:nth-child(7)::before { content: "Estadísticas"; }
+  :host ::ng-deep td:nth-child(8)::before { content: "Acciones"; }
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td::before {
+    font-weight: 700;
+    color: #64748b;
+  }
+  /* Acciones a dos columnas y botones full width */
+  :host ::ng-deep td:last-child .p-button {
+    width: 100%;
+  }
+}
+
+/* Texto largo de la pregunta recortado bonito */
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-::ng-deep .p-progressbar .p-progressbar-value {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-/* Menu */
-::ng-deep .p-menu {
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: none;
-}
-
-::ng-deep .p-menu .p-menuitem-link {
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-menu .p-menuitem-link:hover {
-  background: var(--surface-100);
-}
-
-/* Overlay Panel */
-::ng-deep .p-overlaypanel {
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: none;
-}
-
-/* Paginator */
-::ng-deep .p-paginator {
-  background: white;
+/* ============ TAGS / BADGES ============ */
+:host ::ng-deep .p-tag {
   border-radius: 10px;
-  padding: 1rem;
-  border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: .25rem .55rem;
+  font-weight: 600;
 }
 
-::ng-deep .p-paginator .p-paginator-current {
-  color: var(--text-color);
-}
-
-/* Checkbox */
-::ng-deep .p-checkbox .p-checkbox-box {
-  border-radius: 4px;
-  border: 2px solid #cbd5e0;
-  transition: all 0.2s ease;
-}
-
-::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
-}
-
-/* Utility Classes */
-.max-w-20rem {
-  max-width: 20rem;
-}
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-/* Responsive Design */
-@media (max-width: 992px) {
-  .question-manager {
-    padding: 1.5rem;
-  }
-
-  ::ng-deep .p-tabview .p-tabview-panels {
-    padding: 1.5rem;
-  }
-
-  ::ng-deep .p-dialog {
-    width: 90vw !important;
-    max-width: 90vw !important;
-  }
-}
-
-@media (max-width: 768px) {
-  .question-manager {
-    padding: 1rem;
-  }
-
-  ::ng-deep .p-toolbar {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  ::ng-deep .p-toolbar .p-toolbar-group-start,
-  ::ng-deep .p-toolbar .p-toolbar-group-end {
-    width: 100%;
-    justify-content: center;
-  }
-
-  ::ng-deep .p-toolbar h2 {
-    font-size: 1.2rem;
-  }
-
-  .grid.mb-4 > div {
-    padding: 0.5rem !important;
-  }
-
-  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    padding: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .max-w-20rem {
-    max-width: 100%;
-  }
-
-  ::ng-deep .p-tabview .p-tabview-panels {
-    padding: 1rem;
-  }
-
-  ::ng-deep .p-dialog-content {
-    padding: 1rem;
-  }
-
-  .question-preview {
-    min-height: auto;
-  }
-
-  .options-list > .grid > div {
-    padding: 0.25rem !important;
-  }
-}
-
-@media (max-width: 576px) {
-  ::ng-deep .p-datatable {
-    font-size: 0.75rem;
-  }
-
-  ::ng-deep .p-button {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-  }
-
-  ::ng-deep .p-tag,
-  ::ng-deep .p-badge {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-  }
-
-  .flex.gap-2 {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .flex.gap-2 > * {
-    width: 100%;
-  }
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--surface-50);
+:host ::ng-deep .p-badge {
   border-radius: 10px;
+  font-weight: 700;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 10px;
+/* ============ DIALOGS (preview / stats / form) ============ */
+:host ::ng-deep .p-dialog {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(2,6,23,.25);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
+:host ::ng-deep .p-dialog-header {
+  background: #fff;
+  border: 0;
+  padding: 14px 16px;
 }
 
-/* Loading Animation */
-@keyframes shimmer {
-  0% {
-    background-position: -468px 0;
-  }
-  100% {
-    background-position: 468px 0;
-  }
+:host ::ng-deep .p-dialog-content {
+  padding: 14px;
 }
 
-.loading-shimmer {
-  animation: shimmer 1.5s infinite;
-  background: linear-gradient(to right, #f6f7f8 0%, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
-  background-size: 800px 104px;
+:host ::ng-deep .p-dialog-footer {
+  background: #f8fafc;
+  border: 0;
+  padding: 12px 16px;
 }
 
-/* Fade In Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Dialogo del formulario embebido */
+:host ::ng-deep .question-form-dialog .p-dialog-content {
+  padding: 0; /* el form ya tiene su propio padding */
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr {
-  animation: fadeIn 0.3s ease;
+/* ============ MENÚ CONTEXTUAL ============ */
+:host ::ng-deep .p-menu {
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 10px 32px rgba(2,6,23,.18);
 }
 
-/* Success/Error States */
-.success-state {
-  color: #22c55e;
-  background-color: #f0fdf4;
-  padding: 1rem;
+:host ::ng-deep .p-menu .p-menuitem-link {
   border-radius: 8px;
-  border-left: 4px solid #22c55e;
 }
 
-.error-state {
-  color: #ef4444;
-  background-color: #fef2f2;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #ef4444;
+/* ============ PAGINADOR ============ */
+:host ::ng-deep .p-paginator {
+  border: 0;
+  background: #fff;
+  padding: 10px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(2,6,23,.06);
 }
 
-/* Chart Container */
-.chart-container {
-  position: relative;
-  height: 300px;
-  margin: 1rem 0;
+/* ============ BOTONES ============ */
+:host ::ng-deep .p-button {
+  border-radius: 12px;
+  font-weight: 700;
+  letter-spacing: .2px;
 }
+
+:host ::ng-deep .p-button.p-button-text:hover {
+  background: #f1f5f9;
+}
+
+/* ============ ESTADÍSTICAS (cards + charts) ============ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 700px) {
+  .filters { grid-template-columns: repeat(4, 1fr); }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  :host ::ng-deep .p-tabview-panels { padding: 18px 20px; }
+  .page-wrap { padding: 16px; }
+}
+
+/* ============ UTILIDADES ============ */
+.text-muted { color: #64748b; }
+.rounded-12 { border-radius: 12px; }
+.shadow-soft { box-shadow: 0 8px 24px rgba(2,6,23,.06); }
+.maxw-20 { max-width: 20rem; }
