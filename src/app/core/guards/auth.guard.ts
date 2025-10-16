@@ -11,26 +11,35 @@ export class AuthGuard implements CanActivate {
   constructor(private router: Router) {}
 
   canActivate(): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    // Simulación básica de autenticación con localStorage
     const isAuthenticated = this.checkAuthStatus();
-    
+
     if (isAuthenticated) {
       return true;
     } else {
-      // Redirigir al login si no está autenticado
+      console.log('🚫 AuthGuard: Usuario no autenticado, redirigiendo a login');
       return this.router.createUrlTree(['/auth/login']);
     }
   }
 
   private checkAuthStatus(): boolean {
     try {
-      // Verificar si hay datos de autenticación en localStorage
       const authToken = localStorage.getItem('ecobarometro_token');
       const userProfile = localStorage.getItem('ecobarometro_user');
-      
-      return !!(authToken && userProfile);
+      const adminProfile = localStorage.getItem('ecobarometro_admin');
+
+      // Usuario está autenticado si tiene token Y (es user O es admin)
+      const isAuthenticated = !!(authToken && (userProfile || adminProfile));
+
+      console.log('🔐 AuthGuard verificando:', {
+        hasToken: !!authToken,
+        hasUser: !!userProfile,
+        hasAdmin: !!adminProfile,
+        isAuthenticated
+      });
+
+      return isAuthenticated;
     } catch (error) {
-      console.error('Error verificando autenticación:', error);
+      console.error('❌ Error verificando autenticación:', error);
       return false;
     }
   }

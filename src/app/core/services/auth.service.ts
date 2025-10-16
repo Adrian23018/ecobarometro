@@ -205,7 +205,7 @@ export class AuthService {
         .select('id')
         .eq('admin_code', userData.admin_code)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
 
       if (adminError || !admin) {
         return {
@@ -299,7 +299,7 @@ export class AuthService {
 
 
       if (adminResult.success) {
-        console.log('✅ Login exitoso como admin');
+        console.log('✅ Login exitoso como admin',credentials);
         // Guardar sesión si rememberMe está habilitado
         if (credentials.rememberMe) {
           localStorage.setItem('ecobarometro_remember', 'true');
@@ -402,7 +402,7 @@ export class AuthService {
         query = query.eq('username', credentials.email_or_username);
       }
 
-      const { data: user, error } = await query.single();
+      const { data: user, error } = await query.maybeSingle();
 
       if (error || !user) {
         return { success: false, error: 'User not found' };
@@ -579,7 +579,7 @@ export class AuthService {
       .from(table)
       .select('id')
       .eq('email', email)
-      .single();
+      .maybeSingle();
 
     return !!data;
   }
@@ -590,7 +590,7 @@ export class AuthService {
       .from('users')
       .select('id')
       .eq('username', username)
-      .single();
+      .maybeSingle();
 
     return !!data;
   }
@@ -706,18 +706,34 @@ export class AuthService {
 
 
   private async verifyPasswordAdmin(password: string, hash: string): Promise<boolean> {
-    console.log("Verificando contraseña. Hash almacenado:", hash);
+    console.log("🔐 Verificando contraseña de admin...");
+    console.log("Hash almacenado:", hash);
     console.log("Contraseña ingresada:", password);
 
-    // if (!hash || !hash.includes('.')) {
-    //   return false;
-    // }
+    if (!hash) {
+      console.error("❌ Hash vacío");
+      return false;
+    }
 
+    // Si el hash no tiene punto, es un hash simple sin salt
+    if (!hash.includes('.')) {
+      console.log("⚠️ Hash sin salt detectado, comparando directo");
+      const simpleHash = btoa(password);
+      console.log("Hash generado:", simpleHash);
+      const match = simpleHash === hash;
+      console.log(match ? "✅ Contraseña correcta" : "❌ Contraseña incorrecta");
+      return match;
+    }
+
+    // Hash con salt (formato: hash.salt)
     const [hashedPassword, salt] = hash.split('.');
     const expectedHash = btoa(password + salt);
     console.log("Hash esperado:", expectedHash);
+    console.log("Hash almacenado:", hashedPassword);
 
-    return expectedHash === 'Q2FtYmlhbWUxMjN1bmRlZmluZWQ=';
+    const match = expectedHash === hashedPassword;
+    console.log(match ? "✅ Contraseña correcta" : "❌ Contraseña incorrecta");
+    return match;
   }
 
   private async generateAdminCode(): Promise<string> {
@@ -733,7 +749,7 @@ export class AuthService {
         .from('admins')
         .select('id')
         .eq('admin_code', code)
-        .single();
+        .maybeSingle();
 
       if (!data) {
         isUnique = true;

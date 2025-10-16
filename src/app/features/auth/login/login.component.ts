@@ -131,6 +131,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private redirectBasedOnRole(role: 'admin' | 'user') {
+    console.log(`Redirecting ${role} to their dashboard`);
     if (role === 'admin') {
       this.router.navigate(['/admin/dashboard']);
       // this.router.navigate(['/user/dashboard']);

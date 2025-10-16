@@ -36,47 +36,61 @@ export class UserGuard implements CanActivate, CanActivateChild {
   }
 
   private checkUserAccess(url: string): boolean {
-    // Check if user is authenticated
-    if (!this.authService.isAuthenticated()) {
+    console.log('👤 UserGuard verificando acceso a:', url);
+
+    // Verificar rol desde localStorage
+    const currentRole = this.getCurrentRole();
+
+    if (!currentRole) {
+      console.log('🚫 UserGuard: No autenticado');
       this.messageService.add({
         severity: 'warn',
         summary: 'Acceso Denegado',
         detail: 'Debes iniciar sesión para acceder a esta página'
       });
-      this.router.navigate(['/auth/user-login']);
+      this.router.navigate(['/auth/login']);
       return false;
     }
 
-    // Check if the authenticated user is actually a user (not admin)
-    if (!this.authService.isUser()) {
+    // Si es admin, redirigir a admin dashboard
+    if (currentRole === 'admin') {
+      console.log('🚫 UserGuard: Es admin, redirigiendo a admin dashboard');
       this.messageService.add({
         severity: 'warn',
         summary: 'Acceso Denegado',
         detail: 'Esta área es solo para usuarios'
       });
-      
-      // If it's an admin, redirect to admin area
-      if (this.authService.isAdmin()) {
-        this.router.navigate(['/admin/dashboard']);
-      } else {
-        this.router.navigate(['/auth/user-login']);
-      }
+      this.router.navigate(['/admin/dashboard']);
       return false;
     }
 
-    // Check if user account is active
-    const currentUser = this.authService.getCurrentUser();
-    if (currentUser && !currentUser.is_active) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Cuenta Inactiva',
-        detail: 'Tu cuenta está desactivada. Contacta al administrador.'
-      });
-      this.authService.logout();
-      this.router.navigate(['/auth/user-login']);
-      return false;
-    }
-
+    // Si es user, permitir acceso
+    console.log('✅ UserGuard: Acceso permitido - Es usuario');
     return true;
+  }
+
+  private getCurrentRole(): 'admin' | 'user' | null {
+    try {
+      const authToken = localStorage.getItem('ecobarometro_token');
+      const adminProfile = localStorage.getItem('ecobarometro_admin');
+      const userProfile = localStorage.getItem('ecobarometro_user');
+
+      if (!authToken) {
+        return null;
+      }
+
+      if (adminProfile) {
+        return 'admin';
+      }
+
+      if (userProfile) {
+        return 'user';
+      }
+
+      return null;
+    } catch (error) {
+      console.error('❌ Error verificando rol:', error);
+      return null;
+    }
   }
 }
