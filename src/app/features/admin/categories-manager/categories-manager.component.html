@@ -1,1 +1,356 @@
-<p>categories-manager works!</p>
+ <div class="categories-manager">
+      <p-card>
+        <!-- Header -->
+        <p-toolbar styleClass="mb-4">
+          <div class="p-toolbar-group-start">
+            <p-button
+              icon="pi pi-arrow-left"
+              [text]="true"
+              [routerLink]="['/admin/dashboard']"
+              pTooltip="Volver al Dashboard"
+              severity="secondary"
+              class="mr-3"
+            />
+            <h2 class="m-0">🗂️ Gestión de Categorías</h2>
+          </div>
+          <div class="p-toolbar-group-end">
+            <p-button
+              label="Nueva Categoría"
+              icon="pi pi-plus"
+              (onClick)="openDialog()"
+              severity="success"
+            />
+          </div>
+        </p-toolbar>
+
+        <!-- Search and Filter -->
+        <div class="mb-4">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="filterCategories()"
+              placeholder="Buscar categorías..."
+              class="w-full"
+            />
+          </span>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="categories-grid" *ngIf="!loading && paginatedCategories.length > 0">
+          <div *ngFor="let category of paginatedCategories; let i = index" class="category-card-wrapper">
+            <div class="category-card" [style.border-top-color]="category.color">
+              <!-- Card Header -->
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="category-icon-wrapper" [style.background-color]="category.color">
+                    <i [class]="category.icon" class="category-icon-img"></i>
+                  </div>
+                  <div class="category-info">
+                    <h3 class="category-name">{{ category.name }}</h3>
+                    <span class="category-date">
+                      <i class="pi pi-clock"></i>
+                      {{ category.created_at | date:'dd/MM/yyyy' }}
+                    </span>
+                  </div>
+                </div>
+                <div class="header-right">
+                  <span class="order-badge">#{{ category.order_index || i + 1 }}</span>
+                </div>
+              </div>
+
+              <!-- Card Body -->
+              <div class="card-body">
+                <p class="category-description">
+                  {{ category.description || 'Sin descripción disponible para esta categoría.' }}
+                </p>
+              </div>
+
+              <!-- Card Stats -->
+              <div class="card-stats">
+                <div class="stat-box">
+                  <div class="stat-icon-wrapper">
+                    <i class="pi pi-question-circle stat-icon"></i>
+                  </div>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ category.questions_count || 0 }}</span>
+                    <span class="stat-label">Preguntas</span>
+                  </div>
+                </div>
+                <div class="stat-box">
+                  <div class="stat-icon-wrapper">
+                    <div class="color-badge" [style.background-color]="category.color"></div>
+                  </div>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ category.color }}</span>
+                    <span class="stat-label">Color</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card Actions -->
+              <div class="card-actions">
+                <button
+                  pButton
+                  type="button"
+                  label="Editar"
+                  icon="pi pi-pencil"
+                  class="p-button-outlined p-button-info action-btn"
+                  (click)="editCategory(category)"
+                ></button>
+                <button
+                  pButton
+                  type="button"
+                  icon="pi pi-trash"
+                  class="p-button-outlined p-button-danger action-btn-icon"
+                  (click)="deleteCategory(category)"
+                  pTooltip="Eliminar categoría"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading && filteredCategories.length === 0" class="text-center py-8">
+          <i class="pi pi-inbox text-6xl text-400 mb-3"></i>
+          <h4 class="text-500 mb-2">{{ searchTerm ? 'No se encontraron categorías' : 'No hay categorías creadas' }}</h4>
+          <p class="text-600 mb-4">
+            {{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Crea tu primera categoría para organizar las preguntas' }}
+          </p>
+          <p-button
+            *ngIf="!searchTerm"
+            label="Crear Categoría"
+            icon="pi pi-plus"
+            (onClick)="openDialog()"
+          />
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="categories-grid">
+          <p-card *ngFor="let item of [1,2,3,4,5,6]">
+            <p-skeleton height="200px" />
+          </p-card>
+        </div>
+
+        <!-- Paginator -->
+        <p-paginator
+          *ngIf="filteredCategories.length > 0"
+          [rows]="pageSize"
+          [totalRecords]="filteredCategories.length"
+          [rowsPerPageOptions]="[6, 12, 24, 48]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías"
+        />
+
+        <!-- Reorder Mode -->
+        <div *ngIf="reorderMode" class="mt-4">
+          <p-card>
+            <h4>Reordenar Categorías</h4>
+            <p class="text-600 mb-3">Arrastra las categorías para cambiar su orden de aparición</p>
+            
+            <p-orderList 
+              [value]="categories" 
+              [dragdrop]="true"
+              header="Orden de Categorías"
+            >
+              <ng-template let-category pTemplate="item">
+                <div class="flex align-items-center gap-3 p-2">
+                  <div 
+                    class="flex align-items-center justify-content-center border-circle"
+                    [style.background-color]="category.color"
+                    style="width: 2rem; height: 2rem;"
+                  >
+                    <i [class]="category.icon" class="text-white text-sm"></i>
+                  </div>
+                  <div class="flex-1">
+                    <div class="font-medium">{{ category.name }}</div>
+                    <div class="text-sm text-600">{{ category.description }}</div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-orderList>
+            
+            <div class="flex gap-2 mt-3">
+              <p-button 
+                label="Guardar Orden" 
+                icon="pi pi-check" 
+                (onClick)="saveOrder()"
+                severity="success"
+              />
+              <p-button 
+                label="Cancelar" 
+                icon="pi pi-times" 
+                (onClick)="cancelReorder()"
+                severity="secondary"
+                [outlined]="true"
+              />
+            </div>
+          </p-card>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Create/Edit Dialog -->
+    <p-dialog
+      [header]="editingCategory ? 'Editar Categoría' : 'Nueva Categoría'"
+      [(visible)]="showDialog"
+      [modal]="true"
+      [style]="{width: '600px'}"
+      [closable]="true"
+      styleClass="category-dialog"
+    >
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="category-form">
+        <div class="form-content">
+          <!-- Nombre -->
+          <div class="form-field">
+            <label for="name" class="form-label">
+              <i class="pi pi-tag mr-2"></i>
+              Nombre de la Categoría *
+            </label>
+            <input
+              id="name"
+              type="text"
+              pInputText
+              formControlName="name"
+              class="w-full"
+              placeholder="Ej: Energía Renovable"
+            />
+            <small
+              *ngIf="categoryForm.get('name')?.errors?.['required'] && categoryForm.get('name')?.touched"
+              class="p-error block mt-1"
+            >
+              <i class="pi pi-exclamation-circle mr-1"></i>
+              El nombre es requerido
+            </small>
+          </div>
+
+          <!-- Descripción -->
+          <div class="form-field">
+            <label for="description" class="form-label">
+              <i class="pi pi-align-left mr-2"></i>
+              Descripción
+            </label>
+            <textarea
+              id="description"
+              pInputTextarea
+              formControlName="description"
+              rows="4"
+              class="w-full"
+              placeholder="Describe el tema de esta categoría..."
+            ></textarea>
+          </div>
+
+          <div class="grid">
+            <!-- Icono -->
+            <div class="col-12 md:col-6">
+              <div class="form-field">
+                <label for="icon" class="form-label">
+                  <i class="pi pi-image mr-2"></i>
+                  Icono
+                </label>
+                <p-dropdown
+                  formControlName="icon"
+                  [options]="iconOptions"
+                  placeholder="Selecciona un icono"
+                  class="w-full"
+                  [showClear]="true"
+                  appendTo="body"
+                >
+                  <ng-template let-option pTemplate="item">
+                    <div class="flex align-items-center gap-2 p-2">
+                      <i [class]="option.icon" class="text-xl"></i>
+                      <span>{{ option.label }}</span>
+                    </div>
+                  </ng-template>
+                  <ng-template let-option pTemplate="selectedItem">
+                    <div class="flex align-items-center gap-2" *ngIf="option">
+                      <i [class]="option.icon" class="text-lg"></i>
+                      <span>{{ option.label }}</span>
+                    </div>
+                  </ng-template>
+                </p-dropdown>
+              </div>
+            </div>
+
+            <!-- Color -->
+            <div class="col-12 md:col-6">
+              <div class="form-field">
+                <label for="color" class="form-label">
+                  <i class="pi pi-palette mr-2"></i>
+                  Color
+                </label>
+                <div class="color-picker-wrapper">
+                  <p-colorPicker
+                    formControlName="color"
+                    [inline]="false"
+                    appendTo="body"
+                  />
+                  <input
+                    type="text"
+                    pInputText
+                    formControlName="color"
+                    class="flex-1"
+                    placeholder="#22c55e"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="form-field" *ngIf="categoryForm.get('name')?.value">
+            <label class="form-label">
+              <i class="pi pi-eye mr-2"></i>
+              Vista Previa
+            </label>
+            <div class="category-preview">
+              <div class="preview-card">
+                <div
+                  class="preview-icon"
+                  [style.background-color]="categoryForm.get('color')?.value || '#22c55e'"
+                >
+                  <i [class]="categoryForm.get('icon')?.value || 'pi pi-circle'" class="text-white"></i>
+                </div>
+                <div class="preview-content">
+                  <h4 class="preview-title">{{ categoryForm.get('name')?.value }}</h4>
+                  <p class="preview-description">{{ categoryForm.get('description')?.value || 'Sin descripción' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <ng-template pTemplate="footer">
+        <div class="dialog-footer">
+          <p-button
+            label="Cancelar"
+            icon="pi pi-times"
+            (onClick)="closeDialog()"
+            severity="secondary"
+            [outlined]="true"
+            styleClass="footer-btn"
+          />
+          <p-button
+            [label]="editingCategory ? 'Actualizar Categoría' : 'Crear Categoría'"
+            icon="pi pi-check"
+            (onClick)="saveCategory()"
+            [loading]="saving"
+            [disabled]="categoryForm.invalid"
+            severity="success"
+            styleClass="footer-btn"
+          />
+        </div>
+      </ng-template>
+    </p-dialog>
+
+    <!-- Confirmation Dialog -->
+    <p-confirmDialog />
+    
+    <!-- Toast -->
+    <p-toast />
