@@ -7,6 +7,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { RoleIndicatorComponent } from './shared/components/role-indicator/role-indicator.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',

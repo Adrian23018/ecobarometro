@@ -4,7 +4,7 @@
 .achievements-manager {
   max-width: 100%;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
 }
 
 /* Back button */
@@ -194,7 +194,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .achievements-manager {
-    @apply p-2;
+    padding: 1rem;
   }
 
   .achievement-icon {

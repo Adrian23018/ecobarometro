@@ -1,0 +1,308 @@
+.categories-manager {
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Grid Layout */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Category Card */
+.category-card-wrapper {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.category-card-wrapper:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.category-card-content {
+  padding: 0.5rem;
+}
+
+/* Category Icon */
+.category-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.2s ease;
+}
+
+.category-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Category Description */
+.category-description {
+  min-height: 3rem;
+  max-height: 4.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-height: 1.5;
+}
+
+/* Stats */
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--surface-50);
+  border-radius: 8px;
+  flex: 1;
+}
+
+.color-preview {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 4px;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Toolbar Customization */
+.p-toolbar {
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.p-toolbar h2 {
+  color: white;
+  font-weight: 600;
+}
+
+/* Search Bar */
+.p-input-icon-left input {
+  border-radius: 8px;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.p-input-icon-left input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Empty State */
+.text-center.py-8 {
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Reorder Mode */
+.p-orderlist {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.p-orderlist .p-orderlist-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Dialog Styling */
+::ng-deep .p-dialog {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+::ng-deep .p-dialog-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+}
+
+::ng-deep .p-dialog-content {
+  padding: 2rem;
+}
+
+::ng-deep .p-dialog-footer {
+  padding: 1rem 2rem;
+  background: var(--surface-50);
+}
+
+/* Form Preview */
+.border-1.surface-border.border-round {
+  transition: all 0.3s ease;
+}
+
+.border-1.surface-border.border-round:hover {
+  border-color: #667eea !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+/* Color Picker Container */
+::ng-deep .p-colorpicker {
+  width: auto;
+}
+
+/* Paginator */
+::ng-deep .p-paginator {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-top: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading Skeletons */
+::ng-deep .p-skeleton {
+  border-radius: 10px;
+}
+
+/* Badges */
+::ng-deep .p-badge {
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+}
+
+/* Buttons */
+::ng-deep .p-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Tags */
+::ng-deep .p-tag {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+}
+
+/* Card Styling */
+::ng-deep .p-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: none;
+}
+
+::ng-deep .p-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 1.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .categories-manager {
+    padding: 1rem;
+  }
+
+  .categories-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  ::ng-deep .p-dialog {
+    width: 95vw !important;
+  }
+
+  ::ng-deep .p-dialog-content {
+    padding: 1rem;
+  }
+
+  .p-toolbar h2 {
+    font-size: 1.2rem;
+  }
+
+  .category-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .stat-item {
+    font-size: 0.875rem;
+  }
+
+  .category-description {
+    font-size: 0.875rem;
+  }
+
+  ::ng-deep .p-toolbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  ::ng-deep .p-toolbar .p-toolbar-group-start,
+  ::ng-deep .p-toolbar .p-toolbar-group-end {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-50);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Animation for cards appearing */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.category-card-wrapper {
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.category-card-wrapper:nth-child(1) { animation-delay: 0.05s; }
+.category-card-wrapper:nth-child(2) { animation-delay: 0.1s; }
+.category-card-wrapper:nth-child(3) { animation-delay: 0.15s; }
+.category-card-wrapper:nth-child(4) { animation-delay: 0.2s; }
+.category-card-wrapper:nth-child(5) { animation-delay: 0.25s; }
+.category-card-wrapper:nth-child(6) { animation-delay: 0.3s; }

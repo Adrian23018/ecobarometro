@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -20,6 +21,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { DragDropModule } from 'primeng/dragdrop';
 import { OrderListModule } from 'primeng/orderlist';
 import { TooltipModule } from 'primeng/tooltip';
+import { PaginatorModule } from 'primeng/paginator';
+import { SkeletonModule } from 'primeng/skeleton';
 
 // Services
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -41,6 +44,8 @@ interface IconOption {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
+    RouterModule,
     CardModule,
     ButtonModule,
     TableModule,
@@ -57,7 +62,9 @@ interface IconOption {
     ProgressBarModule,
     DragDropModule,
     OrderListModule,
-    TooltipModule
+    TooltipModule,
+    PaginatorModule,
+    SkeletonModule
   ],
   template: `
     <div class="categories-manager">
@@ -65,161 +72,148 @@ interface IconOption {
         <!-- Header -->
         <p-toolbar styleClass="mb-4">
           <div class="p-toolbar-group-start">
+            <p-button
+              icon="pi pi-arrow-left"
+              [text]="true"
+              [routerLink]="['/admin/dashboard']"
+              pTooltip="Volver al Dashboard"
+              severity="secondary"
+              class="mr-3"
+            />
             <h2 class="m-0">🗂️ Gestión de Categorías</h2>
           </div>
           <div class="p-toolbar-group-end">
-            <p-button 
-              label="Nueva Categoría" 
-              icon="pi pi-plus" 
+            <p-button
+              label="Nueva Categoría"
+              icon="pi pi-plus"
               (onClick)="openDialog()"
               severity="success"
             />
           </div>
         </p-toolbar>
 
-        <!-- Categories Table -->
-        <p-table 
-          [value]="categories" 
-          [loading]="loading"
-          styleClass="p-datatable-striped"
-          [paginator]="true"
-          [rows]="10"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías"
-          [rowsPerPageOptions]="[10, 25, 50]"
-          [globalFilterFields]="['name', 'description']"
-          #dt
-        >
-          <ng-template pTemplate="caption">
-            <div class="flex justify-content-between align-items-center">
-              <span class="p-input-icon-left">
-                <i class="pi pi-search"></i>
-                <input 
-                  pInputText 
-                  type="text" 
-                  (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
-                  placeholder="Buscar categorías..." 
-                />
-              </span>
-              <div class="flex gap-2">
-                <p-button 
-                  icon="pi pi-sort-alt" 
-                  label="Reordenar"
-                  [text]="true"
-                  (onClick)="toggleReorderMode()"
-                  [severity]="reorderMode ? 'info' : 'secondary'"
-                />
-              </div>
-            </div>
-          </ng-template>
+        <!-- Search and Filter -->
+        <div class="mb-4">
+          <span class="p-input-icon-left w-full">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="filterCategories()"
+              placeholder="Buscar categorías..."
+              class="w-full"
+            />
+          </span>
+        </div>
 
-          <ng-template pTemplate="header">
-            <tr>
-              <th style="width: 3rem">
-                <i class="pi pi-sort" pTooltip="Orden"></i>
-              </th>
-              <th pSortableColumn="name">
-                Nombre 
-                <p-sortIcon field="name" />
-              </th>
-              <th>Descripción</th>
-              <th>Color/Icono</th>
-              <th>Preguntas</th>
-              <th pSortableColumn="created_at">
-                Creada 
-                <p-sortIcon field="created_at" />
-              </th>
-              <th style="width: 8rem">Acciones</th>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="body" let-category let-i="rowIndex">
-            <tr>
-              <td>
-                <div class="flex align-items-center gap-2">
-                  <i 
-                    *ngIf="reorderMode"
-                    class="pi pi-bars cursor-move text-400"
-                    pTooltip="Arrastrar para reordenar"
-                  ></i>
-                  <p-badge 
-                    [value]="category.order_index || i + 1" 
+        <!-- Categories Grid -->
+        <div class="categories-grid" *ngIf="!loading && paginatedCategories.length > 0">
+          <div *ngFor="let category of paginatedCategories; let i = index" class="category-card-wrapper">
+            <p-card [style]="{'border-left': '4px solid ' + category.color}">
+              <div class="category-card-content">
+                <!-- Header -->
+                <div class="flex justify-content-between align-items-start mb-3">
+                  <div class="flex align-items-center gap-3">
+                    <div
+                      class="category-icon"
+                      [style.background-color]="category.color"
+                    >
+                      <i [class]="category.icon" class="text-white text-2xl"></i>
+                    </div>
+                    <div>
+                      <h3 class="m-0 mb-1">{{ category.name }}</h3>
+                      <p class="text-sm text-500 m-0">
+                        <i class="pi pi-clock mr-1"></i>
+                        {{ category.created_at | date:'short' }}
+                      </p>
+                    </div>
+                  </div>
+                  <p-badge
+                    [value]="'#' + (category.order_index || i + 1)"
                     severity="secondary"
                   />
                 </div>
-              </td>
-              <td>
-                <div class="font-medium">{{ category.name }}</div>
-              </td>
-              <td>
-                <div class="text-600 max-w-20rem overflow-hidden text-overflow-ellipsis">
-                  {{ category.description }}
-                </div>
-              </td>
-              <td>
-                <div class="flex align-items-center gap-2">
-                  <div 
-                    class="flex align-items-center justify-content-center border-circle"
-                    [style.background-color]="category.color"
-                    style="width: 2.5rem; height: 2.5rem;"
-                  >
-                    <i [class]="category.icon" class="text-white"></i>
+
+                <!-- Description -->
+                <p class="text-600 mb-3 category-description">
+                  {{ category.description || 'Sin descripción' }}
+                </p>
+
+                <!-- Stats -->
+                <div class="flex gap-3 mb-3">
+                  <div class="stat-item">
+                    <i class="pi pi-question-circle text-blue-500"></i>
+                    <span class="font-semibold">{{ category.questions_count || 0 }}</span>
+                    <span class="text-sm text-500">Preguntas</span>
                   </div>
-                  <div class="text-sm">
-                    <div>{{ category.color }}</div>
-                    <div class="text-500">{{ category.icon }}</div>
+                  <div class="stat-item">
+                    <div
+                      class="color-preview"
+                      [style.background-color]="category.color"
+                      [title]="category.color"
+                    ></div>
+                    <span class="text-sm text-500">{{ category.color }}</span>
                   </div>
                 </div>
-              </td>
-              <td>
-                <p-tag 
-                  [value]="category.questions_count || 0" 
-                  severity="info"
-                />
-              </td>
-              <td>
-                {{ category.created_at | date:'short' }}
-              </td>
-              <td>
-                <div class="flex gap-1">
-                  <p-button 
-                    icon="pi pi-pencil" 
+
+                <!-- Actions -->
+                <div class="flex gap-2">
+                  <p-button
+                    label="Editar"
+                    icon="pi pi-pencil"
                     size="small"
-                    [text]="true"
+                    [outlined]="true"
                     severity="info"
                     (onClick)="editCategory(category)"
-                    pTooltip="Editar"
+                    class="flex-1"
                   />
-                  <p-button 
-                    icon="pi pi-trash" 
+                  <p-button
+                    icon="pi pi-trash"
                     size="small"
-                    [text]="true"
+                    [outlined]="true"
                     severity="danger"
                     (onClick)="deleteCategory(category)"
                     pTooltip="Eliminar"
                   />
                 </div>
-              </td>
-            </tr>
-          </ng-template>
+              </div>
+            </p-card>
+          </div>
+        </div>
 
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="7" class="text-center p-4">
-                <div class="text-center">
-                  <i class="pi pi-inbox text-4xl text-400 mb-3"></i>
-                  <h4 class="text-500">No hay categorías creadas</h4>
-                  <p class="text-600">Crea tu primera categoría para organizar las preguntas</p>
-                  <p-button 
-                    label="Crear Categoría" 
-                    icon="pi pi-plus" 
-                    (onClick)="openDialog()"
-                  />
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+        <!-- Empty State -->
+        <div *ngIf="!loading && filteredCategories.length === 0" class="text-center py-8">
+          <i class="pi pi-inbox text-6xl text-400 mb-3"></i>
+          <h4 class="text-500 mb-2">{{ searchTerm ? 'No se encontraron categorías' : 'No hay categorías creadas' }}</h4>
+          <p class="text-600 mb-4">
+            {{ searchTerm ? 'Intenta con otros términos de búsqueda' : 'Crea tu primera categoría para organizar las preguntas' }}
+          </p>
+          <p-button
+            *ngIf="!searchTerm"
+            label="Crear Categoría"
+            icon="pi pi-plus"
+            (onClick)="openDialog()"
+          />
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="categories-grid">
+          <p-card *ngFor="let item of [1,2,3,4,5,6]">
+            <p-skeleton height="200px" />
+          </p-card>
+        </div>
+
+        <!-- Paginator -->
+        <p-paginator
+          *ngIf="filteredCategories.length > 0"
+          [rows]="pageSize"
+          [totalRecords]="filteredCategories.length"
+          [rowsPerPageOptions]="[6, 12, 24, 48]"
+          (onPageChange)="onPageChange($event)"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías"
+        />
 
         <!-- Reorder Mode -->
         <div *ngIf="reorderMode" class="mt-4">
@@ -402,7 +396,7 @@ interface IconOption {
   `,
   styles: [`
     .categories-manager {
-      padding: 1rem;
+      padding: 2rem;
     }
 
     .max-w-20rem {
@@ -415,19 +409,26 @@ interface IconOption {
 
     @media (max-width: 768px) {
       .categories-manager {
-        padding: 0.5rem;
+        padding: 1rem;
       }
     }
   `]
 })
 export class CategoriesManagerComponent implements OnInit {
   categories: Category[] = [];
+  filteredCategories: Category[] = [];
+  paginatedCategories: Category[] = [];
   loading = false;
   saving = false;
   showDialog = false;
   reorderMode = false;
   editingCategory: Category | null = null;
   originalCategories: Category[] = [];
+
+  // Pagination
+  pageSize = 6;
+  currentPage = 0;
+  searchTerm = '';
 
   categoryForm: FormGroup;
 
@@ -464,14 +465,16 @@ export class CategoriesManagerComponent implements OnInit {
 
   loadCategories(): void {
     this.loading = true;
-    const adminData = localStorage.getItem('admin');
-    
+    const adminData = localStorage.getItem('ecobarometro_admin');
+
     if (adminData) {
       const admin = JSON.parse(adminData);
       this.categoryService.getCategoriesByAdmin(admin.id).subscribe({
         next: (categories) => {
           this.categories = categories;
           this.originalCategories = [...categories];
+          this.filteredCategories = [...categories];
+          this.updatePaginatedCategories();
           this.loading = false;
         },
         error: (error) => {
@@ -484,6 +487,13 @@ export class CategoriesManagerComponent implements OnInit {
           this.loading = false;
         }
       });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo identificar el administrador. Por favor, inicia sesión nuevamente.'
+      });
+      this.loading = false;
     }
   }
 
@@ -520,13 +530,13 @@ export class CategoriesManagerComponent implements OnInit {
 
     this.saving = true;
     const formValue = this.categoryForm.value;
-    const adminData = localStorage.getItem('admin');
-    
+    const adminData = localStorage.getItem('ecobarometro_admin');
+
     if (!adminData) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'No se pudo identificar el administrador'
+        detail: 'No se pudo identificar el administrador. Por favor, inicia sesión nuevamente.'
       });
       this.saving = false;
       return;
@@ -582,13 +592,14 @@ export class CategoriesManagerComponent implements OnInit {
       this.categoryService.createCategory(admin.id, newCategory).subscribe({
         next: (category) => {
           this.categories.push(category);
-          
+          this.filterCategories();
+
           this.messageService.add({
             severity: 'success',
             summary: 'Éxito',
             detail: 'Categoría creada correctamente'
           });
-          
+
           this.closeDialog();
           this.saving = false;
         },
@@ -616,7 +627,8 @@ export class CategoriesManagerComponent implements OnInit {
         this.categoryService.deleteCategory(category.id).subscribe({
           next: () => {
             this.categories = this.categories.filter(c => c.id !== category.id);
-            
+            this.filterCategories();
+
             this.messageService.add({
               severity: 'success',
               summary: 'Éxito',
@@ -674,5 +686,31 @@ export class CategoriesManagerComponent implements OnInit {
   cancelReorder(): void {
     this.categories = [...this.originalCategories];
     this.reorderMode = false;
+  }
+
+  filterCategories(): void {
+    if (!this.searchTerm.trim()) {
+      this.filteredCategories = [...this.categories];
+    } else {
+      const search = this.searchTerm.toLowerCase();
+      this.filteredCategories = this.categories.filter(category =>
+        category.name.toLowerCase().includes(search) ||
+        category.description?.toLowerCase().includes(search)
+      );
+    }
+    this.currentPage = 0;
+    this.updatePaginatedCategories();
+  }
+
+  onPageChange(event: any): void {
+    this.currentPage = event.page;
+    this.pageSize = event.rows;
+    this.updatePaginatedCategories();
+  }
+
+  updatePaginatedCategories(): void {
+    const start = this.currentPage * this.pageSize;
+    const end = start + this.pageSize;
+    this.paginatedCategories = this.filteredCategories.slice(start, end);
   }
 }

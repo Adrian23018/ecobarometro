@@ -37,6 +37,8 @@ export interface Category {
   color: string;
   order_index: number;
   is_active: boolean;
+  created_at?:any;
+  questions_count?:any;
 }
 
 export interface GameSession {

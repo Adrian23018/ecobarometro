@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\shared\\components\" /s /b)"
+      "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\shared\\components\" /s /b)",
+      "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\features\\admin\" /b /ad)"
     ],
     "deny": [],
     "ask": []

@@ -4,6 +4,7 @@
 .users-manager {
   max-width: 100%;
   margin: 0 auto;
+  padding: 2rem;
 }
 
 /* Statistics cards */
@@ -155,7 +156,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .users-manager {
-    @apply p-2;
+    padding: 1rem;
   }
 
   .stats-grid {

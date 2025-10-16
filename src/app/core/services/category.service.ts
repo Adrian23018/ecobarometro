@@ -40,25 +40,38 @@ export class CategoryService {
   }
 
   getCategoriesByAdmin(adminId: string): Observable<Category[]> {
-    return from(
-      this.supabase
-        .from('categories')
-        .select(`
-          *,
-          questions!categories_questions_category_id_fkey(count)
-        `)
-        .eq('admin_id', adminId)
-        .eq('is_active', true)
-        .order('order_index', { ascending: true })
-    ).pipe(
-      map(response => {
-        if (response.error) throw response.error;
-        return (response.data || []).map(cat => ({
-          ...cat,
-          questions_count: cat.questions?.[0]?.count || 0
-        }));
+    return from(this.getCategoriesWithCount(adminId));
+  }
+
+  private async getCategoriesWithCount(adminId: string): Promise<Category[]> {
+    // Primero obtenemos las categorías
+    const { data: categories, error } = await this.supabase
+      .from('categories')
+      .select('*')
+      .eq('admin_id', adminId)
+      .eq('is_active', true)
+      .order('order_index', { ascending: true });
+
+    if (error) throw error;
+    if (!categories) return [];
+
+    // Luego contamos las preguntas para cada categoría
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (category) => {
+        const { count } = await this.supabase
+          .from('questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('category_id', category.id)
+          .eq('is_active', true);
+
+        return {
+          ...category,
+          questions_count: count || 0
+        };
       })
     );
+
+    return categoriesWithCount;
   }
 
   getCategoryById(id: string): Observable<Category> {
