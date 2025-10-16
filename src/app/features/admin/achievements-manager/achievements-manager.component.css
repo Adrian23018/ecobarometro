@@ -1,0 +1,264 @@
+/* src/app/features/admin/achievements-manager/achievements-manager.component.css */
+
+/* Container */
+.achievements-manager {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Back button */
+.back-button {
+  @apply w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-blue-50;
+}
+
+/* Achievement icons */
+.achievement-icon {
+  @apply w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center;
+}
+
+/* Table customization */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  @apply bg-gray-50 font-semibold text-gray-700 border-gray-200;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+  @apply transition-colors duration-200;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  @apply bg-gray-50;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-selectable-row.p-highlight {
+  @apply bg-blue-50;
+}
+
+/* Dialog customization */
+.achievement-dialog :host ::ng-deep .p-dialog-header {
+  @apply bg-gray-50 border-b border-gray-200;
+}
+
+.achievement-dialog :host ::ng-deep .p-dialog-content {
+  @apply pt-6;
+}
+
+/* Form styling */
+.form-field {
+  @apply mb-4;
+}
+
+/* Card headers */
+:host ::ng-deep .p-card .p-card-header {
+  @apply bg-gray-50 border-b border-gray-200 font-semibold text-gray-700;
+}
+
+/* Tags customization */
+:host ::ng-deep .p-tag {
+  @apply font-medium;
+}
+
+:host ::ng-deep .p-tag.p-tag-success {
+  @apply bg-green-100 text-green-800 border border-green-200;
+}
+
+:host ::ng-deep .p-tag.p-tag-warning {
+  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+}
+
+:host ::ng-deep .p-tag.p-tag-danger {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+:host ::ng-deep .p-tag.p-tag-info {
+  @apply bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+:host ::ng-deep .p-tag.p-tag-secondary {
+  @apply bg-gray-100 text-gray-800 border border-gray-200;
+}
+
+/* Chips customization */
+:host ::ng-deep .p-chip {
+  @apply bg-gray-100 text-gray-700 border border-gray-200;
+}
+
+:host ::ng-deep .p-chip.p-chip-sm {
+  @apply text-xs px-2 py-1;
+}
+
+/* Button hover effects */
+:host ::ng-deep .p-button:hover {
+  @apply transform -translate-y-0.5;
+}
+
+/* Checkbox customization */
+:host ::ng-deep .p-checkbox .p-checkbox-box {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  @apply bg-blue-500 border-blue-500;
+}
+
+/* Dropdown customization */
+:host ::ng-deep .p-dropdown {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-dropdown:not(.p-disabled):hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-dropdown:not(.p-disabled).p-focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}
+
+/* Input styling */
+:host ::ng-deep .p-inputtext {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-inputtext:hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-inputtext:focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}
+
+/* Textarea styling */
+:host ::ng-deep .p-inputtextarea {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-inputtextarea:hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-inputtextarea:focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}
+
+/* Input number styling */
+:host ::ng-deep .p-inputnumber .p-inputtext {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-inputnumber .p-inputtext:hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-inputnumber .p-inputtext:focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}
+
+/* Empty state */
+.empty-state {
+  @apply text-center py-12;
+}
+
+.empty-state-icon {
+  @apply text-6xl text-gray-300 mb-4;
+}
+
+.empty-state-title {
+  @apply text-xl font-semibold text-gray-500 mb-2;
+}
+
+.empty-state-description {
+  @apply text-gray-400;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-gray-300 rounded;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .achievements-manager {
+    @apply p-2;
+  }
+
+  .achievement-icon {
+    @apply w-10 h-10;
+  }
+
+  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    @apply text-sm;
+  }
+
+  :host ::ng-deep .p-dialog {
+    @apply w-full m-2;
+  }
+
+  .grid {
+    @apply gap-2;
+  }
+}
+
+/* Hover effects */
+.hover-lift {
+  @apply transition-transform duration-200 hover:-translate-y-1;
+}
+
+.hover-shadow {
+  @apply transition-shadow duration-200 hover:shadow-lg;
+}
+
+/* Focus states */
+.focus-ring:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Achievement category colors */
+.category-points {
+  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+}
+
+.category-games {
+  @apply bg-blue-100 text-blue-800 border border-blue-200;
+}
+
+.category-streak {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+.category-level {
+  @apply bg-green-100 text-green-800 border border-green-200;
+}
+
+.category-time {
+  @apply bg-gray-100 text-gray-800 border border-gray-200;
+}
+
+.category-special {
+  @apply bg-purple-100 text-purple-800 border border-purple-200;
+}
+
+/* Custom divider */
+:host ::ng-deep .p-divider .p-divider-content {
+  @apply bg-gray-50;
+}
+
+/* Tooltip customization */
+:host ::ng-deep .p-tooltip .p-tooltip-text {
+  @apply bg-gray-800 text-white text-xs;
+}

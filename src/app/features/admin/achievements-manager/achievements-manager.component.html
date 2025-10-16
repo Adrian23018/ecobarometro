@@ -1,0 +1,280 @@
+<!-- src/app/features/admin/achievements-manager/achievements-manager.component.html -->
+<div class="achievements-manager">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <div class="flex align-items-center gap-3">
+      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" pTooltip="Volver" class="back-button" />
+      <h1 class="text-3xl font-bold text-gray-800 m-0">🏆 Gestión de Logros</h1>
+    </div>
+    <div class="flex gap-2">
+      <p-button label="Nuevo Logro" icon="pi pi-plus" (onClick)="openDialog()" />
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <p-card styleClass="mb-4">
+    <div class="grid">
+      <div class="col-12 md:col-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Búsqueda</label>
+        <span class="p-input-icon-left w-full">
+          <i class="pi pi-search"></i>
+          <input type="text" pInputText [(ngModel)]="globalFilter" (input)="applyFilters()"
+            placeholder="Buscar logros..." class="w-full" />
+        </span>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Categoría</label>
+        <p-dropdown [options]="categoryOptions" [(ngModel)]="categoryFilter" optionLabel="label" optionValue="value"
+          (onChange)="applyFilters()" placeholder="Todas las categorías" [showClear]="true" class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+        <p-dropdown [options]="typeOptions" [(ngModel)]="typeFilter" optionLabel="label" optionValue="value"
+          (onChange)="applyFilters()" placeholder="Todos los tipos" [showClear]="true" class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-3">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+        <p-dropdown [options]="statusOptions" [(ngModel)]="statusFilter" optionLabel="label" optionValue="value"
+          (onChange)="applyFilters()" placeholder="Todos los estados" [showClear]="true" class="w-full" />
+      </div>
+    </div>
+  </p-card>
+
+  <!-- Achievements Table -->
+  <p-card>
+    <p-table [value]="filteredAchievements" [loading]="loading" styleClass="p-datatable-striped" [paginator]="true"
+      [rows]="10" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} logros"
+      [rowsPerPageOptions]="[10, 25, 50]" [selection]="selectedAchievements" [(selection)]="selectedAchievements"
+      dataKey="id">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox />
+          </th>
+          <th>Logro</th>
+          <th>Categoría</th>
+          <th>Tipo</th>
+          <th>Requisitos</th>
+          <th>Recompensa</th>
+          <th>Estado</th>
+          <th style="width: 8rem">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-achievement>
+        <tr>
+          <td>
+            <p-tableCheckbox [value]="achievement" />
+          </td>
+          <td>
+            <div class="flex align-items-center gap-3">
+              <div class="achievement-icon">
+                <i [class]="achievement.icon" class="text-2xl" [style.color]="getCategorySeverity(achievement.category) === 'warning' ? '#f59e0b' :
+                                  getCategorySeverity(achievement.category) === 'success' ? '#22c55e' :
+                                  getCategorySeverity(achievement.category) === 'danger' ? '#ef4444' :
+                                  getCategorySeverity(achievement.category) === 'info' ? '#3b82f6' : '#6b7280'"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-gray-800">{{ achievement.title }}</div>
+                <div class="text-sm text-gray-600">{{ achievement.description }}</div>
+                <div *ngIf="achievement.is_hidden" class="mt-1">
+                  <p-chip label="Oculto" icon="pi pi-eye-slash" styleClass="p-chip-sm" />
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="achievement.category" [severity]="getCategorySeverity(achievement.category)">
+              <i [class]="getCategoryIcon(achievement.category)" class="mr-1"></i>
+              {{ achievement.category }}
+            </p-tag>
+          </td>
+          <td>
+            <p-tag [value]="achievement.type" [severity]="getTypeSeverity(achievement.type)" />
+          </td>
+          <td>
+            <div class="text-sm">
+              <div class="font-medium">{{ achievement.requirements.condition }} {{ achievement.requirements.target_value
+                }}</div>
+              <div class="text-gray-600">{{ achievement.requirements.metric }}</div>
+            </div>
+          </td>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <i class="pi pi-star text-yellow-500"></i>
+              <span class="font-semibold">{{ achievement.reward_points }}</span>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="achievement.is_active ? 'Activo' : 'Inactivo'"
+              [severity]="achievement.is_active ? 'success' : 'danger'" />
+          </td>
+          <td>
+            <div class="flex gap-1">
+              <p-button icon="pi pi-pencil" size="small" [text]="true" severity="warning"
+                (onClick)="openDialog(achievement)" pTooltip="Editar" />
+              <p-button [icon]="achievement.is_active ? 'pi pi-eye-slash' : 'pi pi-eye'" size="small" [text]="true"
+                severity="secondary" (onClick)="toggleStatus(achievement)"
+                [pTooltip]="achievement.is_active ? 'Desactivar' : 'Activar'" />
+              <p-button icon="pi pi-trash" size="small" [text]="true" severity="danger"
+                (onClick)="deleteAchievement(achievement)" pTooltip="Eliminar" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center p-4">
+            <div class="text-center">
+              <i class="pi pi-trophy text-4xl text-gray-400 mb-3"></i>
+              <h4 class="text-gray-500">No hay logros</h4>
+              <p class="text-gray-600">Crea tu primer logro para motivar a los usuarios</p>
+              <p-button label="Crear Logro" icon="pi pi-plus" (onClick)="openDialog()" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Achievement Form Dialog -->
+<p-dialog [header]="isEditing ? 'Editar Logro' : 'Nuevo Logro'" [(visible)]="showDialog" [modal]="true"
+  [style]="{width: '600px'}" [closable]="true" styleClass="achievement-dialog">
+
+  <form [formGroup]="achievementForm" (ngSubmit)="onSubmit()">
+    <!-- Basic Information -->
+    <div class="grid mb-4">
+      <div class="col-12">
+        <h4 class="font-semibold mb-3">Información Básica</h4>
+      </div>
+
+      <div class="col-12">
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+          Título del Logro *
+        </label>
+        <input pInputText id="title" formControlName="title" class="w-full" placeholder="Ej: Primer Paso" />
+      </div>
+
+      <div class="col-12">
+        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+          Descripción *
+        </label>
+        <textarea pInputTextarea id="description" formControlName="description" class="w-full" rows="3"
+          placeholder="Descripción del logro..."></textarea>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label for="icon" class="block text-sm font-medium text-gray-700 mb-2">
+          Icono
+        </label>
+        <p-dropdown id="icon" formControlName="icon" [options]="iconOptions" optionLabel="label" optionValue="value"
+          class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+          Categoría *
+        </label>
+        <p-dropdown id="category" formControlName="category" [options]="categoryOptions.slice(1)" optionLabel="label"
+          optionValue="value" class="w-full" />
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Requirements -->
+    <div class="grid mb-4">
+      <div class="col-12">
+        <h4 class="font-semibold mb-3">Requisitos</h4>
+      </div>
+
+      <div class="col-12 md:col-4">
+        <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+          Tipo *
+        </label>
+        <p-dropdown id="type" formControlName="type" [options]="typeOptions.slice(1)" optionLabel="label"
+          optionValue="value" class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-4">
+        <label for="condition" class="block text-sm font-medium text-gray-700 mb-2">
+          Condición *
+        </label>
+        <p-dropdown id="condition" formControlName="condition" [options]="conditionOptions" optionLabel="label"
+          optionValue="value" class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-4">
+        <label for="target_value" class="block text-sm font-medium text-gray-700 mb-2">
+          Valor Objetivo *
+        </label>
+        <p-inputNumber id="target_value" formControlName="target_value" [min]="1" class="w-full" />
+      </div>
+
+      <div class="col-12">
+        <label for="metric" class="block text-sm font-medium text-gray-700 mb-2">
+          Métrica *
+        </label>
+        <input pInputText id="metric" formControlName="metric" class="w-full"
+          placeholder="Ej: total_points, games_completed, level" />
+      </div>
+    </div>
+
+    <p-divider />
+
+    <!-- Reward and Settings -->
+    <div class="grid mb-4">
+      <div class="col-12">
+        <h4 class="font-semibold mb-3">Recompensa y Configuración</h4>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <label for="reward_points" class="block text-sm font-medium text-gray-700 mb-2">
+          Puntos de Recompensa *
+        </label>
+        <p-inputNumber id="reward_points" formControlName="reward_points" [min]="1" class="w-full" />
+      </div>
+
+      <div class="col-12 md:col-6">
+        <div class="flex flex-column gap-3 mt-4">
+          <div class="flex align-items-center">
+            <p-checkbox id="is_active" formControlName="is_active" [binary]="true" />
+            <label for="is_active" class="ml-2">Logro Activo</label>
+          </div>
+          <div class="flex align-items-center">
+            <p-checkbox id="is_hidden" formControlName="is_hidden" [binary]="true" />
+            <label for="is_hidden" class="ml-2">Logro Oculto</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates -->
+    <div class="mb-4" *ngIf="!isEditing">
+      <h4 class="font-semibold mb-3">Plantillas Rápidas</h4>
+      <div class="flex flex-wrap gap-2">
+        <p-button *ngFor="let template of achievementTemplates" [label]="template.title" size="small"
+          severity="secondary" [outlined]="true" (onClick)="useTemplate(template)" />
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-end gap-2">
+      <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="closeDialog()" />
+      <p-button [label]="isEditing ? 'Actualizar' : 'Crear'" icon="pi pi-check" (onClick)="onSubmit()"
+        [disabled]="!achievementForm.valid" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast and Confirmation -->
+<p-toast />
+<p-confirmDialog />

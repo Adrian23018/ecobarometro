@@ -1,0 +1,215 @@
+<!-- src/app/features/admin/user-analytics/user-analytics.component.html -->
+<div class="user-analytics">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <div class="flex align-items-center gap-3">
+      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()"
+                pTooltip="Volver" class="back-button" />
+      <h1 class="text-3xl font-bold text-gray-800 m-0">📊 Analíticas de Usuarios</h1>
+    </div>
+    <div class="flex gap-2">
+      <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod"
+                  optionLabel="label" (onChange)="onPeriodChange()" />
+      <p-button label="Exportar" icon="pi pi-download" severity="secondary"
+                [outlined]="true" (onClick)="exportAnalytics()" />
+    </div>
+  </div>
+
+  <!-- Métricas Principales -->
+  <div class="grid mb-6">
+    <div class="col-12 md:col-3">
+      <p-card styleClass="metric-card text-center h-full">
+        <div class="metric-icon mb-3">
+          <i class="pi pi-users text-4xl text-blue-500"></i>
+        </div>
+        <div class="metric-value text-2xl font-bold text-blue-600 mb-1">
+          {{ analytics.totalUsers }}
+        </div>
+        <div class="metric-label text-sm text-gray-600">Total Usuarios</div>
+        <div class="metric-change mt-2">
+          <small class="text-green-600">
+            <i class="pi pi-arrow-up"></i>
+            +{{ analytics.newUsersThisMonth }} este mes
+          </small>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="metric-card text-center h-full">
+        <div class="metric-icon mb-3">
+          <i class="pi pi-check-circle text-4xl text-green-500"></i>
+        </div>
+        <div class="metric-value text-2xl font-bold text-green-600 mb-1">
+          {{ analytics.activeUsers }}
+        </div>
+        <div class="metric-label text-sm text-gray-600">Usuarios Activos</div>
+        <div class="metric-change mt-2">
+          <p-progressBar [value]="(analytics.activeUsers / analytics.totalUsers) * 100"
+                         [showValue]="false" styleClass="w-full h-1" />
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="metric-card text-center h-full">
+        <div class="metric-icon mb-3">
+          <i class="pi pi-clock text-4xl text-orange-500"></i>
+        </div>
+        <div class="metric-value text-2xl font-bold text-orange-600 mb-1">
+          {{ analytics.avgSessionTime }}m
+        </div>
+        <div class="metric-label text-sm text-gray-600">Tiempo Promedio</div>
+        <div class="metric-change mt-2">
+          <small class="text-blue-600">
+            <i class="pi pi-info-circle"></i>
+            Sesión promedio
+          </small>
+        </div>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card styleClass="metric-card text-center h-full">
+        <div class="metric-icon mb-3">
+          <i class="pi pi-star text-4xl text-purple-500"></i>
+        </div>
+        <div class="metric-value text-2xl font-bold text-purple-600 mb-1">
+          {{ analytics.avgScore | number:'1.0-0' }}
+        </div>
+        <div class="metric-label text-sm text-gray-600">Puntuación Promedio</div>
+        <div class="metric-change mt-2">
+          <small class="text-green-600">
+            <i class="pi pi-arrow-up"></i>
+            Excelente desempeño
+          </small>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Gráficos -->
+  <div class="grid mb-6">
+    <!-- Distribución por Niveles -->
+    <div class="col-12 lg:col-6">
+      <p-card header="Distribución por Niveles" styleClass="h-full">
+        <div class="chart-container" style="height: 300px;">
+          <p-chart type="doughnut" [data]="userLevelChart" [options]="chartOptions" />
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Actividad en el Tiempo -->
+    <div class="col-12 lg:col-6">
+      <p-card header="Actividad Últimos 7 Días" styleClass="h-full">
+        <div class="chart-container" style="height: 300px;">
+          <p-chart type="line" [data]="activityChart" [options]="chartOptions" />
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Métricas de Engagement -->
+    <div class="col-12 lg:col-6">
+      <p-card header="Métricas de Engagement" styleClass="h-full">
+        <div class="engagement-grid">
+          <div class="engagement-item">
+            <div class="engagement-label">DAU (Daily Active Users)</div>
+            <div class="engagement-value text-green-600 font-bold">
+              {{ analytics.engagementMetrics.dailyActiveUsers }}
+            </div>
+          </div>
+          <div class="engagement-item">
+            <div class="engagement-label">WAU (Weekly Active Users)</div>
+            <div class="engagement-value text-blue-600 font-bold">
+              {{ analytics.engagementMetrics.weeklyActiveUsers }}
+            </div>
+          </div>
+          <div class="engagement-item">
+            <div class="engagement-label">MAU (Monthly Active Users)</div>
+            <div class="engagement-value text-purple-600 font-bold">
+              {{ analytics.engagementMetrics.monthlyActiveUsers }}
+            </div>
+          </div>
+          <div class="engagement-item">
+            <div class="engagement-label">Tasa de Retención</div>
+            <div class="engagement-value text-orange-600 font-bold">
+              {{ analytics.engagementMetrics.retentionRate }}%
+            </div>
+          </div>
+        </div>
+        <div class="chart-container mt-4" style="height: 200px;">
+          <p-chart type="bar" [data]="engagementChart" [options]="chartOptions" />
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="col-12 lg:col-6">
+      <p-card header="Top 10 Usuarios" styleClass="h-full">
+        <div class="top-performers-list">
+          <div *ngFor="let user of analytics.topPerformers; let i = index"
+               class="top-performer-item flex align-items-center justify-content-between p-3 border-round mb-2"
+               [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
+            <div class="flex align-items-center gap-3">
+              <div class="ranking-badge">
+                <span class="font-bold">#{{ i + 1 }}</span>
+              </div>
+              <p-avatar [label]="getUserInitials(user)" shape="circle" size="normal" />
+              <div>
+                <div class="font-semibold">{{ user.full_name }}</div>
+                <div class="text-sm text-gray-600">{{ user.username }}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-blue-600">{{ user.total_points }}</div>
+              <div class="text-sm text-gray-600">Nivel {{ user.level }}</div>
+            </div>
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Tabla Detallada (opcional) -->
+  <p-card header="Análisis Detallado" *ngIf="false">
+    <p-table [value]="analytics.topPerformers" [paginator]="true" [rows]="10"
+             styleClass="p-datatable-striped" [loading]="loading">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Usuario</th>
+          <th>Nivel</th>
+          <th>Puntos</th>
+          <th>Actividad</th>
+          <th>Registro</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="flex align-items-center gap-2">
+              <p-avatar [label]="getUserInitials(user)" shape="circle" size="normal" />
+              <div>
+                <div class="font-medium">{{ user.full_name }}</div>
+                <div class="text-sm text-gray-600">{{ user.username }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <p-badge [value]="user.level"
+                     [style]="{'background-color': getLevelBadgeColor(user.level)}" />
+          </td>
+          <td>
+            <span class="font-semibold">{{ user.total_points }}</span>
+          </td>
+          <td>
+            <p-tag [value]="user.is_active ? 'Activo' : 'Inactivo'"
+                   [severity]="user.is_active ? 'success' : 'danger'" />
+          </td>
+          <td>
+            <span class="text-sm">{{ user.created_at | date:'short' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>

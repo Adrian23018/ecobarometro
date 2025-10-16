@@ -4,6 +4,9 @@ import { Observable, from, BehaviorSubject, combineLatest, of, throwError } from
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
+import { User } from '../models/user';
+
+// Re-export User interface for components
 
 // Interfaces para el UserService
 export interface UserStats {
@@ -60,23 +63,6 @@ export interface UpdateUserRequest {
   avatar_url?: string;
 }
 
-export interface User {
-  id: string;
-  admin_id: string;
-  email: string;
-  username: string;
-  full_name: string;
-  avatar_url?: string;
-  total_points: number;
-  level: number;
-  experience_points: number;
-  games_played: number;
-  admin_code: string;
-  is_active: boolean;
-  last_game_at?: string;
-  created_at: string;
-  updated_at: string;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -708,6 +694,136 @@ export class UserService {
     } catch (error) {
       console.error('Error deleting account:', error);
       throw new Error('Error al eliminar la cuenta');
+    }
+  }
+
+  // ==================== MÉTODOS PARA ADMIN ====================
+
+  /**
+   * Obtener usuarios por administrador
+   */
+  getUsersByAdmin(adminId: string): Observable<User[]> {
+    return from(this.supabase
+      .from('users')
+      .select('*')
+      .eq('admin_id', adminId)
+      .order('created_at', { ascending: false })
+    ).pipe(
+      map(response => {
+        if (response.error) {
+          console.error('Error fetching users:', response.error);
+          throw new Error(response.error.message);
+        }
+        return response.data || [];
+      }),
+      catchError(error => {
+        console.error('Error in getUsersByAdmin:', error);
+        return throwError(() => new Error('Error al cargar los usuarios'));
+      })
+    );
+  }
+
+  /**
+   * Actualizar estado activo/inactivo del usuario
+   */
+  updateUserStatus(userId: string, isActive: boolean): Observable<User> {
+    return from(this.supabase
+      .from('users')
+      .update({
+        is_active: isActive,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single()
+    ).pipe(
+      map(response => {
+        if (response.error) {
+          throw new Error(response.error.message);
+        }
+        return response.data;
+      }),
+      catchError(error => {
+        console.error('Error updating user status:', error);
+        return throwError(() => new Error('Error al actualizar el estado del usuario'));
+      })
+    );
+  }
+
+  /**
+   * Reiniciar progreso del usuario
+   */
+  resetUserProgress(userId: string): Observable<User> {
+    return from(this.performProgressReset(userId));
+  }
+
+  private async performProgressReset(userId: string): Promise<User> {
+    try {
+      // Eliminar datos de progreso
+      await Promise.all([
+        this.supabase.from('user_responses').delete().eq('user_id', userId),
+        this.supabase.from('game_sessions').delete().eq('user_id', userId),
+        this.supabase.from('user_achievements').delete().eq('user_id', userId),
+        this.supabase.from('rankings').delete().eq('user_id', userId)
+      ]);
+
+      // Resetear estadísticas del usuario
+      const { data: updatedUser, error } = await this.supabase
+        .from('users')
+        .update({
+          total_points: 0,
+          level: 1,
+          experience_points: 0,
+          games_played: 0,
+          last_game_at: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return updatedUser;
+    } catch (error: any) {
+      console.error('Error resetting user progress:', error);
+      throw new Error('Error al reiniciar el progreso del usuario: ' + error.message);
+    }
+  }
+
+  /**
+   * Eliminar usuario (para admins)
+   */
+  deleteUser(userId: string): Observable<boolean> {
+    return from(this.performUserDeletion(userId));
+  }
+
+  private async performUserDeletion(userId: string): Promise<boolean> {
+    try {
+      // Eliminar todos los datos relacionados
+      await Promise.all([
+        this.supabase.from('user_responses').delete().eq('user_id', userId),
+        this.supabase.from('game_sessions').delete().eq('user_id', userId),
+        this.supabase.from('user_achievements').delete().eq('user_id', userId),
+        this.supabase.from('rankings').delete().eq('user_id', userId)
+      ]);
+
+      // Eliminar el usuario
+      const { error } = await this.supabase
+        .from('users')
+        .delete()
+        .eq('id', userId);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return true;
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      throw new Error('Error al eliminar el usuario: ' + error.message);
     }
   }
 }

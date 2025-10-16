@@ -45,7 +45,7 @@ export class QuestionsService {
     if (questionError) throw questionError;
 
     // Crear las opciones
-    const optionsToInsert = questionData.options.map((option, index) => ({
+    const optionsToInsert = (questionData.options || []).map((option, index) => ({
       question_id: question.id,
       option_text: option.option_text,
       is_correct: option.is_correct,
@@ -152,7 +152,7 @@ export class QuestionsService {
         .eq('question_id', id);
 
       // Crear nuevas opciones
-      const optionsToInsert = updates.options.map((option, index) => ({
+      const optionsToInsert = (updates.options || []).map((option, index) => ({
         question_id: id,
         option_text: option.option_text,
         is_correct: option.is_correct,

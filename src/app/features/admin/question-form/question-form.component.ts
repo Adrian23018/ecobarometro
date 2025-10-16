@@ -89,7 +89,9 @@ export class QuestionFormComponent implements OnInit {
   };
 
   currentUser: any;
-  String: any;
+
+  // Make String available to template
+  String = String;
 
   constructor(
     private fb: FormBuilder,
@@ -356,6 +358,7 @@ export class QuestionFormComponent implements OnInit {
         questionData.options = formValue.options.map((opt: any, index: number) => ({
           option_text: opt.option_text,
           is_correct: opt.is_correct,
+          points: opt.is_correct ? formValue.points : 0,
           explanation: opt.explanation || null,
           order_index: index
         }));
@@ -366,11 +369,13 @@ export class QuestionFormComponent implements OnInit {
           {
             option_text: 'Verdadero',
             is_correct: formValue.correct_answer === 'true',
+            points: formValue.correct_answer === 'true' ? formValue.points : 0,
             order_index: 0
           },
           {
             option_text: 'Falso',
             is_correct: formValue.correct_answer === 'false',
+            points: formValue.correct_answer === 'false' ? formValue.points : 0,
             order_index: 1
           }
         ];
@@ -391,7 +396,7 @@ export class QuestionFormComponent implements OnInit {
     // Save question
     const saveOperation = this.isEditMode
       ? this.questionsService.updateQuestion(this.editQuestion!.id, questionData)
-      : this.questionsService.createQuestion(this.currentUser.id, questionData);
+      : this.questionsService.createQuestion(admin.id, questionData);
 
     saveOperation.subscribe({
       next: (savedQuestion) => {
@@ -490,6 +495,7 @@ export class QuestionFormComponent implements OnInit {
       scale_max: formValue.scale_max,
       scale_min_label: formValue.scale_min_label,
       scale_max_label: formValue.scale_max_label,
+      scale_correct_value: formValue.scale_correct_value,
       explanation: formValue.explanation
     };
   }

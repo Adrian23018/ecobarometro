@@ -3,6 +3,20 @@
       padding: 1rem;
     }
 
+    /* Quick Navigation */
+    .quick-nav-card {
+      border-left: 4px solid #3b82f6;
+    }
+
+    .quick-nav-btn {
+      transition: all 0.2s ease;
+    }
+
+    .quick-nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
     .timeline-container {
       max-height: 400px;
       overflow-y: auto;

@@ -1,0 +1,417 @@
+<!-- src/app/features/admin/settings/settings.component.html -->
+<div class="settings">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <div class="flex align-items-center gap-3">
+      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()"
+                pTooltip="Volver" class="back-button" />
+      <h1 class="text-3xl font-bold text-gray-800 m-0">⚙️ Configuración</h1>
+    </div>
+    <div class="flex gap-2">
+      <p-button label="Exportar" icon="pi pi-download" severity="secondary"
+                [outlined]="true" (onClick)="exportSettings()" />
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <p-tabView [(activeIndex)]="activeTab">
+    <!-- Perfil -->
+    <p-tabPanel header="Mi Perfil" leftIcon="pi pi-user">
+      <div class="grid">
+        <div class="col-12 lg:col-8">
+          <p-card header="Información Personal">
+            <form [formGroup]="profileForm" (ngSubmit)="onProfileSubmit()">
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre Completo *
+                  </label>
+                  <input pInputText id="full_name" formControlName="full_name" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input pInputText id="email" formControlName="email" type="email" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                    Teléfono
+                  </label>
+                  <input pInputText id="phone" formControlName="phone" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <label for="organization" class="block text-sm font-medium text-gray-700 mb-2">
+                    Organización
+                  </label>
+                  <input pInputText id="organization" formControlName="organization" class="w-full" />
+                </div>
+
+                <div class="col-12">
+                  <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">
+                    Biografía
+                  </label>
+                  <textarea pInputTextarea id="bio" formControlName="bio" class="w-full" rows="3"></textarea>
+                </div>
+              </div>
+
+              <p-divider />
+
+              <h4 class="font-semibold mb-3">Cambiar Contraseña</h4>
+              <div class="grid">
+                <div class="col-12 md:col-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Contraseña Actual
+                  </label>
+                  <p-password formControlName="current_password" [toggleMask]="true" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Nueva Contraseña
+                  </label>
+                  <p-password formControlName="new_password" [toggleMask]="true" class="w-full" />
+                </div>
+
+                <div class="col-12 md:col-4">
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Confirmar Contraseña
+                  </label>
+                  <p-password formControlName="confirm_password" [toggleMask]="true" class="w-full" />
+                </div>
+              </div>
+
+              <div class="flex justify-content-end mt-4">
+                <p-button label="Guardar Cambios" icon="pi pi-check" [loading]="isLoadingProfile"
+                          type="submit" [disabled]="!profileForm.valid" />
+              </div>
+            </form>
+          </p-card>
+        </div>
+
+        <div class="col-12 lg:col-4">
+          <p-card header="Información de la Cuenta">
+            <div class="text-center mb-4">
+              <div class="admin-avatar mx-auto mb-3">
+                <span class="text-2xl font-bold text-white">{{ getAdminInitials() }}</span>
+              </div>
+              <h3 class="font-semibold">{{ currentAdmin?.full_name }}</h3>
+              <p class="text-gray-600">{{ currentAdmin?.email }}</p>
+            </div>
+
+            <div class="space-y-3">
+              <div class="info-item">
+                <span class="info-label">Código de Admin:</span>
+                <div class="flex align-items-center gap-2">
+                  <span class="info-value font-mono">{{ currentAdmin?.admin_code }}</span>
+                  <p-button icon="pi pi-copy" size="small" [text]="true"
+                            pTooltip="Copiar código" />
+                </div>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Miembro desde:</span>
+                <span class="info-value">{{ currentAdmin?.created_at | date:'mediumDate' }}</span>
+              </div>
+
+              <div class="info-item">
+                <span class="info-label">Última actualización:</span>
+                <span class="info-value">{{ currentAdmin?.updated_at | date:'short' }}</span>
+              </div>
+
+              <p-button label="Generar Nuevo Código" icon="pi pi-refresh" severity="warning"
+                        [outlined]="true" class="w-full mt-3" (onClick)="generateNewAdminCode()" />
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- Configuración de la App -->
+    <p-tabPanel header="Aplicación" leftIcon="pi pi-cog">
+      <p-card header="Configuración General">
+        <form [formGroup]="appSettingsForm" (ngSubmit)="onAppSettingsSubmit()">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Nombre de la Aplicación
+              </label>
+              <input pInputText formControlName="app_name" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Máximo de Usuarios por Admin
+              </label>
+              <p-inputNumber formControlName="max_users_per_admin" [min]="1" class="w-full" />
+            </div>
+
+            <div class="col-12">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Descripción
+              </label>
+              <textarea pInputTextarea formControlName="app_description" class="w-full" rows="3"></textarea>
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Color Primario
+              </label>
+              <p-colorPicker formControlName="primary_color" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Color Secundario
+              </label>
+              <p-colorPicker formControlName="secondary_color" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Color de Acento
+              </label>
+              <p-colorPicker formControlName="accent_color" class="w-full" />
+            </div>
+          </div>
+
+          <p-divider />
+
+          <h4 class="font-semibold mb-3">Puntuación y Niveles</h4>
+          <div class="grid">
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Puntos por Respuesta Correcta
+              </label>
+              <p-inputNumber formControlName="points_per_correct_answer" [min]="1" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Puntos por Completar Juego
+              </label>
+              <p-inputNumber formControlName="points_per_game_completion" [min]="1" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Umbral para Subir de Nivel
+              </label>
+              <p-inputNumber formControlName="level_up_threshold" [min]="1" class="w-full" />
+            </div>
+          </div>
+
+          <p-divider />
+
+          <h4 class="font-semibold mb-3">Funcionalidades</h4>
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="enable_achievements" [binary]="true" />
+                  <label class="ml-2">Habilitar Logros</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="enable_leaderboard" [binary]="true" />
+                  <label class="ml-2">Habilitar Tabla de Clasificación</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="auto_save_progress" [binary]="true" />
+                  <label class="ml-2">Guardar Progreso Automáticamente</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="show_correct_answers" [binary]="true" />
+                  <label class="ml-2">Mostrar Respuestas Correctas</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="allow_question_skip" [binary]="true" />
+                  <label class="ml-2">Permitir Saltar Preguntas</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="enable_notifications" [binary]="true" />
+                  <label class="ml-2">Habilitar Notificaciones</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-content-between mt-4">
+            <p-button label="Restaurar Defecto" icon="pi pi-refresh" severity="secondary"
+                      [outlined]="true" (onClick)="resetToDefaults('app')" />
+            <p-button label="Guardar Cambios" icon="pi pi-check" [loading]="isLoadingAppSettings"
+                      type="submit" [disabled]="!appSettingsForm.valid" />
+          </div>
+        </form>
+      </p-card>
+    </p-tabPanel>
+
+    <!-- Configuración del Juego -->
+    <p-tabPanel header="Juego" leftIcon="pi pi-play">
+      <p-card header="Configuración del Juego">
+        <form [formGroup]="gameSettingsForm" (ngSubmit)="onGameSettingsSubmit()">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Número de Preguntas por Defecto
+              </label>
+              <p-inputNumber formControlName="default_question_count" [min]="1" [max]="50" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Tiempo Límite por Pregunta (segundos)
+              </label>
+              <p-inputNumber formControlName="default_time_limit" [min]="10" [max]="300" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Penalización por Respuesta Incorrecta
+              </label>
+              <p-inputNumber formControlName="penalty_for_wrong_answer" [min]="0" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Bonificación por Respuesta Rápida
+              </label>
+              <p-inputNumber formControlName="bonus_for_fast_answer" [min]="0" class="w-full" />
+            </div>
+
+            <div class="col-12 md:col-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Multiplicador de Racha
+              </label>
+              <p-slider formControlName="streak_multiplier" [min]="1" [max]="5" [step]="0.1" class="w-full" />
+              <div class="text-center text-sm text-gray-600 mt-1">
+                {{ gameSettingsForm.get('streak_multiplier')?.value }}x
+              </div>
+            </div>
+          </div>
+
+          <p-divider />
+
+          <h4 class="font-semibold mb-3">Opciones de Juego</h4>
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="shuffle_questions" [binary]="true" />
+                  <label class="ml-2">Mezclar Preguntas</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="shuffle_options" [binary]="true" />
+                  <label class="ml-2">Mezclar Opciones</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="immediate_feedback" [binary]="true" />
+                  <label class="ml-2">Retroalimentación Inmediata</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="show_progress" [binary]="true" />
+                  <label class="ml-2">Mostrar Progreso</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="pause_allowed" [binary]="true" />
+                  <label class="ml-2">Permitir Pausar</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="retry_allowed" [binary]="true" />
+                  <label class="ml-2">Permitir Reintentar</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="hint_system_enabled" [binary]="true" />
+                  <label class="ml-2">Sistema de Pistas</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-content-between mt-4">
+            <p-button label="Restaurar Defecto" icon="pi pi-refresh" severity="secondary"
+                      [outlined]="true" (onClick)="resetToDefaults('game')" />
+            <p-button label="Guardar Cambios" icon="pi pi-check" [loading]="isLoadingGameSettings"
+                      type="submit" [disabled]="!gameSettingsForm.valid" />
+          </div>
+        </form>
+      </p-card>
+    </p-tabPanel>
+
+    <!-- Notificaciones -->
+    <p-tabPanel header="Notificaciones" leftIcon="pi pi-bell">
+      <p-card header="Configuración de Notificaciones">
+        <form [formGroup]="notificationForm" (ngSubmit)="onNotificationSubmit()">
+          <div class="grid">
+            <div class="col-12 md:col-6">
+              <h4 class="font-semibold mb-3">Tipos de Notificación</h4>
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="email_notifications" [binary]="true" />
+                  <label class="ml-2">Notificaciones por Email</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="push_notifications" [binary]="true" />
+                  <label class="ml-2">Notificaciones Push</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="achievement_notifications" [binary]="true" />
+                  <label class="ml-2">Notificaciones de Logros</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="level_up_notifications" [binary]="true" />
+                  <label class="ml-2">Notificaciones de Subida de Nivel</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 md:col-6">
+              <h4 class="font-semibold mb-3">Frecuencia</h4>
+              <div class="flex flex-column gap-3">
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="daily_reminder" [binary]="true" />
+                  <label class="ml-2">Recordatorio Diario</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="weekly_summary" [binary]="true" />
+                  <label class="ml-2">Resumen Semanal</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="maintenance_alerts" [binary]="true" />
+                  <label class="ml-2">Alertas de Mantenimiento</label>
+                </div>
+                <div class="flex align-items-center">
+                  <p-checkbox formControlName="new_user_alerts" [binary]="true" />
+                  <label class="ml-2">Alertas de Nuevos Usuarios</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-content-between mt-4">
+            <p-button label="Restaurar Defecto" icon="pi pi-refresh" severity="secondary"
+                      [outlined]="true" (onClick)="resetToDefaults('notifications')" />
+            <p-button label="Guardar Cambios" icon="pi pi-check" [loading]="isLoadingNotifications"
+                      type="submit" [disabled]="!notificationForm.valid" />
+          </div>
+        </form>
+      </p-card>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<!-- Toast and Confirmation -->
+<p-toast />
+<p-confirmDialog />

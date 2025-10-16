@@ -1,0 +1,237 @@
+/* src/app/features/admin/user-detail/user-detail.component.css */
+
+/* Container */
+.user-detail {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Back button */
+.back-button {
+  @apply w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-blue-50;
+}
+
+/* Form styles */
+.form-field {
+  @apply mb-4;
+}
+
+.readonly-input {
+  @apply bg-gray-50 cursor-default;
+}
+
+.readonly-input:focus {
+  @apply outline-none ring-0;
+}
+
+/* Statistics */
+.stat-item {
+  @apply py-2 border-b border-gray-100 last:border-b-0;
+}
+
+.stat-label {
+  @apply text-sm text-gray-600 font-medium;
+}
+
+.stat-value {
+  @apply text-base font-semibold text-gray-800;
+}
+
+/* Metric Cards */
+.metric-card {
+  @apply transition-all duration-200 hover:shadow-lg border border-gray-100;
+}
+
+.metric-card:hover {
+  @apply transform -translate-y-1;
+}
+
+.metric-icon {
+  @apply flex justify-center;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.metric-label {
+  @apply text-sm text-gray-600 font-medium;
+}
+
+/* Charts */
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+/* Info items */
+.info-item {
+  @apply flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0;
+}
+
+.info-label {
+  @apply text-sm text-gray-600 font-medium;
+}
+
+.info-value {
+  @apply text-sm text-gray-800;
+}
+
+/* Tabs customization */
+:host ::ng-deep .p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  @apply font-medium;
+}
+
+:host ::ng-deep .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  @apply text-blue-600 border-blue-600;
+}
+
+/* Card headers */
+:host ::ng-deep .p-card .p-card-header {
+  @apply bg-gray-50 border-b border-gray-200 font-semibold text-gray-700;
+}
+
+/* Progress bars */
+:host ::ng-deep .p-progressbar {
+  @apply bg-gray-200;
+}
+
+:host ::ng-deep .p-progressbar .p-progressbar-value {
+  @apply bg-blue-500;
+}
+
+/* Table customization */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  @apply bg-gray-50 font-semibold text-gray-700 border-gray-200;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
+  @apply transition-colors duration-200;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  @apply bg-gray-50;
+}
+
+/* Avatar customization */
+:host ::ng-deep .p-avatar {
+  @apply shadow-sm;
+}
+
+/* Button hover effects */
+:host ::ng-deep .p-button:hover {
+  @apply transform -translate-y-0.5;
+}
+
+/* Loading spinner */
+.pi-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-detail {
+    @apply p-2;
+  }
+
+  .metric-value {
+    font-size: 1.25rem;
+  }
+
+  .chart-container {
+    height: 250px !important;
+  }
+
+  .info-item {
+    @apply flex-col items-start gap-1;
+  }
+
+  :host ::ng-deep .p-tabview .p-tabview-nav {
+    @apply overflow-x-auto;
+  }
+
+  :host ::ng-deep .p-tabview .p-tabview-nav li {
+    @apply flex-shrink-0;
+  }
+}
+
+/* Custom styles for different elements */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.space-y-3 > * + * {
+  margin-top: 0.75rem;
+}
+
+/* Hover effects */
+.hover-lift {
+  @apply transition-transform duration-200 hover:-translate-y-1;
+}
+
+.hover-shadow {
+  @apply transition-shadow duration-200 hover:shadow-lg;
+}
+
+/* Focus states */
+.focus-ring:focus {
+  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Custom checkbox styles */
+:host ::ng-deep .p-checkbox .p-checkbox-box {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
+  @apply bg-blue-500 border-blue-500;
+}
+
+/* Dropdown customization */
+:host ::ng-deep .p-dropdown {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-dropdown:not(.p-disabled):hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-dropdown:not(.p-disabled).p-focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}
+
+/* Input number styles */
+:host ::ng-deep .p-inputnumber .p-inputtext {
+  @apply border-gray-300;
+}
+
+:host ::ng-deep .p-inputnumber .p-inputtext:hover {
+  @apply border-blue-500;
+}
+
+:host ::ng-deep .p-inputnumber .p-inputtext:focus {
+  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+}

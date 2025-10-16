@@ -1,0 +1,309 @@
+<!-- src/app/features/admin/user-detail/user-detail.component.html -->
+<div class="user-detail" *ngIf="!isLoading">
+  <!-- Header -->
+  <div class="flex justify-content-between align-items-center mb-4">
+    <div class="flex align-items-center gap-3">
+      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()" pTooltip="Volver a usuarios"
+        class="back-button" />
+      <div class="flex align-items-center gap-3">
+        <p-avatar [label]="getUserInitials()" size="large" shape="circle"
+          [style]="{'background-color': getLevelColor(user?.level || 1)}" />
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800 m-0">{{ user?.full_name }}</h1>
+          <p class="text-gray-600 m-0">{{ user?.username }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <p-button *ngIf="!isEditing" label="Editar" icon="pi pi-pencil" severity="secondary" [outlined]="true"
+        (onClick)="toggleEdit()" />
+      <p-button *ngIf="isEditing" label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true"
+        (onClick)="toggleEdit()" />
+      <p-button *ngIf="isEditing" label="Guardar" icon="pi pi-check" [loading]="isSaving" (onClick)="onSubmit()" />
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <p-tabView [(activeIndex)]="activeTab">
+    <!-- Información General -->
+    <p-tabPanel header="Información General" leftIcon="pi pi-user">
+      <div class="grid">
+        <!-- Información Básica -->
+        <div class="col-12 lg:col-8">
+          <p-card header="Datos del Usuario" styleClass="h-full">
+            <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+              <div class="grid">
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label for="full_name" class="block text-sm font-medium text-gray-700 mb-2">
+                      Nombre Completo *
+                    </label>
+                    <input pInputText id="full_name" formControlName="full_name" [readonly]="!isEditing" class="w-full"
+                      [class.readonly-input]="!isEditing" />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
+                      Nombre de Usuario *
+                    </label>
+                    <input pInputText id="username" formControlName="username" [readonly]="!isEditing" class="w-full"
+                      [class.readonly-input]="!isEditing" />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                      Email *
+                    </label>
+                    <input pInputText id="email" formControlName="email" type="email" [readonly]="!isEditing"
+                      class="w-full" [class.readonly-input]="!isEditing" />
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label for="level" class="block text-sm font-medium text-gray-700 mb-2">
+                      Nivel
+                    </label>
+                    <p-dropdown *ngIf="isEditing" id="level" formControlName="level" [options]="levelOptions"
+                      optionLabel="label" optionValue="value" class="w-full" />
+                    <div *ngIf="!isEditing" class="flex align-items-center gap-2">
+                      <p-badge [value]="user?.level" [style]="{'background-color': getLevelColor(user?.level || 1)}" />
+                      <span>Nivel {{ user?.level }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label for="total_points" class="block text-sm font-medium text-gray-700 mb-2">
+                      Puntos Totales
+                    </label>
+                    <p-inputNumber *ngIf="isEditing" id="total_points" formControlName="total_points" [min]="0"
+                      class="w-full" />
+                    <div *ngIf="!isEditing" class="flex align-items-center gap-2">
+                      <i class="pi pi-star text-yellow-500"></i>
+                      <span class="font-semibold">{{ user?.total_points | number }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 md:col-6">
+                  <div class="form-field">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                      Estado
+                    </label>
+                    <div *ngIf="isEditing">
+                      <p-checkbox id="is_active" formControlName="is_active" [binary]="true" label="Usuario Activo" />
+                    </div>
+                    <div *ngIf="!isEditing">
+                      <p-tag [value]="user?.is_active ? 'Activo' : 'Inactivo'"
+                        [severity]="user?.is_active ? 'success' : 'danger'" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </p-card>
+        </div>
+
+        <!-- Estadísticas Rápidas -->
+        <div class="col-12 lg:col-4">
+          <p-card header="Estadísticas" styleClass="h-full">
+            <div class="space-y-4">
+              <div class="stat-item">
+                <div class="stat-label">Registro</div>
+                <div class="stat-value">{{ user?.created_at | date:'mediumDate' }}</div>
+              </div>
+
+              <div class="stat-item" *ngIf="userStats">
+                <div class="stat-label">Última Actividad</div>
+                <div class="stat-value">{{ userStats.lastActivity | date:'short' }}</div>
+              </div>
+
+              <div class="stat-item" *ngIf="userStats">
+                <div class="stat-label">Juegos Completados</div>
+                <div class="stat-value">{{ userStats.totalGames }}</div>
+              </div>
+
+              <div class="stat-item" *ngIf="userStats">
+                <div class="stat-label">Puntuación Promedio</div>
+                <div class="stat-value">{{ userStats.avgScore }}%</div>
+              </div>
+
+              <div class="stat-item" *ngIf="userStats">
+                <div class="stat-label">Precisión</div>
+                <div class="stat-value">{{ getAccuracyPercentage() | number:'1.0-1' }}%</div>
+                <p-progressBar [value]="getAccuracyPercentage()" [showValue]="false" styleClass="mt-1" />
+              </div>
+
+              <div class="stat-item" *ngIf="userStats">
+                <div class="stat-label">Tiempo Jugado</div>
+                <div class="stat-value">{{ formatDuration(userStats.timeSpent) }}</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- Estadísticas Avanzadas -->
+    <p-tabPanel header="Estadísticas" leftIcon="pi pi-chart-bar">
+      <div class="grid" *ngIf="userStats">
+        <!-- Métricas Principales -->
+        <div class="col-12">
+          <div class="grid">
+            <div class="col-12 md:col-3">
+              <p-card styleClass="metric-card text-center">
+                <div class="metric-icon mb-2">
+                  <i class="pi pi-trophy text-3xl text-yellow-500"></i>
+                </div>
+                <div class="metric-value text-xl font-bold">{{ userStats.rank }}</div>
+                <div class="metric-label">Ranking Global</div>
+              </p-card>
+            </div>
+
+            <div class="col-12 md:col-3">
+              <p-card styleClass="metric-card text-center">
+                <div class="metric-icon mb-2">
+                  <i class="pi pi-medal text-3xl text-purple-500"></i>
+                </div>
+                <div class="metric-value text-xl font-bold">{{ userStats.achievements }}</div>
+                <div class="metric-label">Logros Obtenidos</div>
+              </p-card>
+            </div>
+
+            <div class="col-12 md:col-3">
+              <p-card styleClass="metric-card text-center">
+                <div class="metric-icon mb-2">
+                  <i class="pi pi-bolt text-3xl text-orange-500"></i>
+                </div>
+                <div class="metric-value text-xl font-bold">{{ userStats.bestStreak }}</div>
+                <div class="metric-label">Mejor Racha</div>
+              </p-card>
+            </div>
+
+            <div class="col-12 md:col-3">
+              <p-card styleClass="metric-card text-center">
+                <div class="metric-icon mb-2">
+                  <i class="pi pi-heart-fill text-3xl text-red-500"></i>
+                </div>
+                <div class="metric-value text-xl font-bold">{{ userStats.favoriteCategory }}</div>
+                <div class="metric-label">Categoría Favorita</div>
+              </p-card>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="col-12 lg:col-6">
+          <p-card header="Progreso Últimos 7 Días" styleClass="h-full">
+            <div class="chart-container" style="height: 300px;">
+              <p-chart type="line" [data]="progressChart" [options]="chartOptions" />
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 lg:col-6">
+          <p-card header="Rendimiento por Categoría" styleClass="h-full">
+            <div class="chart-container" style="height: 300px;">
+              <p-chart type="bar" [data]="categoryChart" [options]="chartOptions" />
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- Historial de Juegos -->
+    <p-tabPanel header="Historial" leftIcon="pi pi-history">
+      <p-card header="Historial de Juegos">
+        <p-table [value]="gameHistory" [paginator]="true" [rows]="10" styleClass="p-datatable-striped"
+          [loading]="isLoading">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Fecha</th>
+              <th>Categoría</th>
+              <th>Puntuación</th>
+              <th>Preguntas</th>
+              <th>Duración</th>
+              <th>Estado</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-game>
+            <tr>
+              <td>{{ game.date | date:'short' }}</td>
+              <td>
+                <p-tag [value]="game.category" />
+              </td>
+              <td>
+                <div class="flex align-items-center gap-2">
+                  <span class="font-semibold">{{ game.score }}%</span>
+                  <p-progressBar [value]="game.score" [showValue]="false" styleClass="w-4rem h-0.5rem" />
+                </div>
+              </td>
+              <td>{{ game.questions }}</td>
+              <td>{{ formatDuration(game.duration / 60) }}</td>
+              <td>
+                <p-tag [value]="game.completed ? 'Completado' : 'Abandonado'"
+                  [severity]="game.completed ? 'success' : 'warning'" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </p-tabPanel>
+
+    <!-- Acciones -->
+    <p-tabPanel header="Acciones" leftIcon="pi pi-cog">
+      <div class="grid">
+        <div class="col-12 md:col-6">
+          <p-card header="Gestión de Progreso" styleClass="h-full">
+            <div class="space-y-4">
+              <div>
+                <h4 class="font-semibold mb-2">Reiniciar Progreso</h4>
+                <p class="text-sm text-gray-600 mb-3">
+                  Esto eliminará todos los puntos, nivel y estadísticas del usuario.
+                  Esta acción no se puede deshacer.
+                </p>
+                <p-button label="Reiniciar Progreso" icon="pi pi-refresh" severity="danger" [outlined]="true"
+                  (onClick)="resetProgress()" />
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-6">
+          <p-card header="Información del Sistema" styleClass="h-full">
+            <div class="space-y-3">
+              <div class="info-item">
+                <span class="info-label">ID del Usuario:</span>
+                <span class="info-value font-mono">{{ user?.id }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Código de Admin:</span>
+                <span class="info-value font-mono">{{ user?.admin_code }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Creado:</span>
+                <span class="info-value">{{ user?.created_at | date:'full' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Actualizado:</span>
+                <span class="info-value">{{ user?.updated_at | date:'full' }}</span>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="isLoading" class="text-center p-6">
+  <i class="pi pi-spin pi-spinner text-4xl text-blue-500"></i>
+  <p class="mt-3 text-gray-600">Cargando información del usuario...</p>
+</div>

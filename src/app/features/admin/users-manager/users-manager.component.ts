@@ -30,7 +30,6 @@ import { AuthService } from '../../../core/services/auth.service';
 import { User } from '../../../core/models/user';
 
 interface UserWithStats extends User {
-  games_played?: number;
   avg_score?: number;
   time_played?: number;
   last_activity?: Date;
@@ -87,7 +86,6 @@ export class UsersManagerComponent implements OnInit {
 
   // Filters
   filters: UserFilter = {};
-  globalFilter = '';
 
   // Options
   levelOptions = Array.from({ length: 10 }, (_, i) => ({
@@ -157,10 +155,9 @@ export class UsersManagerComponent implements OnInit {
     }
 
     this.userService.getUsersByAdmin(admin.id).subscribe({
-      next: (users) => {
-        this.users = users.map(user => ({
+      next: (users: User[]) => {
+        this.users = users.map((user: User) => ({
           ...user,
-          games_played: Math.floor(Math.random() * 50),
           avg_score: Math.floor(Math.random() * 100),
           time_played: Math.floor(Math.random() * 300),
           last_activity: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000),
@@ -413,7 +410,7 @@ export class UsersManagerComponent implements OnInit {
     }
 
     // Simple CSV export
-    const csvData = this.users.map(user => ({
+    const csvData = this.users.map((user:any) => ({
       'Nombre': user.full_name,
       'Usuario': user.username,
       'Email': user.email,
@@ -496,7 +493,7 @@ export class UsersManagerComponent implements OnInit {
     return { label: 'Inactivo', severity: 'danger' };
   }
 
-  formatDate(date: Date | undefined): string {
+  formatDate(date: Date | undefined): any {
     if (!date) return 'N/A';
     return date.toLocaleDateString('es-ES', {
       year: 'numeric',
