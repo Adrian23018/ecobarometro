@@ -599,13 +599,29 @@ export class AuthService {
   // MÉTODOS DE SESIÓN
   // ===========================
 
-  // Logout
+  // Logout - Preservando el progreso del usuario
   logout(): void {
-    // Clear localStorage
+    console.log('🚪 Iniciando logout desde AuthService...');
+
+    // Guardar el progreso antes de limpiar
+    const progress = localStorage.getItem('ecobarometro_progress');
+    console.log('💾 Progreso guardado antes del logout:', progress);
+
+    // Limpiar localStorage (excepto progreso)
     localStorage.removeItem('ecobarometro_user');
     localStorage.removeItem('ecobarometro_admin');
     localStorage.removeItem('ecobarometro_token');
     localStorage.removeItem('ecobarometro_remember');
+    localStorage.removeItem('sb-vxnfosrtarscqbdrethl-auth-token');
+
+    // Limpiar sessionStorage completamente
+    sessionStorage.clear();
+
+    // Restaurar el progreso
+    if (progress) {
+      localStorage.setItem('ecobarometro_progress', progress);
+      console.log('✅ Progreso restaurado después del logout');
+    }
 
     // Update auth state
     this.updateAuthState(false, null, null, null);

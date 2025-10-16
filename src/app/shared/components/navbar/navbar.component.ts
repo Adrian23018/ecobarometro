@@ -177,18 +177,50 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.messageService.add({
       severity: 'info',
       summary: 'Cerrando Sesión',
-      detail: 'Hasta pronto!',
+      detail: 'Hasta pronto! Tu progreso se ha guardado.',
       life: 2000
     });
 
     // Close menu
     this.closeMenu();
 
-    // Logout after brief delay
+    // Logout after brief delay to show message
     setTimeout(() => {
       console.log('🚪 Cerrando sesión desde navbar...');
+      this.cleanupStorageKeepingProgress();
       this.authService.logout();
     }, 1000);
+  }
+
+  private cleanupStorageKeepingProgress() {
+    // Guardar el progreso antes de limpiar
+    const progress = localStorage.getItem('ecobarometro_progress');
+
+    console.log('💾 Guardando progreso antes de logout:', progress);
+
+    // Limpiar localStorage (excepto progreso)
+    const keysToRemove = [
+      'ecobarometro_token',
+      'ecobarometro_user',
+      'ecobarometro_admin',
+      'ecobarometro_remember',
+      'sb-vxnfosrtarscqbdrethl-auth-token'
+    ];
+
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+      console.log(`🗑️ Removido: ${key}`);
+    });
+
+    // Limpiar sessionStorage completamente
+    sessionStorage.clear();
+    console.log('🗑️ SessionStorage limpiado');
+
+    // Restaurar el progreso
+    if (progress) {
+      localStorage.setItem('ecobarometro_progress', progress);
+      console.log('✅ Progreso restaurado');
+    }
   }
 
   get displayName(): string {
