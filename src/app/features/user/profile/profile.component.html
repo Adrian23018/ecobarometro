@@ -1,16 +1,21 @@
 <div class="user-profile">
   <!-- Animated background particles -->
   <div class="bg-particles">
-    <div class="particle" *ngFor="let particle of backgroundParticles; trackBy: trackByIndex" 
-         [style.left.%]="particle.x" 
-         [style.top.%]="particle.y" 
-         [style.width.px]="particle.size" 
+    <div class="particle" *ngFor="let particle of backgroundParticles; trackBy: trackByIndex"
+         [style.left.%]="particle.x"
+         [style.top.%]="particle.y"
+         [style.width.px]="particle.size"
          [style.height.px]="particle.size"
          [style.animation-delay.s]="particle.delay">
     </div>
   </div>
 
   <div class="profile-container">
+    <!-- Back Button -->
+    <button class="btn-back" (click)="goBack()" pTooltip="Regresar" tooltipPosition="right">
+      <i class="pi pi-arrow-left"></i>
+      Regresar
+    </button>
     <!-- Profile Header -->
     <div class="profile-header">
       <div class="profile-main-info">

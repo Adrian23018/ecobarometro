@@ -218,7 +218,7 @@ export class RankingService {
       .gt('total_points', user.total_points)
       .order('total_points', { ascending: true })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const pointsToNextRank = nextUser ? nextUser.total_points - user.total_points : 0;
 

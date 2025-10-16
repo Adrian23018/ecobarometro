@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
+import { Location } from '@angular/common';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -31,6 +32,7 @@ import { TimelineModule } from 'primeng/timeline';
 // Services
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { UserService } from '../../../core/services/user.service';
+import { RankingService } from '../../../core/services/ranking.service';
 import { User } from '../../../core/models/user';
 
 // Models
@@ -138,6 +140,10 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   levelProgress = 0;
   pointsToNextLevel = 0;
 
+  // Ranking stats
+  userRank = 0;
+  totalPlayers = 0;
+
   // Charts
   activityChart: any;
   chartOptions: any;
@@ -149,8 +155,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
+    private rankingService: RankingService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private router: Router,
+    private location: Location
   ) {
     this.profileForm = this.createProfileForm();
     this.passwordForm = this.createPasswordForm();
@@ -162,6 +171,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadUserData();
     this.loadUserStats();
+    this.loadUserRanking();
     this.loadActivityData();
     this.startParticleAnimation();
   }
@@ -235,11 +245,19 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   loadUserData(): void {
-    const userData = localStorage.getItem('user');
+    // Cargar desde localStorage primero
+    const userData = localStorage.getItem('ecobarometro_user');
     if (userData) {
       this.currentUser = JSON.parse(userData);
       this.populateForm();
       this.calculateLevelProgress();
+    } else {
+      // Si no hay datos en localStorage, mostrar mensaje de error
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sesión no encontrada',
+        detail: 'Por favor, inicia sesión nuevamente'
+      });
     }
   }
 
@@ -281,50 +299,117 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               avgScore: stats.averageScore,
               bestScore: stats.bestScore,
               totalPoints: stats.totalPoints,
-              hoursPlayed: Math.floor(stats.gamesPlayed * 0.25), // Estimate
+              hoursPlayed: Math.floor(stats.gamesPlayed * 0.25), // Estimate: 15 min per game
               streakDays: stats.streak,
-              favoriteCategory: 'Energía',
-              improvementRate: 15
+              favoriteCategory: 'Energía', // TODO: Calcular categoría favorita
+              improvementRate: this.calculateImprovementRate(stats)
             };
+
+            // Actualizar currentUser con los puntos actualizados
+            if (this.currentUser) {
+              this.currentUser.total_points = stats.totalPoints;
+              this.currentUser.level = stats.level;
+              this.currentUser.experience_points = stats.experiencePoints;
+              this.currentUser.games_played = stats.gamesPlayed;
+              this.calculateLevelProgress();
+            }
           },
           error: (error) => {
             console.error('Error loading user stats:', error);
-            // Use mock data as fallback
+            // Use current user data as fallback
             this.userStats = {
-              totalGames: 45,
-              avgScore: 78,
-              bestScore: 96,
+              totalGames: this.currentUser?.games_played || 0,
+              avgScore: 0,
+              bestScore: 0,
               totalPoints: this.currentUser?.total_points || 0,
-              hoursPlayed: 12,
-              streakDays: 7,
+              hoursPlayed: Math.floor((this.currentUser?.games_played || 0) * 0.25),
+              streakDays: 0,
               favoriteCategory: 'Energía',
-              improvementRate: 15
+              improvementRate: 0
             };
           }
         });
     } else {
-      // Mock data - fallback
+      // Use current user data
       this.userStats = {
-        totalGames: 45,
-        avgScore: 78,
-        bestScore: 96,
+        totalGames: this.currentUser?.games_played || 0,
+        avgScore: 0,
+        bestScore: 0,
         totalPoints: this.currentUser?.total_points || 0,
-        hoursPlayed: 12,
-        streakDays: 7,
+        hoursPlayed: 0,
+        streakDays: 0,
         favoriteCategory: 'Energía',
-        improvementRate: 15
+        improvementRate: 0
       };
     }
   }
 
+  private calculateImprovementRate(stats: any): number {
+    // Simple calculation: if streak > 0, improvement is positive
+    if (stats.streak > 3) return 15;
+    if (stats.streak > 1) return 10;
+    if (stats.streak === 1) return 5;
+    return 0;
+  }
+
+  loadUserRanking(): void {
+    if (!this.currentUser?.id) return;
+
+    this.rankingService.getUserRankingStats(this.currentUser.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (rankingStats) => {
+          this.userRank = rankingStats.overall_position;
+          this.totalPlayers = rankingStats.total_participants;
+
+          // Actualizar improvement rate si está disponible
+          if (rankingStats.recent_improvement) {
+            this.userStats.improvementRate = rankingStats.recent_improvement;
+          }
+        },
+        error: (error) => {
+          console.error('Error loading user ranking:', error);
+          this.userRank = 0;
+          this.totalPlayers = 0;
+        }
+      });
+  }
+
   loadActivityData(): void {
-    // Mock activity chart data with dark theme colors
+    if (!this.currentUser?.id) {
+      this.loadMockActivityData();
+      return;
+    }
+
+    // Load real game history
+    this.userService.loadGameHistory(this.currentUser.id, 10)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (history) => {
+          if (history && history.length > 0) {
+            this.buildActivityChart(history);
+            this.buildRecentActivity(history);
+          } else {
+            this.loadMockActivityData();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading activity data:', error);
+          this.loadMockActivityData();
+        }
+      });
+  }
+
+  private buildActivityChart(history: any[]): void {
+    // Agrupar por semanas (últimas 4 semanas)
+    const weeks = this.groupByWeeks(history, 4);
+
     this.activityChart = {
-      labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+      labels: weeks.map((w, i) => `Sem ${i + 1}`),
       datasets: [
         {
           label: 'Partidas Jugadas',
-          data: [8, 12, 15, 10],
+          data: weeks.map(w => w.gamesCount),
           borderColor: '#3b82f6',
           backgroundColor: 'rgba(59, 130, 246, 0.1)',
           tension: 0.4,
@@ -332,7 +417,84 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         },
         {
           label: 'Puntuación Promedio',
-          data: [65, 72, 78, 85],
+          data: weeks.map(w => w.avgAccuracy),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34, 197, 94, 0.1)',
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    };
+  }
+
+  private groupByWeeks(history: any[], weekCount: number): any[] {
+    const now = new Date();
+    const weeks = [];
+
+    for (let i = weekCount - 1; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(now.getDate() - (i + 1) * 7);
+      const weekEnd = new Date(now);
+      weekEnd.setDate(now.getDate() - i * 7);
+
+      const weekGames = history.filter(game => {
+        const gameDate = new Date(game.playedAt);
+        return gameDate >= weekStart && gameDate < weekEnd;
+      });
+
+      weeks.push({
+        gamesCount: weekGames.length,
+        avgAccuracy: weekGames.length > 0
+          ? Math.round(weekGames.reduce((sum, g) => sum + g.accuracy, 0) / weekGames.length)
+          : 0
+      });
+    }
+
+    return weeks;
+  }
+
+  private buildRecentActivity(history: any[]): void {
+    this.recentActivity = [];
+
+    // Agregar últimos juegos completados
+    history.slice(0, 4).forEach(game => {
+      this.recentActivity.push({
+        title: 'Partida Completada',
+        description: `${game.sessionName || 'EcoChallenge'} - ${game.accuracy}% aciertos`,
+        timestamp: new Date(game.playedAt),
+        icon: 'pi pi-check-circle',
+        color: game.accuracy >= 80 ? '#22c55e' : game.accuracy >= 60 ? '#f59e0b' : '#ef4444'
+      });
+    });
+
+    // Si hay racha activa, agregar actividad
+    if (this.userStats.streakDays > 0) {
+      this.recentActivity.unshift({
+        title: `Racha de ${this.userStats.streakDays} días`,
+        description: '¡Mantén el ritmo!',
+        timestamp: new Date(),
+        icon: 'pi pi-trophy',
+        color: '#8b5cf6'
+      });
+    }
+  }
+
+  private loadMockActivityData(): void {
+    // Mock activity chart data with dark theme colors
+    this.activityChart = {
+      labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+      datasets: [
+        {
+          label: 'Partidas Jugadas',
+          data: [0, 0, 0, 0],
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Puntuación Promedio',
+          data: [0, 0, 0, 0],
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
           tension: 0.4,
@@ -344,32 +506,11 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     // Mock recent activity
     this.recentActivity = [
       {
-        title: 'EcoChallenge Completado',
-        description: 'Energía Renovable - 85% aciertos',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30),
-        icon: 'pi pi-check-circle',
-        color: '#22c55e'
-      },
-      {
-        title: 'Nuevo Logro',
-        description: 'Eco Warrior desbloqueado',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        icon: 'pi pi-star',
-        color: '#f59e0b'
-      },
-      {
-        title: 'Subida de Nivel',
-        description: '¡Alcanzaste el Nivel 5!',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        icon: 'pi pi-arrow-up',
-        color: '#3b82f6'
-      },
-      {
-        title: 'Racha de 7 días',
-        description: '¡Mantén el ritmo!',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3),
-        icon: 'pi pi-trophy',
-        color: '#8b5cf6'
+        title: 'Sin actividad reciente',
+        description: '¡Comienza a jugar para ver tu actividad aquí!',
+        timestamp: new Date(),
+        icon: 'pi pi-info-circle',
+        color: '#64748b'
       }
     ];
   }
@@ -442,7 +583,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (updatedUser: any) => {
           this.currentUser = updatedUser;
-          localStorage.setItem('user', JSON.stringify(updatedUser));
+          localStorage.setItem('ecobarometro_user', JSON.stringify(updatedUser));
           
           this.messageService.add({
             severity: 'success',
@@ -542,7 +683,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         next: (avatarUrl) => {
           if (this.currentUser) {
             this.currentUser.avatar_url = avatarUrl;
-            localStorage.setItem('user', JSON.stringify(this.currentUser));
+            localStorage.setItem('ecobarometro_user', JSON.stringify(this.currentUser));
           }
           
           this.messageService.add({
@@ -649,5 +790,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }
