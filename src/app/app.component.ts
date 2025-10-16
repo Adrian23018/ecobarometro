@@ -6,6 +6,7 @@ import { RouterOutlet } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
+import { RoleIndicatorComponent } from './shared/components/role-indicator/role-indicator.component';
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,7 @@ import { NavbarComponent } from './shared/components/navbar/navbar.component';
     RouterOutlet,
     ToastModule,
     ConfirmDialogModule,
+    RoleIndicatorComponent
   ]
 })
 export class AppComponent {}
