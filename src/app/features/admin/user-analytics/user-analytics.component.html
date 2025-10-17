@@ -1,26 +1,31 @@
 <!-- src/app/features/admin/user-analytics/user-analytics.component.html -->
 <div class="user-analytics">
   <!-- Header -->
-  <div class="flex justify-content-between align-items-center mb-4">
-    <div class="flex align-items-center gap-3">
-      <p-button icon="pi pi-arrow-left" [text]="true" (onClick)="goBack()"
-                pTooltip="Volver" class="back-button" />
-      <h1 class="text-3xl font-bold text-gray-800 m-0">📊 Analíticas de Usuarios</h1>
+  <div class="header-section flex justify-content-between align-items-center">
+    <div class="header-title">
+      <p-button [text]="true" (onClick)="goBack()"
+                pTooltip="Volver" styleClass="back-button">
+        <span class="emoji-icon">⬅️</span>
+      </p-button>
+      <h1>📊 Analíticas de Usuarios</h1>
     </div>
-    <div class="flex gap-2">
+    <div class="header-actions">
       <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod"
                   optionLabel="label" (onChange)="onPeriodChange()" />
-      <p-button label="Exportar" icon="pi pi-download" severity="secondary"
-                [outlined]="true" (onClick)="exportAnalytics()" />
+      <p-button severity="secondary"
+                [outlined]="true" (onClick)="exportAnalytics()">
+        <span class="emoji-icon">📥</span>
+        <span class="ml-2">Exportar</span>
+      </p-button>
     </div>
   </div>
 
   <!-- Métricas Principales -->
   <div class="grid mb-6">
-    <div class="col-12 md:col-3">
+    <div class="col-12 md:col-3 mt-2 mb-2">
       <p-card styleClass="metric-card text-center h-full">
         <div class="metric-icon mb-3">
-          <i class="pi pi-users text-4xl text-blue-500"></i>
+          <span class="emoji-icon-stat">👥</span>
         </div>
         <div class="metric-value text-2xl font-bold text-blue-600 mb-1">
           {{ analytics.totalUsers }}
@@ -28,17 +33,17 @@
         <div class="metric-label text-sm text-gray-600">Total Usuarios</div>
         <div class="metric-change mt-2">
           <small class="text-green-600">
-            <i class="pi pi-arrow-up"></i>
+            <span class="emoji-icon">📈</span>
             +{{ analytics.newUsersThisMonth }} este mes
           </small>
         </div>
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 md:col-3 mt-2 mb-2">
       <p-card styleClass="metric-card text-center h-full">
         <div class="metric-icon mb-3">
-          <i class="pi pi-check-circle text-4xl text-green-500"></i>
+          <span class="emoji-icon-stat">✅</span>
         </div>
         <div class="metric-value text-2xl font-bold text-green-600 mb-1">
           {{ analytics.activeUsers }}
@@ -51,10 +56,10 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 md:col-3 mt-2 mb-2">
       <p-card styleClass="metric-card text-center h-full">
         <div class="metric-icon mb-3">
-          <i class="pi pi-clock text-4xl text-orange-500"></i>
+          <span class="emoji-icon-stat">⏱️</span>
         </div>
         <div class="metric-value text-2xl font-bold text-orange-600 mb-1">
           {{ analytics.avgSessionTime }}m
@@ -62,17 +67,17 @@
         <div class="metric-label text-sm text-gray-600">Tiempo Promedio</div>
         <div class="metric-change mt-2">
           <small class="text-blue-600">
-            <i class="pi pi-info-circle"></i>
+            <span class="emoji-icon">ℹ️</span>
             Sesión promedio
           </small>
         </div>
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 md:col-3 mt-2 mb-2">
       <p-card styleClass="metric-card text-center h-full">
         <div class="metric-icon mb-3">
-          <i class="pi pi-star text-4xl text-purple-500"></i>
+          <span class="emoji-icon-stat">⭐</span>
         </div>
         <div class="metric-value text-2xl font-bold text-purple-600 mb-1">
           {{ analytics.avgScore | number:'1.0-0' }}
@@ -80,7 +85,7 @@
         <div class="metric-label text-sm text-gray-600">Puntuación Promedio</div>
         <div class="metric-change mt-2">
           <small class="text-green-600">
-            <i class="pi pi-arrow-up"></i>
+            <span class="emoji-icon">🚀</span>
             Excelente desempeño
           </small>
         </div>
@@ -91,7 +96,7 @@
   <!-- Gráficos -->
   <div class="grid mb-6">
     <!-- Distribución por Niveles -->
-    <div class="col-12 lg:col-6">
+    <div class="col-12 lg:col-6 mt-2 mb-2">
       <p-card header="Distribución por Niveles" styleClass="h-full">
         <div class="chart-container" style="height: 300px;">
           <p-chart type="doughnut" [data]="userLevelChart" [options]="chartOptions" />
@@ -100,7 +105,7 @@
     </div>
 
     <!-- Actividad en el Tiempo -->
-    <div class="col-12 lg:col-6">
+    <div class="col-12 lg:col-6 mt-2 mb-2">
       <p-card header="Actividad Últimos 7 Días" styleClass="h-full">
         <div class="chart-container" style="height: 300px;">
           <p-chart type="line" [data]="activityChart" [options]="chartOptions" />
@@ -109,7 +114,7 @@
     </div>
 
     <!-- Métricas de Engagement -->
-    <div class="col-12 lg:col-6">
+    <div class="col-12 lg:col-6 mt-2 mb-2">
       <p-card header="Métricas de Engagement" styleClass="h-full">
         <div class="engagement-grid">
           <div class="engagement-item">
@@ -144,7 +149,7 @@
     </div>
 
     <!-- Top Performers -->
-    <div class="col-12 lg:col-6">
+    <div class="col-12 lg:col-6 mt-2 mb-2">
       <p-card header="Top 10 Usuarios" styleClass="h-full">
         <div class="top-performers-list">
           <div *ngFor="let user of analytics.topPerformers; let i = index"

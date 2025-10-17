@@ -1,139 +1,499 @@
-/* src/app/features/admin/user-analytics/user-analytics.component.css */
+/* ============================================
+   USER ANALYTICS - CLEAN & MODERN
+   ============================================ */
 
-/* Container */
+:host {
+  display: block;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
 .user-analytics {
-  max-width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Back button */
-.back-button {
-  @apply w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-blue-50;
+/* ============================================
+   EMOJI ICONS
+   ============================================ */
+.emoji-icon {
+  font-size: 1.1rem;
+  display: inline-block;
+  line-height: 1;
 }
 
-/* Metric Cards */
-.metric-card {
-  @apply transition-all duration-200 hover:shadow-lg;
-  border: 1px solid #e5e7eb;
+.emoji-icon-stat {
+  font-size: 3rem;
+  display: inline-block;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
-.metric-card:hover {
-  @apply transform -translate-y-1;
+/* ============================================
+   HEADER & TOOLBAR
+   ============================================ */
+.header-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0;
+}
+
+.header-title h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  /* -webkit-text-fill-color: transparent; */
+  background-clip: text;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Back Button */
+::ng-deep .back-button.p-button {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: #667eea !important;
+  padding: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px !important;
+}
+
+::ng-deep .back-button.p-button:hover {
+  background: rgba(102, 126, 234, 0.2) !important;
+  border-color: #667eea !important;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ============================================
+   METRIC CARDS
+   ============================================ */
+::ng-deep .metric-card.p-card {
+  border: none;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+::ng-deep .metric-card.p-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+::ng-deep .metric-card .p-card-body {
+  padding: 2rem;
 }
 
 .metric-icon {
-  @apply flex justify-center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .metric-value {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
   line-height: 1.2;
 }
 
 .metric-label {
-  font-weight: 500;
-  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .metric-change {
-  @apply pt-2 border-t border-gray-100;
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+  border-top: 2px solid #f1f5f9;
 }
 
-/* Charts */
+/* ============================================
+   CARDS
+   ============================================ */
+::ng-deep .p-card {
+  border: none;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+::ng-deep .p-card .p-card-header {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 2px solid #e2e8f0;
+  padding: 1.5rem 2rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #475569;
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 2rem;
+}
+
+/* ============================================
+   CHARTS
+   ============================================ */
 .chart-container {
   position: relative;
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
-/* Engagement Metrics */
+::ng-deep .p-chart {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+::ng-deep .p-chart canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* ============================================
+   ENGAGEMENT METRICS
+   ============================================ */
 .engagement-grid {
-  @apply grid grid-cols-2 gap-4 mb-4;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .engagement-item {
-  @apply text-center p-3 bg-gray-50 rounded-lg;
+  text-align: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.engagement-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: #667eea;
 }
 
 .engagement-label {
-  @apply text-sm text-gray-600 mb-2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
 .engagement-value {
-  @apply text-xl font-bold;
+  font-size: 1.75rem;
+  font-weight: 800;
 }
 
-/* Top Performers */
+/* ============================================
+   TOP PERFORMERS
+   ============================================ */
 .top-performers-list {
-  max-height: 400px;
+  max-height: 500px;
   overflow-y: auto;
+  padding-right: 0.5rem;
 }
 
 .top-performer-item {
-  @apply bg-gray-50 transition-all duration-200;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
 }
 
 .top-performer-item:hover {
-  @apply bg-gray-100 transform translate-x-1;
+  background: #f1f5f9;
+  transform: translateX(8px);
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.1);
 }
 
 .top-performer-item.gold {
-  @apply bg-gradient-to-r from-yellow-100 to-yellow-50 border border-yellow-200;
+  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
+  border-color: #fbbf24;
 }
 
 .top-performer-item.silver {
-  @apply bg-gradient-to-r from-gray-100 to-gray-50 border border-gray-200;
+  background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%);
+  border-color: #9ca3af;
 }
 
 .top-performer-item.bronze {
-  @apply bg-gradient-to-r from-orange-100 to-orange-50 border border-orange-200;
+  background: linear-gradient(135deg, #fed7aa 0%, #fde68a 100%);
+  border-color: #fb923c;
 }
 
 .ranking-badge {
-  @apply w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-bold;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #667eea;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .top-performer-item.gold .ranking-badge {
-  @apply bg-yellow-500;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
 }
 
 .top-performer-item.silver .ranking-badge {
-  @apply bg-gray-500;
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: 0 4px 12px rgba(156, 163, 175, 0.4);
 }
 
 .top-performer-item.bronze .ranking-badge {
-  @apply bg-orange-500;
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.4);
 }
 
 /* Custom scrollbar */
 .top-performers-list::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .top-performers-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
+  background: #f1f5f9;
+  border-radius: 10px;
 }
 
 .top-performers-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
+  background: #cbd5e1;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
 .top-performers-list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #94a3b8;
 }
 
-/* Loading states */
-.loading-skeleton {
-  @apply animate-pulse bg-gray-300 rounded;
+/* ============================================
+   BUTTONS
+   ============================================ */
+::ng-deep .p-button {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
 }
 
-/* Animations */
+::ng-deep .p-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+::ng-deep .p-button.p-button-secondary {
+  background: white;
+  color: #667eea;
+  border: 2px solid #e2e8f0;
+}
+
+::ng-deep .p-button.p-button-secondary:hover {
+  background: #f8fafc;
+  border-color: #667eea;
+}
+
+/* ============================================
+   DROPDOWN
+   ============================================ */
+::ng-deep .p-dropdown {
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+::ng-deep .p-dropdown:not(.p-disabled).p-focus {
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+  outline: none;
+}
+
+::ng-deep .p-dropdown:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+::ng-deep .p-progressbar {
+  border-radius: 10px;
+  background: #e2e8f0;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .p-progressbar .p-progressbar-value {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+::ng-deep .p-progressbar.h-1 {
+  height: 0.5rem;
+}
+
+/* ============================================
+   AVATARS
+   ============================================ */
+::ng-deep .p-avatar {
+  font-weight: 700;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+::ng-deep .p-avatar:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   BADGES & TAGS
+   ============================================ */
+::ng-deep .p-badge {
+  border-radius: 10px;
+  font-weight: 700;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .p-tag {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.75rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1200px) {
+  .user-analytics {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-analytics {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-card .p-card-body {
+    padding: 1rem;
+  }
+
+  .metric-value {
+    font-size: 1.75rem;
+  }
+
+  .engagement-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    height: 250px !important;
+  }
+
+  ::ng-deep .p-chart {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  ::ng-deep .p-chart canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .header-title h1 {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-actions .p-dropdown,
+  .header-actions .p-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .user-analytics {
+    padding: 0.75rem;
+  }
+
+  ::ng-deep .p-card .p-card-header {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+
+  .header-section {
+    padding: 1.25rem;
+  }
+
+  .top-performer-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -141,53 +501,26 @@
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .user-analytics {
-    @apply p-2;
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
   }
-
-  .metric-value {
-    font-size: 1.5rem;
-  }
-
-  .engagement-grid {
-    @apply grid-cols-1;
-  }
-
-  .chart-container {
-    height: 250px !important;
-  }
-
-  .top-performer-item {
-    @apply flex-col text-center gap-2;
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* Custom chart styles */
-:host ::ng-deep .p-chart canvas {
-  max-height: 300px;
+.user-analytics {
+  animation: fadeIn 0.5s ease-out;
 }
 
-/* Card headers */
-:host ::ng-deep .p-card .p-card-header {
-  @apply bg-gray-50 border-b border-gray-200 font-semibold text-gray-700;
+.metric-card {
+  animation: slideInLeft 0.5s ease-out;
 }
 
-/* Hover effects */
-.hover-lift {
-  @apply transition-transform duration-200 hover:-translate-y-1;
-}
-
-.hover-shadow {
-  @apply transition-shadow duration-200 hover:shadow-lg;
-}
-
-/* Focus states */
-.focus-ring:focus {
-  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
-}
+.metric-card:nth-child(1) { animation-delay: 0.1s; }
+.metric-card:nth-child(2) { animation-delay: 0.2s; }
+.metric-card:nth-child(3) { animation-delay: 0.3s; }
+.metric-card:nth-child(4) { animation-delay: 0.4s; }
