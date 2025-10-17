@@ -114,8 +114,8 @@
 </div>
 
 <!-- Actividad Reciente -->
-<div class="px-6 mb-6">
-  <p-card header="📈 Tu Actividad Reciente" styleClass="activity-card glass-effect">
+<div class="px-6 mb-6 ">
+  <p-card header="📈 Tu Actividad Reciente" styleClass="activity-card glass-effect p-1">
 
     <!-- Lista de actividades -->
     <div class="activity-list" *ngIf="recentActivity.length > 0">
@@ -159,7 +159,7 @@
 
 <!-- Progreso de Logros -->
 <div class="px-6 mb-6">
-  <p-card header="🏆 Progreso de Logros" styleClass="glass-effect">
+  <p-card header="🏆 Progreso de Logros" styleClass="glass-effect p-1">
     
     <div class="achievement-carousel" *ngIf="achievementProgress.length > 0">
       <p-carousel 
@@ -216,7 +216,7 @@
 
 <!-- Rendimiento por Categoría -->
 <div class="px-6 mb-6" *ngIf="categoryPerformance.length > 0">
-  <p-card header="📊 Rendimiento por Categoría" styleClass="glass-effect">
+  <p-card header="📊 Rendimiento por Categoría" styleClass="glass-effect p-1">
     <div class="category-performance">
       <div *ngFor="let category of categoryPerformance.slice(0, 4)" class="category-item mb-3" style="padding: 2px 11px 2px 13px">
         <div class="flex align-items-center justify-content-between mb-2">
@@ -246,7 +246,7 @@
 
 <!-- Consejos Ecológicos -->
 <div class="px-6 mb-6">
-  <p-card header="💡 Consejos Ecológicos del Día" styleClass="glass-effect">
+  <p-card header="💡 Consejos Ecológicos del Día" styleClass="glass-effect p-1">
     <p-carousel 
       [value]="ecoTips" 
       [numVisible]="1" 
@@ -293,19 +293,32 @@
 
 <!-- Acciones Rápidas -->
 <div class="px-6 pb-8">
-  <p-card header="⚡ Acciones Rápidas" styleClass="glass-effect">
-    <div class="grid grid-cols-2 gap-4">
+  <p-card header="⚡ Acciones Rápidas" styleClass="glass-effect p-1">
+    <div class="quick-actions-list p-1">
       <div
-        *ngFor="let action of quickActions"
-        class="quick-action-card cursor-pointer"
+        *ngFor="let action of quickActions; let i = index"
+        class="quick-action-item"
         (click)="onQuickActionClick(action)"
-        [style.border-color]="action.color"
+        [style.animation-delay]="(i * 0.1) + 's'"
         pRipple>
-        <div class="action-icon" [style.background-color]="action.color">
-          <i [class]="action.icon" class="text-white text-lg"></i>
+
+        <!-- Icono -->
+        <div class="quick-action-icon-wrapper">
+          <div class="quick-action-icon" [style.background-color]="action.color">
+            <span class="emoji-action">{{ getActionEmoji(action.label) }}</span>
+          </div>
         </div>
-        <h3 class="action-title font-semibold text-gray-800 text-sm mb-1">{{ action.label }}</h3>
-        <p class="action-description text-gray-600 text-xs">{{ action.description }}</p>
+
+        <!-- Contenido -->
+        <div class="quick-action-content">
+          <h3 class="quick-action-title">{{ action.label }}</h3>
+          <p class="quick-action-description">{{ action.description }}</p>
+        </div>
+
+        <!-- Flecha -->
+        <div class="quick-action-arrow">
+          <i class="pi pi-chevron-right"></i>
+        </div>
       </div>
     </div>
   </p-card>

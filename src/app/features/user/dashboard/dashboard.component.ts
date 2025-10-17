@@ -392,4 +392,15 @@ export class UserDashboardComponent implements OnInit {
       this.router.navigate([action.route]);
     }
   }
+
+  // Método para obtener emoji según la acción
+  getActionEmoji(label: string): string {
+    const emojiMap: { [key: string]: string } = {
+      'Jugar EcoChallenge': '🎮',
+      'Ver Ranking': '🏆',
+      'Mis Logros': '⭐',
+      'Mi Perfil': '👤'
+    };
+    return emojiMap[label] || '⚡';
+  }
 }
