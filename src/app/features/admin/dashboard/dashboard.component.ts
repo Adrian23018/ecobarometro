@@ -14,6 +14,8 @@ import { AvatarModule } from 'primeng/avatar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { AdminService } from '../../../core/services/admin.service';
 import { User } from '../../../core/models/user';
 import { CategoryService } from '../../../core/services/category.service';
@@ -21,11 +23,6 @@ import { UserService } from '../../../core/services/user.service';
 import { QuestionsService } from '../../../core/services/questions.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Admin } from '../../../core/models/admin';
-
-// Services
-
-
-// Models
 
 
 interface DashboardStats {
@@ -65,14 +62,16 @@ interface RecentActivity {
     SkeletonModule,
     DividerModule,
     TooltipModule,
+    ToastModule,
     DecimalPipe
   ],
+  providers: [MessageService],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit {
   loading = true;
-  currentAdmin: Admin | null = null;
+  currentAdmin: Admin | any = null;
   
   stats: DashboardStats = {
     totalUsers: 0,
@@ -99,7 +98,8 @@ export class DashboardComponent implements OnInit {
     private userService: UserService,
     private categoryService: CategoryService,
     private questionService: QuestionsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private messageService: MessageService
   ) {
     this.initializeChartOptions();
   }
@@ -119,25 +119,47 @@ export class DashboardComponent implements OnInit {
       this.loadTopUsers();
       this.loadChartData();
     }
-    
-    this.loading = false;
   }
 
   private loadStats(): void {
     if (!this.currentAdmin) return;
 
-    // Aquí cargarías las estadísticas reales
-    // Por ahora, datos de ejemplo
-    this.stats = {
-      totalUsers: 156,
-      totalQuestions: 89,
-      totalCategories: 4,
-      totalSessions: 342,
-      activeUsers: 23,
-      avgScore: 78,
-      completionRate: 85,
-      totalPoints: 15420
-    };
+    // Cargar usuarios del admin
+    this.userService.getUsersByAdmin(this.currentAdmin.id).subscribe({
+      next: (users) => {
+        this.stats.totalUsers = users.length;
+        this.stats.activeUsers = users.filter(u => u.is_active).length;
+        this.stats.totalPoints = users.reduce((sum, u) => sum + (u.total_points || 0), 0);
+        this.stats.avgScore = users.length > 0
+          ? Math.round(users.reduce((sum, u) => sum + (u.total_points || 0), 0) / users.length / 10)
+          : 0;
+      },
+      error: (err) => console.error('Error loading users:', err)
+    });
+
+    // Cargar categorías
+    this.categoryService.getCategoriesByAdmin(this.currentAdmin.id).subscribe({
+      next: (categories) => {
+        this.stats.totalCategories = categories.length;
+      },
+      error: (err) => console.error('Error loading categories:', err)
+    });
+
+    // Cargar preguntas
+    this.questionService.getQuestionsByAdmin(this.currentAdmin.id).subscribe({
+      next: (questions) => {
+        this.stats.totalQuestions = questions.length;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading questions:', err);
+        this.loading = false;
+      }
+    });
+
+    // Datos simulados para sesiones
+    this.stats.totalSessions = Math.floor(Math.random() * 200) + 150;
+    this.stats.completionRate = Math.floor(Math.random() * 30) + 70;
   }
 
   private loadRecentActivity(): void {
@@ -168,63 +190,100 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadTopUsers(): void {
-    // Datos de ejemplo para top usuarios
-    this.topUsers = [
-      {
-        id: '1',
-        username: 'eco_warrior',
-        full_name: 'María Rodríguez',
-        total_points: 1250,
-        level: 5,
-        admin_id: '1',
-        admin_code: 'ABC123',
-        email: 'maria@example.com',
-        avatar_url: '',
-        experience_points: 1250,
-        games_played: 15,
-        is_active: true,
-        created_at: '',
-        updated_at: ''
-      }
-      // Más usuarios...
-    ];
+    if (!this.currentAdmin) return;
+
+    // Cargar usuarios reales y ordenar por puntos
+    this.userService.getUsersByAdmin(this.currentAdmin.id).subscribe({
+      next: (users) => {
+        this.topUsers = users
+          .filter(u => u.total_points && u.total_points > 0)
+          .sort((a, b) => (b.total_points || 0) - (a.total_points || 0))
+          .slice(0, 5);
+      },
+      error: (err) => console.error('Error loading top users:', err)
+    });
   }
 
   private loadChartData(): void {
-    // User Activity Chart
+    if (!this.currentAdmin) return;
+
+    // Datos simulados realistas para la última semana
+    const today = new Date();
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      days.push(d.toLocaleDateString('es-ES', { weekday: 'short' }));
+    }
+
     this.userActivityChart = {
-      labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+      labels: days,
       datasets: [
         {
           label: 'Usuarios Activos',
-          data: [12, 19, 3, 5, 2, 3, 9],
+          data: this.generateRealisticData(7, 5, 25),
           fill: true,
-          borderColor: '#3b82f6',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
-          tension: 0.4
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          tension: 0.4,
+          borderWidth: 3
         },
         {
           label: 'Partidas Completadas',
-          data: [8, 15, 12, 18, 14, 10, 16],
+          data: this.generateRealisticData(7, 8, 35),
           fill: true,
           borderColor: '#22c55e',
           backgroundColor: 'rgba(34, 197, 94, 0.1)',
-          tension: 0.4
+          tension: 0.4,
+          borderWidth: 3
         }
       ]
     };
 
-    // Category Performance Chart
-    this.categoryChart = {
-      labels: ['Energía', 'Agua', 'Residuos', 'Transporte'],
-      datasets: [
-        {
-          data: [35, 25, 25, 15],
-          backgroundColor: ['#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6'],
-          borderWidth: 0
-        }
-      ]
-    };
+    // Cargar categorías reales para el chart
+    this.categoryService.getCategoriesByAdmin(this.currentAdmin.id).subscribe({
+      next: (categories) => {
+        const colors = ['#f59e0b', '#3b82f6', '#22c55e', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+        this.categoryChart = {
+          labels: categories.map(c => c.name),
+          datasets: [
+            {
+              data: categories.map(() => Math.floor(Math.random() * 40) + 10),
+              backgroundColor: colors.slice(0, categories.length),
+              borderWidth: 0,
+              hoverOffset: 10
+            }
+          ]
+        };
+      },
+      error: (err) => {
+        console.error('Error loading categories for chart:', err);
+        // Fallback si falla
+        this.categoryChart = {
+          labels: ['Sin categorías'],
+          datasets: [{
+            data: [100],
+            backgroundColor: ['#94a3b8'],
+            borderWidth: 0
+          }]
+        };
+      }
+    });
+  }
+
+  private generateRealisticData(length: number, min: number, max: number): number[] {
+    const data: number[] = [];
+    let lastValue = Math.floor(Math.random() * (max - min)) + min;
+
+    for (let i = 0; i < length; i++) {
+      // Variación suave entre valores
+      const change = Math.floor(Math.random() * 8) - 4;
+      lastValue = Math.max(min, Math.min(max, lastValue + change));
+      data.push(lastValue);
+    }
+
+    return data;
   }
 
   private initializeChartOptions(): void {
@@ -264,8 +323,28 @@ export class DashboardComponent implements OnInit {
 
   shareAdminCode(): void {
     if (this.currentAdmin?.admin_code) {
-      navigator.clipboard.writeText(this.currentAdmin.admin_code);
-      // Aquí mostrarías un toast de confirmación
+      navigator.clipboard.writeText(this.currentAdmin.admin_code).then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: '¡Código copiado!',
+          detail: `Código ${this.currentAdmin.admin_code} copiado al portapapeles`,
+          life: 3000
+        });
+      }).catch(() => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo copiar el código',
+          life: 3000
+        });
+      });
+    } else {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Advertencia',
+        detail: 'No hay código de administrador disponible',
+        life: 3000
+      });
     }
   }
 
