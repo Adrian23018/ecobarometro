@@ -9,19 +9,19 @@
       <div class="p-toolbar-group-right">
         <div class="flex gap-2">
           <p-button
-            label="Acciones Masivas"
-            icon="pi pi-cog"
             severity="secondary"
             [outlined]="true"
             (onClick)="showBulkActions()"
             [disabled]="selectedUsers.length === 0">
+            <span class="emoji-icon">⚙️</span>
+            <span class="ml-2">Acciones Masivas</span>
           </p-button>
           <p-button
-            label="Exportar"
-            icon="pi pi-download"
             severity="help"
             [outlined]="true"
             (onClick)="exportUsers()">
+            <span class="emoji-icon">📥</span>
+            <span class="ml-2">Exportar</span>
           </p-button>
         </div>
       </div>
@@ -33,7 +33,7 @@
         <div class="bg-blue-50 border-left-4 border-blue-500 p-4 rounded-lg">
           <div class="flex align-items-center">
             <div class="text-blue-600 mr-3">
-              <i class="pi pi-users text-2xl"></i>
+              <span class="emoji-icon-stat">👥</span>
             </div>
             <div>
               <div class="text-2xl font-bold text-blue-700">{{ totalUsers }}</div>
@@ -47,7 +47,7 @@
         <div class="bg-green-50 border-left-4 border-green-500 p-4 rounded-lg">
           <div class="flex align-items-center">
             <div class="text-green-600 mr-3">
-              <i class="pi pi-check-circle text-2xl"></i>
+              <span class="emoji-icon-stat">✅</span>
             </div>
             <div>
               <div class="text-2xl font-bold text-green-700">{{ activeUsers }}</div>
@@ -61,7 +61,7 @@
         <div class="bg-orange-50 border-left-4 border-orange-500 p-4 rounded-lg">
           <div class="flex align-items-center">
             <div class="text-orange-600 mr-3">
-              <i class="pi pi-star text-2xl"></i>
+              <span class="emoji-icon-stat">⭐</span>
             </div>
             <div>
               <div class="text-2xl font-bold text-orange-700">{{ averageLevel | number:'1.1-1' }}</div>
@@ -75,7 +75,7 @@
         <div class="bg-purple-50 border-left-4 border-purple-500 p-4 rounded-lg">
           <div class="flex align-items-center">
             <div class="text-purple-600 mr-3">
-              <i class="pi pi-play text-2xl"></i>
+              <span class="emoji-icon-stat">🎮</span>
             </div>
             <div>
               <div class="text-2xl font-bold text-purple-700">{{ totalGamesPlayed }}</div>
@@ -119,13 +119,13 @@
       <div class="col-12 md:col-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
         <span class="p-input-icon-left w-full">
-          <i class="pi pi-search"></i>
+          <span class="emoji-search">🔍</span>
           <input
             type="text"
             pInputText
             (input)="dt.filterGlobal($any($event.target).value, 'contains')"
             placeholder="Buscar usuarios..."
-            class="w-full">
+            class="w-full search-with-emoji">
         </span>
       </div>
 
@@ -170,7 +170,6 @@
       [loading]="loading"
       [paginator]="true"
       [rows]="10"
-      [rowsPerPageOptions]="[10, 25, 50]"
       [showCurrentPageReport]="true"
       currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
       [(selection)]="selectedUsers"
@@ -284,48 +283,48 @@
           <td>
             <div class="flex gap-1">
               <p-button
-                icon="pi pi-eye"
                 size="small"
                 [text]="true"
                 severity="info"
                 (onClick)="viewUserDetails(user)"
                 pTooltip="Ver detalles">
+                <span class="emoji-icon">👁️</span>
               </p-button>
 
               <p-button
-                icon="pi pi-chart-bar"
                 size="small"
                 [text]="true"
                 severity="help"
                 (onClick)="viewUserStats(user)"
                 pTooltip="Estadísticas">
+                <span class="emoji-icon">📊</span>
               </p-button>
 
               <p-button
-                [icon]="user.is_active ? 'pi pi-ban' : 'pi pi-check'"
                 size="small"
                 [text]="true"
                 [severity]="user.is_active ? 'warning' : 'success'"
                 (onClick)="toggleUserStatus(user)"
                 [pTooltip]="user.is_active ? 'Desactivar' : 'Activar'">
+                <span class="emoji-icon">{{ user.is_active ? '🚫' : '✅' }}</span>
               </p-button>
 
               <p-button
-                icon="pi pi-refresh"
                 size="small"
                 [text]="true"
                 severity="secondary"
                 (onClick)="resetUserProgress(user)"
                 pTooltip="Reiniciar progreso">
+                <span class="emoji-icon">🔄</span>
               </p-button>
 
               <p-button
-                icon="pi pi-trash"
                 size="small"
                 [text]="true"
                 severity="danger"
                 (onClick)="deleteUser(user)"
                 pTooltip="Eliminar">
+                <span class="emoji-icon">🗑️</span>
               </p-button>
             </div>
           </td>
@@ -336,7 +335,7 @@
         <tr>
           <td colspan="8" class="text-center p-4">
             <div class="text-center">
-              <i class="pi pi-users text-4xl text-gray-400 mb-3"></i>
+              <span class="emoji-icon-large">👥</span>
               <h4 class="text-gray-500">No hay usuarios registrados</h4>
               <p class="text-gray-400">Los usuarios aparecerán aquí cuando se registren con tu código de administrador</p>
             </div>
@@ -432,16 +431,16 @@
   <ng-template pTemplate="footer">
     <div class="flex gap-2">
       <p-button
-        label="Cerrar"
-        icon="pi pi-times"
         severity="secondary"
         (onClick)="showUserDialog = false">
+        <span class="emoji-icon">❌</span>
+        <span class="ml-2">Cerrar</span>
       </p-button>
       <p-button
-        label="Ver Estadísticas"
-        icon="pi pi-chart-bar"
         severity="info"
         (onClick)="viewUserStats(selectedUser!); showUserDialog = false">
+        <span class="emoji-icon">📊</span>
+        <span class="ml-2">Ver Estadísticas</span>
       </p-button>
     </div>
   </ng-template>
@@ -462,17 +461,17 @@
 
     <!-- Stats implementation would go here -->
     <div class="text-center p-4 bg-gray-50 rounded-lg">
-      <i class="pi pi-chart-bar text-4xl text-gray-400 mb-3"></i>
+      <span class="emoji-icon-large">📊</span>
       <p class="text-gray-600">Estadísticas detalladas próximamente</p>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Cerrar"
-      icon="pi pi-times"
       severity="secondary"
       (onClick)="showStatsDialog = false">
+      <span class="emoji-icon">❌</span>
+      <span class="ml-2">Cerrar</span>
     </p-button>
   </ng-template>
 </p-dialog>
@@ -492,31 +491,31 @@
 
     <div class="flex flex-column gap-3">
       <p-button
-        label="Activar Seleccionados"
-        icon="pi pi-check"
         severity="success"
         [outlined]="true"
         class="w-full"
         (onClick)="bulkActivateUsers()">
+        <span class="emoji-icon">✅</span>
+        <span class="ml-2">Activar Seleccionados</span>
       </p-button>
 
       <p-button
-        label="Desactivar Seleccionados"
-        icon="pi pi-ban"
         severity="warning"
         [outlined]="true"
         class="w-full"
         (onClick)="bulkDeactivateUsers()">
+        <span class="emoji-icon">🚫</span>
+        <span class="ml-2">Desactivar Seleccionados</span>
       </p-button>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
     <p-button
-      label="Cerrar"
-      icon="pi pi-times"
       severity="secondary"
       (onClick)="showBulkActionsDialog = false">
+      <span class="emoji-icon">❌</span>
+      <span class="ml-2">Cerrar</span>
     </p-button>
   </ng-template>
 </p-dialog>
