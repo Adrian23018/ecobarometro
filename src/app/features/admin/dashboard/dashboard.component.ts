@@ -169,22 +169,36 @@ export class DashboardComponent implements OnInit {
         type: 'user_registered',
         description: 'Nuevo usuario registrado: Ana García',
         timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
-        icon: 'pi pi-user-plus',
+        icon: '👤',
         color: '#22c55e'
       },
       {
         type: 'game_completed',
         description: 'Carlos López completó el EcoChallenge',
         timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        icon: 'pi pi-check-circle',
+        icon: '✅',
         color: '#3b82f6'
       },
       {
         type: 'question_created',
         description: 'Nueva pregunta creada en Energía',
         timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        icon: 'pi pi-plus-circle',
+        icon: '➕',
         color: '#f59e0b'
+      },
+      {
+        type: 'user_registered',
+        description: 'María Rodríguez se unió al EcoBarómetro',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
+        icon: '👤',
+        color: '#22c55e'
+      },
+      {
+        type: 'game_completed',
+        description: 'Pedro Sánchez alcanzó nivel 5',
+        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
+        icon: '🎯',
+        color: '#8b5cf6'
       }
     ];
   }
