@@ -4,17 +4,18 @@
         <p-toolbar styleClass="mb-4">
           <div class="p-toolbar-group-start">
             <p-button
-              icon="pi pi-arrow-left"
-              [text]="true"
               [routerLink]="['/admin/dashboard']"
-              pTooltip="Volver al Dashboard"
               severity="secondary"
-              class="mr-3"
-            />
-            <h2 class="m-0">🗂️ Gestión de Categorías</h2>
+              [outlined]="true"
+              styleClass="back-button"
+            >
+              <span class="emoji-icon">⬅️</span>
+              <!-- <span class="ml-2">Atrás</span> -->
+            </p-button>
+            <h2 class="m-0 ml-3">🗂️ Gestión de Categorías</h2>
           </div>
           <div class="p-toolbar-group-end">
-            <p-button
+            <p-button class="style"
               label="Nueva Categoría"
               icon="pi pi-plus"
               (onClick)="openDialog()"
@@ -141,7 +142,6 @@
           *ngIf="filteredCategories.length > 0"
           [rows]="pageSize"
           [totalRecords]="filteredCategories.length"
-          [rowsPerPageOptions]="[6, 12, 24, 48]"
           (onPageChange)="onPageChange($event)"
           [showCurrentPageReport]="true"
           currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías"
@@ -257,19 +257,20 @@
                   formControlName="icon"
                   [options]="iconOptions"
                   placeholder="Selecciona un icono"
-                  class="w-full"
-                  [showClear]="true"
+                  styleClass="icon-dropdown"
                   appendTo="body"
+                  [filter]="true"
+                  filterPlaceholder="Buscar icono..."
                 >
                   <ng-template let-option pTemplate="item">
-                    <div class="flex align-items-center gap-2 p-2">
-                      <i [class]="option.icon" class="text-xl"></i>
+                    <div class="icon-dropdown-item">
+                      <i [class]="option.icon"></i>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
                   <ng-template let-option pTemplate="selectedItem">
-                    <div class="flex align-items-center gap-2" *ngIf="option">
-                      <i [class]="option.icon" class="text-lg"></i>
+                    <div class="icon-dropdown-selected" *ngIf="option">
+                      <i [class]="option.icon"></i>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
