@@ -45,6 +45,31 @@
   padding-left: 3rem !important;
 }
 
+/* ============================================
+   FILTERS
+   ============================================ */
+.filters-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.filter-item {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .filter-item {
+    width: 100%;
+  }
+}
+
 .users-manager {
   max-width: 1600px;
   margin: 0 auto;
@@ -70,10 +95,39 @@
 }
 
 /* ============================================
+   CHARTS
+   ============================================ */
+::ng-deep .p-chart {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+::ng-deep .p-chart canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+@media (max-width: 768px) {
+  ::ng-deep .p-card .p-card-body {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-chart {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  ::ng-deep .p-chart canvas {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* ============================================
    TOOLBAR
    ============================================ */
 ::ng-deep .p-toolbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #60ff57 0%, #f98a00 100%);
   border: none;
   border-radius: 16px;
   padding: 1.5rem 2rem;
@@ -99,6 +153,36 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
+/* Back Button */
+::ng-deep .back-button.p-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  color: white !important;
+  padding: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+}
+
+::ng-deep .back-button.p-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: white !important;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+::ng-deep .back-button.p-button .emoji-icon {
+  transition: transform 0.3s ease;
+}
+
+::ng-deep .back-button.p-button:hover .emoji-icon {
+  transform: translateX(-3px);
+}
+
 /* ============================================
    TABLE
    ============================================ */
@@ -114,7 +198,7 @@
   overflow-x: auto;
 }
 
-::ng-deep .p-datatable .p-datatable-thead > tr > th {
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   color: #475569;
   font-weight: 700;
@@ -126,24 +210,24 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr {
+::ng-deep .p-datatable .p-datatable-tbody>tr {
   transition: all 0.2s ease;
   border-bottom: 1px solid #f1f5f9;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+::ng-deep .p-datatable .p-datatable-tbody>tr:hover {
   background: #f8fafc;
   transform: scale(1.01);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+::ng-deep .p-datatable .p-datatable-tbody>tr>td {
   border: none;
   padding: 1rem;
   vertical-align: middle;
 }
 
-::ng-deep .p-datatable .p-datatable-tbody > tr:last-child {
+::ng-deep .p-datatable .p-datatable-tbody>tr:last-child {
   border-bottom: none;
 }
 
@@ -346,6 +430,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   padding: 0.875rem 1rem;
+  width: 100%;
 }
 
 ::ng-deep .p-inputtext:focus,
@@ -365,12 +450,12 @@
   padding: 0.5rem 1rem;
 }
 
-::ng-deep .p-input-icon-left > .pi {
+::ng-deep .p-input-icon-left>.pi {
   left: 1rem;
   color: #94a3b8;
 }
 
-::ng-deep .p-input-icon-left > .p-inputtext {
+::ng-deep .p-input-icon-left>.p-inputtext {
   padding-left: 3rem;
 }
 
@@ -538,7 +623,7 @@
     text-align: center;
   }
 
-  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
     padding: 0.75rem 0.5rem;
   }
 
@@ -588,6 +673,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -596,4 +682,15 @@
 
 .users-manager {
   animation: fadeIn 0.5s ease-out;
+}
+
+.p-inputtext,
+.p-dropdown,
+.p-calendar {
+  width: 100%;
+}
+
+.place {
+  place-items: center;
+  display: grid;
 }
