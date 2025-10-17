@@ -3,7 +3,7 @@
   <p-card class="w-full max-w-md">
     <div class="text-center space-y-4">
       <div class="flex justify-center">
-        <i class="pi pi-spin pi-spinner text-6xl text-blue-500"></i>
+        <div class="text-6xl loading-spinner">⏳</div>
       </div>
       <h3 class="text-xl font-bold text-gray-800">Preparando tu EcoChallenge...</h3>
       <p class="text-gray-600">Cargando preguntas y configuración</p>
@@ -36,24 +36,18 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center space-x-2">
-          <p-button
-            icon="pi pi-pause"
-            severity="secondary"
-            size="small"
-            [text]="true"
-            [rounded]="true"
+          <button
+            class="action-btn pause-btn"
             pTooltip="Pausar juego"
             (click)="pauseGame()">
-          </p-button>
-          <p-button
-            icon="pi pi-times"
-            severity="danger"
-            size="small"
-            [text]="true"
-            [rounded]="true"
+            <span class="emoji-btn">⏸️</span>
+          </button>
+          <button
+            class="action-btn quit-btn"
             pTooltip="Abandonar juego"
             (click)="quitGame()">
-          </p-button>
+            <span class="emoji-btn">❌</span>
+          </button>
         </div>
       </div>
 
@@ -84,34 +78,33 @@
           <div class="bg-gradient-to-r from-emerald-500 to-blue-500 text-white p-6 -m-6 mb-6">
             <div class="flex justify-between items-start">
               <div class="flex-1">
-                <div class="flex items-center space-x-3 mb-3">
-                  <p-tag
-                    [value]="difficultyLabel"
-                    [severity]="difficultyClass"
-                    icon="pi pi-star">
-                  </p-tag>
-                  <p-tag
-                    [value]="currentQuestion.question.points + ' pts'"
-                    severity="warning"
-                    icon="pi pi-diamond">
-                  </p-tag>
-                  <p-tag
+                <div class="flex items-center space-x-3 mb-3 flex-wrap">
+                  <span class="difficulty-tag" [ngClass]="'difficulty-' + currentQuestion.question.difficulty_level">
+                    <span class="emoji-tag">{{ currentQuestion.question.difficulty_level === 1 ? '😊' : currentQuestion.question.difficulty_level === 2 ? '🤔' : '🔥' }}</span>
+                    <span>{{difficultyLabel}}</span>
+                  </span>
+                  <span class="points-tag">
+                    <span class="emoji-tag">💎</span>
+                    <span>{{currentQuestion.question.points}} pts</span>
+                  </span>
+                  <span
                     *ngIf="currentQuestion.bonus_points && currentQuestion.bonus_points > 0"
-                    [value]="'Bonus: +' + currentQuestion.bonus_points"
-                    severity="success"
-                    icon="pi pi-bolt">
-                  </p-tag>
+                    class="bonus-tag">
+                    <span class="emoji-tag">⚡</span>
+                    <span>Bonus: +{{currentQuestion.bonus_points}}</span>
+                  </span>
                 </div>
                 <h2 class="text-2xl font-bold mb-2">{{currentQuestion.question.question_text}}</h2>
-                <p class="text-blue-100">
-                  {{currentQuestion.question.category?.name || 'Categoría General'}}
+                <p class="text-blue-100 flex items-center gap-2">
+                  <span class="emoji-small">📁</span>
+                  <span>{{currentQuestion.question.category?.name || 'Categoría General'}}</span>
                 </p>
               </div>
 
               <!-- Timer -->
-              <div class="text-center ml-4">
+              <div class="text-center ml-4 timer-widget">
                 <div class="bg-white/20 rounded-full p-4 mb-2">
-                  <i class="pi pi-clock text-2xl"></i>
+                  <span class="text-4xl">⏱️</span>
                 </div>
                 <div class="text-3xl font-bold">{{gameStats.timeRemaining}}</div>
                 <div class="text-sm">segundos</div>
@@ -130,22 +123,21 @@
             <div [ngClass]="{
               'bg-green-100 border-green-500 text-green-800': feedbackType === 'correct',
               'bg-red-100 border-red-500 text-red-800': feedbackType === 'incorrect'
-            }" class="border-l-4 p-4 rounded">
+            }" class="border-l-4 p-4 rounded feedback-card">
               <div class="flex items-center">
-                <i [ngClass]="{
-                  'pi pi-check-circle text-green-500': feedbackType === 'correct',
-                  'pi pi-times-circle text-red-500': feedbackType === 'incorrect'
-                }" class="text-2xl mr-3"></i>
+                <span class="text-4xl mr-3">
+                  {{ feedbackType === 'correct' ? '✅' : '❌' }}
+                </span>
                 <div>
-                  <h4 class="font-bold">
+                  <h4 class="font-bold text-lg">
                     {{feedbackType === 'correct' ? '¡Correcto!' : 'Incorrecto'}}
                   </h4>
-                  <p *ngIf="feedbackType === 'correct' && selectedOption">
-                    Has ganado {{calculatePointsEarned()}} puntos
+                  <p *ngIf="feedbackType === 'correct' && selectedOption" class="mt-1">
+                    <span class="emoji-small">💎</span> Has ganado {{calculatePointsEarned()}} puntos
                   </p>
-                  <p *ngIf="feedbackType === 'incorrect'">
+                  <p *ngIf="feedbackType === 'incorrect'" class="mt-1">
                     La respuesta correcta era:
-                    <span class="font-semibold">
+                    <span class="font-semibold block mt-1">
                       {{(currentQuestion.options | filter:'is_correct':true)[0]?.option_text}}
                     </span>
                   </p>
@@ -156,11 +148,11 @@
 
           <!-- Streak Indicator -->
           <div *ngIf="gameStats.streakCount > 1" class="mb-6">
-            <div class="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 rounded-lg p-4">
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 rounded-lg p-4 streak-card">
               <div class="flex items-center justify-center space-x-2">
-                <i class="pi pi-bolt text-purple-600 text-xl"></i>
+                <span class="text-2xl">🔥</span>
                 <span class="text-purple-800 font-bold">{{streakMessage}}</span>
-                <i class="pi pi-star-fill text-yellow-500"></i>
+                <span class="text-2xl">⭐</span>
               </div>
             </div>
           </div>
@@ -181,27 +173,27 @@
                   {{String.fromCharCode(65 + i)}}
                 </div>
                 <div class="flex-1 text-lg">{{option.option_text}}</div>
-                <div *ngIf="showFeedback && option.is_correct" class="text-green-500">
-                  <i class="pi pi-check-circle text-xl"></i>
-                </div>
-                <div *ngIf="showFeedback && selectedOption?.id === option.id && !option.is_correct" class="text-red-500">
-                  <i class="pi pi-times-circle text-xl"></i>
-                </div>
+                <span *ngIf="showFeedback && option.is_correct" class="text-3xl">
+                  ✅
+                </span>
+                <span *ngIf="showFeedback && selectedOption?.id === option.id && !option.is_correct" class="text-3xl">
+                  ❌
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Submit Button -->
           <div class="mt-8 text-center">
-            <p-button
-              label="Confirmar Respuesta"
-              icon="pi pi-check"
-              size="large"
+            <button
+              class="submit-button"
               [disabled]="!canSubmit"
-              [loading]="isSubmitting"
-              (click)="submitAnswer()"
-              styleClass="eco-button px-8 py-3">
-            </p-button>
+              [class.loading]="isSubmitting"
+              (click)="submitAnswer()">
+              <span *ngIf="!isSubmitting" class="emoji-btn-large">✔️</span>
+              <span *ngIf="isSubmitting" class="emoji-btn-large loading-spinner">⏳</span>
+              <span class="ml-2">{{ isSubmitting ? 'Enviando...' : 'Confirmar Respuesta' }}</span>
+            </button>
           </div>
         </p-card>
       </div>
@@ -209,7 +201,7 @@
       <!-- Question Transition -->
       <div *ngIf="questionTransition" class="mb-8 text-center py-20">
         <div class="space-y-4">
-          <i class="pi pi-spin pi-spinner text-6xl text-blue-500"></i>
+          <div class="text-6xl loading-spinner">⏳</div>
           <h3 class="text-2xl font-bold text-gray-800">Siguiente pregunta...</h3>
         </div>
       </div>
@@ -217,18 +209,18 @@
       <!-- Game Stats Sidebar -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Current Score -->
-        <p-card class="text-center">
+        <p-card class="text-center stats-card">
           <div class="space-y-2">
-            <i class="pi pi-star text-3xl text-yellow-500"></i>
+            <span class="text-5xl">⭐</span>
             <h4 class="font-bold text-gray-800">Puntos</h4>
             <div class="text-3xl font-bold text-blue-600">{{gameStats.totalPoints}}</div>
           </div>
         </p-card>
 
         <!-- Correct Answers -->
-        <p-card class="text-center">
+        <p-card class="text-center stats-card">
           <div class="space-y-2">
-            <i class="pi pi-check-circle text-3xl text-green-500"></i>
+            <span class="text-5xl">✅</span>
             <h4 class="font-bold text-gray-800">Correctas</h4>
             <div class="text-3xl font-bold text-green-600">
               {{gameStats.correctAnswers}}/{{gameStats.currentQuestionNumber - 1}}
@@ -237,9 +229,9 @@
         </p-card>
 
         <!-- Streak -->
-        <p-card class="text-center">
+        <p-card class="text-center stats-card">
           <div class="space-y-2">
-            <i class="pi pi-bolt text-3xl text-purple-500"></i>
+            <span class="text-5xl">🔥</span>
             <h4 class="font-bold text-gray-800">Racha</h4>
             <div class="text-3xl font-bold text-purple-600">{{gameStats.streakCount}}</div>
           </div>
