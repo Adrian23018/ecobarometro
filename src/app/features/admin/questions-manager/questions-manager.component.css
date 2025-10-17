@@ -35,6 +35,42 @@
   padding: 0.65rem 0.9rem;
 }
 
+/* Back Button */
+.emoji-icon {
+  font-size: 1.2rem;
+  display: inline-block;
+  line-height: 1;
+}
+
+:host ::ng-deep .back-button.p-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  color: white !important;
+  padding: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+}
+
+:host ::ng-deep .back-button.p-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: white !important;
+  transform: translateX(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+:host ::ng-deep .back-button.p-button .emoji-icon {
+  transition: transform 0.3s ease;
+}
+
+:host ::ng-deep .back-button.p-button:hover .emoji-icon {
+  transform: translateX(-3px);
+}
+
 /* ===== CARD / TABVIEW ===== */
 :host ::ng-deep .p-card {
   border: 0;
@@ -314,4 +350,10 @@
 :host ::ng-deep .p-badge {
   border-radius: 10px;
   font-weight: 700;
+}
+
+.style {
+  background: green;
+  padding: 4px 17px 4px 17px;
+  border-radius: 13px;
 }

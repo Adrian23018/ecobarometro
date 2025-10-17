@@ -4,17 +4,16 @@
     <p-toolbar styleClass="mb-3">
       <div class="p-toolbar-group-start">
         <p-button
-          icon="pi pi-arrow-left"
-          [text]="true"
           [routerLink]="['/admin/dashboard']"
-          pTooltip="Volver al Dashboard"
           severity="secondary"
-          class="mr-2"
-        ></p-button>
-        <h2 class="m-0">❓ Gestión de Preguntas</h2>
+          [outlined]="true"
+          styleClass="back-button"
+        >
+          <span class="emoji-icon">⬅️</span>
+        </p-button>
+        <h2 class="m-0 ml-3">❓ Gestión de Preguntas</h2>
       </div>
       <div class="p-toolbar-group-end">
-        <div class="flex gap-2">
           <!-- <p-button
             label="Importar"
             icon="pi pi-upload"
@@ -22,13 +21,12 @@
             [outlined]="true"
             (onClick)="showImportDialog = true"
           ></p-button> -->
-          <p-button
+          <p-button class="style"
             label="Nueva Pregunta"
             icon="pi pi-plus"
             (onClick)="openQuestionForm()"
             severity="success"
           ></p-button>
-        </div>
       </div>
     </p-toolbar>
 
