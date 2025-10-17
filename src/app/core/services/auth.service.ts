@@ -822,4 +822,8 @@ export class AuthService {
   getCurrentUserData(): User | null {
     return this.authState$.value.user;
   }
+
+  logoutAdmin(): void {
+    this.logout();
+  }
 }

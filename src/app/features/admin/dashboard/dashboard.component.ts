@@ -15,7 +15,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { AdminService } from '../../../core/services/admin.service';
 import { User } from '../../../core/models/user';
 import { CategoryService } from '../../../core/services/category.service';
@@ -63,9 +64,10 @@ interface RecentActivity {
     DividerModule,
     TooltipModule,
     ToastModule,
+    ConfirmDialogModule,
     DecimalPipe
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -99,7 +101,8 @@ export class DashboardComponent implements OnInit {
     private categoryService: CategoryService,
     private questionService: QuestionsService,
     private authService: AuthService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
   ) {
     this.initializeChartOptions();
   }
@@ -364,5 +367,26 @@ export class DashboardComponent implements OnInit {
 
   trackByActivity(index: number, activity: RecentActivity): string {
     return `${activity.type}-${activity.timestamp.getTime()}`;
+  }
+
+  logout(): void {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que deseas cerrar sesión?',
+      header: 'Confirmar Cierre de Sesión',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, cerrar sesión',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-secondary',
+      accept: () => {
+        this.authService.logoutAdmin();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sesión Cerrada',
+          detail: 'Has cerrado sesión exitosamente',
+          life: 3000
+        });
+      }
+    });
   }
 }

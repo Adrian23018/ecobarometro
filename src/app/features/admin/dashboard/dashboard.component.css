@@ -698,3 +698,143 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* ============================================
+   FLOATING LOGOUT BUTTON
+   ============================================ */
+.logout-fab {
+  position: fixed;
+  bottom: 2rem;
+  left: 20px;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.logout-fab:hover {
+  transform: scale(1.1) rotate(10deg);
+  box-shadow: 0 12px 32px rgba(239, 68, 68, 0.6);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.logout-fab:active {
+  transform: scale(0.95);
+}
+
+.emoji-icon-logout {
+  font-size: 1.75rem;
+  display: inline-block;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+@media (max-width: 768px) {
+  .logout-fab {
+    bottom: 1.5rem;
+    left: 15px;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .emoji-icon-logout {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============================================
+   CONFIRMATION DIALOG
+   ============================================ */
+::ng-deep .p-confirm-dialog {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: none;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 1.75rem 2rem;
+  border-bottom: none;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-header-icon {
+  color: white !important;
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  border-radius: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-header-icon:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-content {
+  padding: 2rem;
+  background: white;
+}
+
+::ng-deep .p-confirm-dialog .p-confirm-dialog-icon {
+  font-size: 3rem !important;
+  color: #f59e0b !important;
+}
+
+::ng-deep .p-confirm-dialog .p-confirm-dialog-message {
+  margin-left: 1rem;
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer {
+  padding: 1.5rem 2rem;
+  background: #f8fafc;
+  border-top: 2px solid #e2e8f0;
+  gap: 1rem;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer .p-button {
+  border-radius: 12px;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer .p-button-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer .p-button-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer .p-button-secondary {
+  background: white;
+  color: #64748b;
+  border: 2px solid #e2e8f0;
+}
+
+::ng-deep .p-confirm-dialog .p-dialog-footer .p-button-secondary:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
