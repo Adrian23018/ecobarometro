@@ -14,7 +14,7 @@
     <!-- Header -->
     <div class="text-center mb-6 animate__animated animate__fadeInDown">
       <div class="w-16 h-16 mx-auto bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-3 shadow-lg">
-        <i class="pi pi-user-plus text-2xl text-white"></i>
+        <div style="font-size: 39px;">♻️</div>
       </div>
       <h1 class="text-3xl font-bold text-gray-800 mb-1">¡Únete a EcoBarómetro!</h1>
       <p class="text-gray-600">Crea tu cuenta y empieza tu aventura ecológica</p>
@@ -24,9 +24,9 @@
     <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-6 animate__animated animate__fadeInUp">
       
       <!-- Tabs para Usuario/Admin -->
-      <p-tabView [(activeIndex)]="activeTab" (onChange)="onTabChange($event)" class="mb-4">
-        <p-tabPanel header="🎮 Jugador" leftIcon="pi pi-user">
-          <div class="text-center mb-4">
+      <p-tabView [(activeIndex)]="activeTab" (onChange)="onTabChange($event)" class="mb-4 uls mt-2">
+        <p-tabPanel header="🎮 Jugador" leftIcon="pi pi-user" >
+          <div class="text-center mb-4" >
             <h3 class="text-lg font-semibold text-gray-800">Registro de Jugador</h3>
             <p class="text-sm text-gray-600">Necesitas un código de administrador</p>
           </div>
@@ -106,6 +106,7 @@
               icon="pi pi-refresh"
               (click)="generateRandomUsername()"
               class="px-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg">
+              🔄
             </button>
           </div>
           <p-message 
