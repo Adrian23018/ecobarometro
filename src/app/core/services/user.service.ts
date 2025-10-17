@@ -596,6 +596,94 @@ export class UserService {
     localStorage.setItem('ecobarometro_settings', JSON.stringify(settings));
   }
 
+  // ==================== ACTIVIDAD RECIENTE ====================
+
+  /**
+   * Obtener actividad reciente del usuario
+   */
+  getUserRecentActivity(userId: string, limit: number = 10): Observable<any[]> {
+    return from(this.fetchRecentActivity(userId, limit));
+  }
+
+  private async fetchRecentActivity(userId: string, limit: number): Promise<any[]> {
+    try {
+      const activities: any[] = [];
+
+      // Obtener sesiones recientes completadas
+      const { data: sessions } = await this.supabase
+        .from('game_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(5);
+
+      if (sessions) {
+        sessions.forEach(session => {
+          activities.push({
+            type: 'game_completed',
+            icon: '🎮',
+            title: 'Partida completada',
+            description: `Completaste "${session.session_name}" con ${session.correct_answers}/${session.total_questions} respuestas correctas`,
+            points: session.total_points,
+            timestamp: session.completed_at
+          });
+        });
+      }
+
+      // Obtener logros recientes
+      const { data: achievements } = await this.supabase
+        .from('user_achievements')
+        .select('*, achievements(name, description, icon)')
+        .eq('user_id', userId)
+        .order('earned_at', { ascending: false })
+        .limit(5);
+
+      if (achievements) {
+        achievements.forEach(achievement => {
+          activities.push({
+            type: 'achievement',
+            icon: achievement.achievements?.icon || '🏆',
+            title: 'Logro desbloqueado',
+            description: `Desbloqueaste "${achievement.achievements?.name}"`,
+            points: 0,
+            timestamp: achievement.earned_at
+          });
+        });
+      }
+
+      // Obtener respuestas recientes destacadas (rachas de respuestas correctas)
+      const { data: responses } = await this.supabase
+        .from('user_responses')
+        .select('*, questions(question_text, categories(name))')
+        .eq('user_id', userId)
+        .eq('is_correct', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (responses) {
+        responses.forEach(response => {
+          activities.push({
+            type: 'correct_answer',
+            icon: '✅',
+            title: 'Respuesta correcta',
+            description: `Respondiste correctamente en "${response.questions?.categories?.name}"`,
+            points: response.points_earned,
+            timestamp: response.created_at
+          });
+        });
+      }
+
+      // Ordenar por fecha y limitar
+      return activities
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, limit);
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      return [];
+    }
+  }
+
   // ==================== MÉTODOS ADICIONALES ====================
 
   getCurrentStats(): UserStats | null {

@@ -11,7 +11,6 @@ import { TagModule } from 'primeng/tag';
 import { AvatarModule } from 'primeng/avatar';
 import { ChartModule } from 'primeng/chart';
 import { KnobModule } from 'primeng/knob';
-import { TimelineModule } from 'primeng/timeline';
 import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { RippleModule } from 'primeng/ripple';
@@ -69,7 +68,6 @@ interface EcoTip {
     AvatarModule,
     ChartModule,
     KnobModule,
-    TimelineModule,
     DividerModule,
     TooltipModule,
     RippleModule,
@@ -278,33 +276,19 @@ export class UserDashboardComponent implements OnInit {
   }
 
   loadRecentActivity(): void {
-    // Mock data for recent activity
-    this.recentActivity = [
-      {
-        title: 'EcoChallenge Completado',
-        description: 'Completaste un desafío de Energía con 85% de aciertos',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
-        icon: 'pi pi-check-circle',
-        color: '#22c55e',
-        points: 120
+    if (!this.currentUser) return;
+
+    this.userService.getUserRecentActivity(this.currentUser.id, 10).subscribe({
+      next: (activities) => {
+        this.recentActivity = activities;
+        console.log('Actividad reciente cargada:', this.recentActivity);
       },
-      {
-        title: 'Nuevo Logro',
-        description: 'Desbloqueaste el logro "Eco Warrior"',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        icon: 'pi pi-star',
-        color: '#f59e0b',
-        points: 50
-      },
-      {
-        title: 'Subiste de Nivel',
-        description: 'Alcanzaste el Nivel 3 en el EcoBarómetro',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-        icon: 'pi pi-arrow-up',
-        color: '#8b5cf6',
-        points: 100
+      error: (error) => {
+        console.error('Error loading recent activity:', error);
+        // Mantener array vacío en caso de error
+        this.recentActivity = [];
       }
-    ];
+    });
   }
 
   getDifficultyLabel(difficulty: 'easy' | 'medium' | 'hard'): string {

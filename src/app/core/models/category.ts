@@ -38,4 +38,6 @@ export interface CategoryWithStats {
   avg_score: number;
   user_best_score: number;
   completion_rate: number;
+  question_count?: any;
+  user_attempts?: any
 }
