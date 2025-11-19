@@ -177,7 +177,6 @@ export interface UserResponse {
   points_earned: number;
   time_taken: number;
   session_id: string;
-  responded_at: string;
   created_at: string;
   custom_answer?: string;
   question?: {

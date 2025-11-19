@@ -237,8 +237,7 @@ export class GameComponent implements OnInit, OnDestroy {
         selected_option_id: this.selectedOptionId,
         is_correct: isCorrect,
         points_earned: isCorrect ? (question.question.points || 10) : 0,
-        time_taken: (question.time_limit || 30) - this.timeRemaining,
-        responded_at: new Date().toISOString()
+        time_taken: (question.time_limit || 30) - this.timeRemaining
       }).pipe(takeUntil(this.destroy$))
       .subscribe({
         error: (error) => console.error('Error saving response:', error)

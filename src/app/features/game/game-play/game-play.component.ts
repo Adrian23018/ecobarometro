@@ -301,7 +301,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       is_correct: this.selectedOption.is_correct,
       points_earned: this.selectedOption.is_correct ? this.calculatePointsEarned() : 0,
       time_taken: this.timeLimit - this.gameStats.timeRemaining,
-      responded_at: new Date().toISOString(),
       created_at: new Date().toISOString()
     };
 
@@ -362,7 +361,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         is_correct: false,
         points_earned: 0,
         time_taken: this.timeLimit,
-        responded_at: new Date().toISOString(),
         created_at: new Date().toISOString()
       };
 

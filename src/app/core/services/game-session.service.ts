@@ -661,8 +661,7 @@ export class GameSessionService {
         selected_option_id: response.selected_option_id,
         is_correct: response.is_correct,
         points_earned: response.points_earned,
-        time_taken: response.time_taken,
-        responded_at: response.responded_at
+        time_taken: response.time_taken
       }])
       .select()
       .single()
