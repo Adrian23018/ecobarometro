@@ -170,7 +170,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       // Verificar primero si existen preguntas
       console.log('🔍 Verificando existencia de preguntas para admin_id:', user.admin_id);
       const questionCount = await this.questionsService.checkQuestionsExist(user.admin_id).toPromise();
-      console.log('📊 Total de preguntas disponibles:', questionCount);
+      console.log('📊 Total de preguntas ACTIVAS disponibles:', questionCount);
 
       if (questionCount === 0) {
         console.error('❌ No existen preguntas para este admin_id en la base de datos');
@@ -180,18 +180,28 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
       // Cargar preguntas aleatorias directamente del admin desde la base de datos
       console.log('📋 Consultando base de datos para obtener preguntas...');
+      console.log('📋 Parámetros: admin_id =', user.admin_id, ', límite = 15 preguntas');
       const gameQuestions = await this.questionsService.getRandomQuestions(
         user.admin_id,
         undefined, // Sin filtro de categorías
         15 // 15 preguntas
       ).toPromise();
 
-      console.log('Preguntas obtenidas:', gameQuestions);
+      console.log('✅ Total de preguntas obtenidas de la BD:', gameQuestions?.length || 0);
+      console.log('📝 Detalles de preguntas obtenidas:', gameQuestions);
 
       if (!gameQuestions || gameQuestions.length === 0) {
         console.error('❌ No se pudieron cargar preguntas de la base de datos');
         this.handleGameError('No se pudieron cargar las preguntas. Verifica que existan preguntas activas para este administrador.');
         return;
+      }
+
+      if (gameQuestions.length < 15) {
+        console.warn(`⚠️ ATENCIÓN: Se solicitaron 15 preguntas pero solo se obtuvieron ${gameQuestions.length}`);
+        console.warn('⚠️ Esto puede deberse a:');
+        console.warn('   1. Solo hay ' + gameQuestions.length + ' preguntas activas (is_active=true)');
+        console.warn('   2. Algunas preguntas no tienen opciones válidas');
+        console.warn('   3. El admin_id no coincide con todas las preguntas');
       }
 
       // Convertir GameQuestion[] a Question[]

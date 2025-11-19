@@ -249,9 +249,20 @@ export class QuestionsService {
         return [];
       }
 
+      // DEBUG: Verificar cuántas preguntas tienen opciones
+      console.log('🔍 ANÁLISIS DE OPCIONES:');
+      questions.forEach((q, index) => {
+        const optionsCount = q.options?.length || 0;
+        console.log(`   Pregunta ${index + 1}: "${q.question_text?.substring(0, 50)}..." - Opciones: ${optionsCount}`);
+        if (optionsCount === 0) {
+          console.warn(`   ⚠️ Esta pregunta NO tiene opciones y será EXCLUIDA`);
+        }
+      });
+
       // Verificar que las preguntas tengan opciones
       const questionsWithOptions = questions.filter(q => q.options && q.options.length > 0);
       console.log('✅ Preguntas con opciones válidas:', questionsWithOptions.length);
+      console.log('❌ Preguntas SIN opciones (excluidas):', questions.length - questionsWithOptions.length);
 
       if (questionsWithOptions.length === 0) {
         console.warn('⚠️ No se encontraron preguntas con opciones válidas');
