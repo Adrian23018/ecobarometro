@@ -101,7 +101,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   questionTransition = false;
   showFeedback = false;
   feedbackType: 'correct' | 'incorrect' | null = null;
-String: any;
+
+  // Make String available in template
+  String = String;
 
   constructor(
     private route: ActivatedRoute,
