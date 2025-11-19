@@ -223,6 +223,46 @@
       }
   }
 
+  /* Estilos para la sección de preguntas contestadas */
+  .questions-review {
+      max-height: 600px;
+      overflow-y: auto;
+  }
+
+  .question-item {
+      background-color: #f8f9fa;
+      border-left: 4px solid #cbd5e1;
+      transition: all 0.3s ease;
+  }
+
+  .question-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  .question-item.correct-answer {
+      background-color: #f0fdf4;
+      border-left-color: #22c55e;
+  }
+
+  .question-item.incorrect-answer {
+      background-color: #fef2f2;
+      border-left-color: #ef4444;
+  }
+
+  .question-number {
+      min-width: 40px;
+  }
+
+  .question-text {
+      font-size: 1rem;
+      line-height: 1.5;
+  }
+
+  .response-info {
+      font-size: 0.95rem;
+  }
+
   @media (max-width: 768px) {
       .game-result {
           padding: 1rem;
@@ -230,5 +270,13 @@
 
       .result-hero {
           padding: 2rem 1rem;
+      }
+
+      .questions-review {
+          max-height: 400px;
+      }
+
+      .question-text {
+          font-size: 0.9rem;
       }
   }

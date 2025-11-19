@@ -203,6 +203,72 @@
         </div>
       </div>
 
+      <!-- Detalle de Preguntas Contestadas -->
+      <div class="grid mb-4" *ngIf="sessionSummary.responses && sessionSummary.responses.length > 0">
+        <div class="col-12">
+          <p-card header="📝 Detalle de tus Respuestas">
+            <div class="questions-review">
+              <div
+                *ngFor="let response of sessionSummary.responses; let i = index"
+                class="question-item mb-3 p-3 border-round"
+                [class.correct-answer]="response.is_correct"
+                [class.incorrect-answer]="!response.is_correct"
+              >
+                <div class="flex align-items-start gap-3">
+                  <!-- Número e ícono -->
+                  <div class="question-number">
+                    <p-badge
+                      [value]="(i + 1).toString()"
+                      [severity]="response.is_correct ? 'success' : 'danger'"
+                      size="large"
+                    />
+                  </div>
+
+                  <!-- Contenido de la pregunta -->
+                  <div class="flex-1">
+                    <!-- Texto de la pregunta -->
+                    <div class="question-text mb-2">
+                      <strong>{{ response.question?.question_text || 'Pregunta' }}</strong>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div class="mb-2" *ngIf="response.question?.category">
+                      <p-tag
+                        [value]="response.question.category.name"
+                        [style]="{'background-color': response.question.category.color}"
+                      />
+                    </div>
+
+                    <!-- Tu respuesta -->
+                    <div class="response-info">
+                      <div class="mb-1">
+                        <i
+                          [class]="response.is_correct ? 'pi pi-check-circle text-green-500' : 'pi pi-times-circle text-red-500'"
+                        ></i>
+                        <span class="ml-2">
+                          <strong>Tu respuesta:</strong>
+                          {{ response.selected_option?.option_text || 'Sin respuesta' }}
+                        </span>
+                      </div>
+
+                      <!-- Puntos ganados y tiempo -->
+                      <div class="flex gap-3 text-sm text-600">
+                        <span>
+                          <i class="pi pi-star"></i> {{ response.points_earned }} puntos
+                        </span>
+                        <span>
+                          <i class="pi pi-clock"></i> {{ response.time_taken }}s
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
       <div class="action-buttons text-center">
         <div class="flex flex-wrap justify-content-center gap-3">

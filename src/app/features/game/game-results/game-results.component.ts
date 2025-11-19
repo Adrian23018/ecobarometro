@@ -69,7 +69,7 @@ interface PerformanceInsight {
   providers: [MessageService]
 })
 export class GameResultComponent implements OnInit {
-  sessionSummary: GameSessionSummary | null = null;
+  sessionSummary: GameSessionSummary | any = null;
   performanceInsights: PerformanceInsight[] = [];
   categoryChart: any;
   chartOptions: any;
@@ -96,62 +96,30 @@ export class GameResultComponent implements OnInit {
   }
 
   loadSessionResults(sessionId: string): void {
-    // Mock data for now - would load from actual service
-    this.sessionSummary = {
-      session: {
-        id: sessionId,
-        user_id: '',
-        admin_id: '',
-        session_name: 'EcoChallenge',
-        total_questions: 15,
-        correct_answers: 12,
-        total_points: 480,
-        time_spent: 720, // 12 minutes
-        completion_percentage: 80,
-        status: 'completed',
-        started_at: new Date().toISOString(),
-        completed_at: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      },
-      category_scores: [
-        {
-          category: { id: '1', name: 'Energía', icon: 'pi pi-bolt', color: '#f59e0b' } as any,
-          correct_answers: 4,
-          total_questions: 5,
-          points_earned: 160,
-          percentage: 80
-        },
-        {
-          category: { id: '2', name: 'Agua', icon: 'pi pi-tint', color: '#3b82f6' } as any,
-          correct_answers: 3,
-          total_questions: 4,
-          points_earned: 120,
-          percentage: 75
-        },
-        {
-          category: { id: '3', name: 'Residuos', icon: 'pi pi-refresh', color: '#22c55e' } as any,
-          correct_answers: 5,
-          total_questions: 6,
-          points_earned: 200,
-          percentage: 83
-        }
-      ],
-      achievements_earned: [
-        {
-          id: '1',
-          name: 'Eco Warrior',
-          description: 'Completa tu primer EcoChallenge',
-          icon: 'pi pi-star',
-          badge_color: '#22c55e',
-          points_required: 100
-        } as Achievement
-      ],
-      ranking_position: 3,
-      improvement_percentage: 15
-    };
+    console.log('📊 Cargando resultados de la sesión:', sessionId);
 
-    this.generatePerformanceInsights();
-    this.updateCategoryChart();
+    // Cargar datos reales desde el servicio
+    this.gameSessionService.getSessionSummary(sessionId).subscribe({
+      next: (summary) => {
+        console.log('✅ Resumen de sesión cargado:', summary);
+        this.sessionSummary = summary;
+        this.generatePerformanceInsights();
+        this.updateCategoryChart();
+      },
+      error: (error) => {
+        console.error('❌ Error cargando resultados:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los resultados del juego',
+          life: 3000
+        });
+        // Redirigir al dashboard después de mostrar el error
+        setTimeout(() => {
+          this.router.navigate(['/user/dashboard']);
+        }, 2000);
+      }
+    });
   }
 
   generatePerformanceInsights(): void {
@@ -160,7 +128,7 @@ export class GameResultComponent implements OnInit {
     this.performanceInsights = [];
 
     // Analyze performance by category
-    this.sessionSummary.category_scores.forEach(score => {
+    this.sessionSummary.category_scores.forEach((score:any) => {
       let insight: PerformanceInsight;
 
       if (score.percentage >= 80) {
@@ -197,10 +165,10 @@ export class GameResultComponent implements OnInit {
     if (!this.sessionSummary) return;
 
     this.categoryChart = {
-      labels: this.sessionSummary.category_scores.map(score => score.category.name),
+      labels: this.sessionSummary.category_scores.map((score:any) => score.category.name),
       datasets: [{
-        data: this.sessionSummary.category_scores.map(score => score.points_earned),
-        backgroundColor: this.sessionSummary.category_scores.map(score => score.category.color),
+        data: this.sessionSummary.category_scores.map((score:any) => score.points_earned),
+        backgroundColor: this.sessionSummary.category_scores.map((score:any) => score.category.color),
         borderWidth: 0
       }]
     };

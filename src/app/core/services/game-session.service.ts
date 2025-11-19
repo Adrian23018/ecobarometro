@@ -735,4 +735,108 @@ export class GameSessionService {
       })
     );
   }
+
+  /**
+   * Obtener resumen completo de una sesión para la pantalla de resultados
+   */
+  getSessionSummary(sessionId: string): Observable<any> {
+    console.log('📊 Obteniendo resumen de sesión:', sessionId);
+
+    return from(
+      this.supabase
+        .from('game_sessions')
+        .select(`
+          *,
+          user:users(id, username, full_name, avatar_url)
+        `)
+        .eq('id', sessionId)
+        .single()
+    ).pipe(
+      switchMap(sessionResult => {
+        if (sessionResult.error) {
+          console.error('Error obteniendo sesión:', sessionResult.error);
+          throw new Error(sessionResult.error.message);
+        }
+
+        const session = sessionResult.data;
+        console.log('✅ Sesión obtenida:', session);
+
+        // Obtener respuestas del usuario para esta sesión
+        return from(
+          this.supabase
+            .from('user_responses')
+            .select(`
+              *,
+              question:questions(
+                id,
+                question_text,
+                category_id,
+                category:categories(*)
+              ),
+              selected_option:question_options!user_responses_selected_option_id_fkey(
+                id,
+                option_text,
+                is_correct
+              )
+            `)
+            .eq('game_session_id', sessionId)
+        ).pipe(
+          map(responsesResult => {
+            if (responsesResult.error) {
+              console.error('Error obteniendo respuestas:', responsesResult.error);
+              throw new Error(responsesResult.error.message);
+            }
+
+            const responses = responsesResult.data || [];
+            console.log('✅ Respuestas obtenidas:', responses.length);
+
+            // Calcular puntajes por categoría
+            const categoryScoresMap = new Map();
+
+            responses.forEach((response: any) => {
+              const category = response.question?.category;
+              if (!category) return;
+
+              if (!categoryScoresMap.has(category.id)) {
+                categoryScoresMap.set(category.id, {
+                  category: category,
+                  correct_answers: 0,
+                  total_questions: 0,
+                  points_earned: 0,
+                  percentage: 0
+                });
+              }
+
+              const categoryScore = categoryScoresMap.get(category.id);
+              categoryScore.total_questions++;
+              if (response.is_correct) {
+                categoryScore.correct_answers++;
+              }
+              categoryScore.points_earned += response.points_earned || 0;
+              categoryScore.percentage = Math.round(
+                (categoryScore.correct_answers / categoryScore.total_questions) * 100
+              );
+            });
+
+            const category_scores = Array.from(categoryScoresMap.values());
+
+            console.log('📊 Puntajes por categoría:', category_scores);
+
+            // Por ahora, achievements y ranking son opcionales
+            const summary = {
+              session: session,
+              category_scores: category_scores,
+              achievements_earned: [],
+              ranking_position: 0,
+              improvement_percentage: 0,
+              responses: responses // Agregar las respuestas al resumen
+            };
+
+            console.log('✅ Resumen completo:', summary);
+            return summary;
+          })
+        );
+      })
+    );
+  }
 }
