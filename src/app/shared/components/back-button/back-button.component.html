@@ -1,0 +1,11 @@
+<button
+  pButton
+  pRipple
+  type="button"
+  [class]="'back-button back-button-' + position + (showOnMobileOnly ? ' mobile-only' : '')"
+  (click)="goBack()"
+  [attr.aria-label]="label"
+>
+  <i class="pi pi-arrow-left"></i>
+  <span class="button-label">{{ label }}</span>
+</button>

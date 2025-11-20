@@ -1,3 +1,10 @@
+<!-- Botón Atrás (solo visible cuando NO está cargando) -->
+<app-back-button
+  *ngIf="!isLoading"
+  position="top-left"
+  customRoute="/user/dashboard"
+></app-back-button>
+
 <!-- Loading State -->
 <div *ngIf="isLoading" class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center">
   <p-card class="w-full max-w-md">

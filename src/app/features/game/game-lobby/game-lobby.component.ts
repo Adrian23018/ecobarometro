@@ -27,6 +27,9 @@ import { MessageService } from 'primeng/api';
 import { CreateGameSessionRequest } from '../../../core/models/game-session';
 import { GameSessionService } from '../../../core/services/game-session.service';
 
+// Components
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+
 // Services
 
 
@@ -61,7 +64,8 @@ interface DifficultyOption {
     SelectButtonModule,
     KnobModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BackButtonComponent
   ],
   templateUrl: './game-lobby.component.html',
   styleUrls: ['./game-lobby.component.css']

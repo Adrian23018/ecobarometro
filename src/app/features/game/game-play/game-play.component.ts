@@ -32,6 +32,9 @@ import { QuestionsService } from '../../../core/services/questions.service';
 import { UserService } from '../../../core/services/user.service';
 import { FilterPipe } from '../../../shared/pipes/filter.pipe';
 
+// Components
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+
 interface GameStats {
   currentQuestionNumber: number;
   totalQuestions: number;
@@ -59,7 +62,8 @@ interface GameStats {
     RippleModule,
     AvatarModule,
     ConfirmDialogModule,
-    FilterPipe
+    FilterPipe,
+    BackButtonComponent
   ],
   templateUrl: './game-play.component.html',
   styleUrls: ['./game-play.component.css'],

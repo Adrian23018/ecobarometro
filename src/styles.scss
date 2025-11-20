@@ -421,3 +421,321 @@ body {
     display: none !important;
   }
 }
+
+/* =====================================================
+   ESTILOS GLOBALES MEJORADOS PARA MÓVIL Y DESKTOP
+   ===================================================== */
+
+/* Cards con mejor padding y bordes redondeados */
+::ng-deep .p-card {
+  border-radius: 1.5rem !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  margin-bottom: 1.5rem !important;
+  overflow: visible !important;
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 2rem !important;
+}
+
+::ng-deep .p-card .p-card-content {
+  padding: 1rem 0 !important;
+}
+
+::ng-deep .p-card .p-card-header {
+  padding: 1.5rem 2rem !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+::ng-deep .p-card .p-card-title {
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Botones mejorados globalmente */
+::ng-deep .p-button {
+  padding: 1rem 2rem !important;
+  font-size: 1rem !important;
+  border-radius: 0.875rem !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .p-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+::ng-deep .p-button:active:not(:disabled) {
+  transform: translateY(0) !important;
+}
+
+::ng-deep .p-button.p-button-lg {
+  padding: 1.25rem 2.5rem !important;
+  font-size: 1.125rem !important;
+}
+
+::ng-deep .p-button.p-button-sm {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+::ng-deep .p-button .p-button-icon {
+  font-size: 1.15rem !important;
+}
+
+/* Badges mejorados */
+::ng-deep .p-badge {
+  padding: 0.75rem 1.25rem !important;
+  font-size: 1rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .p-badge.p-badge-lg {
+  padding: 1rem 1.75rem !important;
+  font-size: 1.125rem !important;
+}
+
+::ng-deep .p-badge.p-badge-sm {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+}
+
+/* Tags mejorados */
+::ng-deep .p-tag {
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+/* Input fields mejorados */
+::ng-deep .p-inputtext {
+  padding: 1rem 1.25rem !important;
+  border-radius: 0.75rem !important;
+  border: 2px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .p-inputtext:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1) !important;
+}
+
+/* Dropdown mejorado */
+::ng-deep .p-dropdown {
+  border-radius: 0.75rem !important;
+  border: 2px solid #e5e7eb !important;
+}
+
+::ng-deep .p-dropdown .p-dropdown-label {
+  padding: 1rem 1.25rem !important;
+}
+
+/* Dialogs mejorados */
+::ng-deep .p-dialog {
+  border-radius: 1.5rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+::ng-deep .p-dialog .p-dialog-header {
+  padding: 2rem !important;
+  border-radius: 1.5rem 1.5rem 0 0 !important;
+}
+
+::ng-deep .p-dialog .p-dialog-content {
+  padding: 2rem !important;
+}
+
+::ng-deep .p-dialog .p-dialog-footer {
+  padding: 1.5rem 2rem !important;
+  border-top: 1px solid #e5e7eb !important;
+}
+
+/* Progress bar mejorado */
+::ng-deep .p-progressbar {
+  border-radius: 1rem !important;
+  height: 1.5rem !important;
+  background: #e5e7eb !important;
+}
+
+::ng-deep .p-progressbar .p-progressbar-value {
+  border-radius: 1rem !important;
+}
+
+/* Toast mejorado */
+::ng-deep .p-toast .p-toast-message {
+  border-radius: 1rem !important;
+  padding: 1.5rem !important;
+  margin: 1rem !important;
+}
+
+/* Tablas mejoradas */
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  padding: 1.25rem 1rem !important;
+  background: #f8fafc !important;
+  font-weight: 600 !important;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 1rem !important;
+}
+
+/* Panel mejorado */
+::ng-deep .p-panel .p-panel-header {
+  padding: 1.5rem !important;
+  border-radius: 1rem 1rem 0 0 !important;
+}
+
+::ng-deep .p-panel .p-panel-content {
+  padding: 1.5rem !important;
+}
+
+/* =====================================================
+   RESPONSIVE - MÓVIL (max-width: 768px)
+   ===================================================== */
+@media (max-width: 768px) {
+  /* Cards en móvil */
+  ::ng-deep .p-card {
+    border-radius: 1.25rem !important;
+    margin-bottom: 1.25rem !important;
+  }
+
+  ::ng-deep .p-card .p-card-body {
+    padding: 1.5rem !important;
+  }
+
+  ::ng-deep .p-card .p-card-header {
+    padding: 1.25rem 1.5rem !important;
+    font-size: 1.1rem !important;
+  }
+
+  ::ng-deep .p-card .p-card-content {
+    padding: 0.75rem 0 !important;
+  }
+
+  ::ng-deep .p-card .p-card-title {
+    font-size: 1.1rem !important;
+  }
+
+  /* Botones en móvil - ancho completo y buen padding */
+  ::ng-deep .p-button {
+    padding: 1rem 1.5rem !important;
+    font-size: 0.95rem !important;
+    width: 100% !important;
+    border-radius: 0.75rem !important;
+  }
+
+  ::ng-deep .p-button.p-button-lg {
+    padding: 1.125rem 1.75rem !important;
+    font-size: 1rem !important;
+  }
+
+  ::ng-deep .p-button.p-button-sm {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Inputs en móvil */
+  ::ng-deep .p-inputtext {
+    padding: 1rem !important;
+    font-size: 16px !important; /* Evita zoom en iOS */
+  }
+
+  /* Dialogs en móvil */
+  ::ng-deep .p-dialog {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 1rem !important;
+  }
+
+  ::ng-deep .p-dialog .p-dialog-header {
+    padding: 1.5rem !important;
+  }
+
+  ::ng-deep .p-dialog .p-dialog-content {
+    padding: 1.5rem !important;
+  }
+
+  /* Toast en móvil */
+  ::ng-deep .p-toast {
+    width: 95vw !important;
+    left: 2.5vw !important;
+  }
+
+  ::ng-deep .p-toast .p-toast-message {
+    padding: 1.25rem !important;
+    margin: 0.75rem 0 !important;
+  }
+
+  /* Tablas en móvil */
+  ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+    padding: 1rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.875rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Spacing general en móvil */
+  .grid {
+    gap: 1rem !important;
+  }
+
+  /* Padding de contenedores */
+  .container, .content, main {
+    padding: 1.25rem !important;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE - MÓVIL PEQUEÑO (max-width: 480px)
+   ===================================================== */
+@media (max-width: 480px) {
+  ::ng-deep .p-card .p-card-body {
+    padding: 1.25rem !important;
+  }
+
+  ::ng-deep .p-card .p-card-header {
+    padding: 1rem 1.25rem !important;
+    font-size: 1rem !important;
+  }
+
+  ::ng-deep .p-button {
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  ::ng-deep .p-dialog {
+    width: 98vw !important;
+    margin: 0.5rem !important;
+  }
+
+  ::ng-deep .p-dialog .p-dialog-header,
+  ::ng-deep .p-dialog .p-dialog-content {
+    padding: 1.25rem !important;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  h3 {
+    font-size: 1.25rem !important;
+  }
+}

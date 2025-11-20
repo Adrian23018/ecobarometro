@@ -19,6 +19,9 @@ import { RatingModule } from 'primeng/rating';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 
+// Components
+import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+
 // Services
 
 import { MessageService } from 'primeng/api';
@@ -62,7 +65,8 @@ interface PerformanceInsight {
     ToastModule,
     DialogModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BackButtonComponent
   ],
   templateUrl: './game-results.component.html',
   styleUrls: ['./game-results.component.css'],

@@ -5,7 +5,8 @@
       "Bash(dir \"C:\\Users\\ADRIAN\\Desktop\\ECOBAROMETRO-SUPA\\ecobarometro\\src\\app\\features\\admin\" /b /ad)",
       "Bash(npm start)",
       "Bash(ng serve:*)",
-      "Bash(timeout /t 5)"
+      "Bash(timeout /t 5)",
+      "Bash(ng generate:*)"
     ],
     "deny": [],
     "ask": []

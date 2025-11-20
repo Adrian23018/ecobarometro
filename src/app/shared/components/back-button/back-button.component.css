@@ -1,0 +1,204 @@
+/* Botón Atrás - Estilos base */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem !important;
+  background: white !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 1rem !important;
+  color: #1f2937 !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+  z-index: 100;
+}
+
+.back-button:hover {
+  background: #f9fafb !important;
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 16px rgba(34, 197, 94, 0.2) !important;
+}
+
+.back-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.back-button i {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.back-button:hover i {
+  transform: translateX(-3px);
+}
+
+.button-label {
+  font-weight: 600;
+}
+
+/* Posiciones */
+.back-button-top-left {
+  position: fixed;
+  top: 1.5rem;
+  left: 1.5rem;
+}
+
+.back-button-top-right {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.back-button-bottom-left {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+.back-button-bottom-right {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+}
+
+.back-button-inline {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+/* Móvil optimizado */
+@media (max-width: 768px) {
+  .back-button {
+    padding: 0.875rem 1rem !important;
+    font-size: 0.9rem !important;
+    border-radius: 0.875rem !important;
+  }
+
+  .back-button-top-left {
+    top: 1rem;
+    left: 1rem;
+  }
+
+  .back-button-top-right {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .back-button-bottom-left {
+    bottom: 1rem;
+    left: 1rem;
+  }
+
+  .back-button-bottom-right {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  /* Versión compacta solo con icono en móvil */
+  .back-button.compact-mobile .button-label {
+    display: none;
+  }
+
+  .back-button.compact-mobile {
+    padding: 0.75rem !important;
+    border-radius: 50% !important;
+    width: 3rem;
+    height: 3rem;
+    justify-content: center;
+  }
+}
+
+/* Mostrar solo en móvil */
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: inline-flex;
+  }
+}
+
+/* Versión compacta (solo icono) */
+.back-button.compact {
+  padding: 0.75rem !important;
+  border-radius: 50% !important;
+  width: 3rem;
+  height: 3rem;
+  justify-content: center;
+}
+
+.back-button.compact .button-label {
+  display: none;
+}
+
+/* Animación de entrada */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.back-button {
+  animation: slideInFromLeft 0.4s ease-out;
+}
+
+/* Variante con glassmorphism */
+.back-button.glass {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.back-button.glass:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Móvil pequeño */
+@media (max-width: 480px) {
+  .back-button {
+    padding: 0.75rem 0.875rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .back-button i {
+    font-size: 1rem;
+  }
+
+  .back-button-top-left,
+  .back-button-top-right {
+    top: 0.75rem;
+  }
+
+  .back-button-top-left {
+    left: 0.75rem;
+  }
+
+  .back-button-top-right {
+    right: 0.75rem;
+  }
+
+  .back-button-bottom-left,
+  .back-button-bottom-right {
+    bottom: 0.75rem;
+  }
+
+  .back-button-bottom-left {
+    left: 0.75rem;
+  }
+
+  .back-button-bottom-right {
+    right: 0.75rem;
+  }
+}
