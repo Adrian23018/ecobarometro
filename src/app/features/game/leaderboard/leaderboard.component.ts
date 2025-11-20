@@ -97,6 +97,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   // UI State
   loading = true;
   activeTabIndex = 0;
+  currentMobileLimit = 10; // Mostrar 10 usuarios inicialmente en móvil
 
   // Filters
   selectedTimeFilter = 'all';
@@ -426,5 +427,9 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     if (this.overlayPanel) {
       this.overlayPanel.hide();
     }
+  }
+
+  loadMoreUsers(): void {
+    this.currentMobileLimit += 10;
   }
 }
