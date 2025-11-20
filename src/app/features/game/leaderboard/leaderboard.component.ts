@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
@@ -19,6 +19,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { OverlayPanel } from 'primeng/overlaypanel';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
@@ -68,6 +70,7 @@ interface RisingStar extends LeaderboardEntry {
     SelectButtonModule,
     DividerModule,
     RippleModule,
+    OverlayPanelModule,
     FormsModule,
     ReactiveFormsModule,
     ToastModule
@@ -78,6 +81,8 @@ interface RisingStar extends LeaderboardEntry {
 })
 export class LeaderboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+
+  @ViewChild('op') overlayPanel!: OverlayPanel;
 
   // Data
   currentUser: User | null = null;
@@ -375,5 +380,30 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
 
   getInitial(name?: string): string {
     return name && name.length > 0 ? name.charAt(0) : '?';
+  }
+
+  getActiveFiltersCount(): any {
+    let count = 0;
+    if (this.selectedTimeFilter !== 'all') count++;
+    if (this.selectedCategory) count++;
+    if (this.searchTerm.trim()) count++;
+    return count > 0 ? count.toString() : '';
+  }
+
+  clearFilters(): void {
+    this.selectedTimeFilter = 'all';
+    this.selectedCategory = null;
+    this.searchTerm = '';
+    this.loadRankingData();
+  }
+
+  applyFilters(): void {
+    this.loadRankingData();
+  }
+
+  hideOverlay(): void {
+    if (this.overlayPanel) {
+      this.overlayPanel.hide();
+    }
   }
 }

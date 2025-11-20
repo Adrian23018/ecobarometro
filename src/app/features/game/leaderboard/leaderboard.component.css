@@ -65,20 +65,137 @@
   font-weight: 500;
 }
 
-.filters-section {
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 25px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+/* Panel de Filtros Flotante */
+::ng-deep .filters-overlay {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  border-radius: 25px !important;
+  border: 1px solid rgba(76, 175, 80, 0.3) !important;
+  overflow: hidden !important;
+  width: 550px !important;
+  max-width: calc(100vw - 2rem) !important;
 }
 
-.filters-section label {
+::ng-deep .filters-overlay .p-overlaypanel-content {
+  padding: 0 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(168, 230, 207, 0.1)) !important;
+  backdrop-filter: blur(30px) !important;
+  max-height: calc(100vh - 100px) !important;
+  overflow-y: auto !important;
+}
+
+.filters-panel {
+  padding: 2rem;
+  width: 100%;
+}
+
+.filters-panel h3 {
+  color: #2e7d32;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+}
+
+.filter-section {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 2px solid rgba(76, 175, 80, 0.15);
+  transition: all 0.3s ease;
+}
+
+.filter-section:hover {
+  border-color: rgba(76, 175, 80, 0.4);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.1);
+}
+
+.filter-section label {
   color: #2e7d32;
   font-weight: 700;
   font-size: 1rem;
   margin-bottom: 0.8rem;
-  display: block;
+  display: flex;
+  align-items: center;
+}
+
+.category-icon-sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+/* Responsive para panel de filtros */
+@media (max-width: 768px) {
+  ::ng-deep .filters-overlay {
+    width: calc(100vw - 2rem) !important;
+    left: 1rem !important;
+    right: 1rem !important;
+    transform: none !important;
+  }
+
+  ::ng-deep .filters-overlay .p-overlaypanel-content {
+    max-height: calc(100vh - 150px) !important;
+  }
+
+  .filters-panel {
+    padding: 1.5rem;
+  }
+
+  .filters-panel h3 {
+    font-size: 1.1rem;
+  }
+
+  .filter-section {
+    padding: 1rem;
+  }
+
+  .filter-section label {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  ::ng-deep .filters-overlay {
+    width: calc(100vw - 1rem) !important;
+    left: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+
+  .filters-panel {
+    padding: 1rem;
+  }
+
+  .filters-panel h3 {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .filter-section {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .filter-section label {
+    font-size: 0.85rem;
+  }
+
+  ::ng-deep .p-selectbutton {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  ::ng-deep .p-selectbutton .p-button {
+    flex: 1 1 45%;
+    font-size: 0.85rem !important;
+    padding: 0.6rem 0.8rem !important;
+  }
 }
 
 /* Contenedor principal con espaciado moderno */
@@ -571,6 +688,105 @@
   ::ng-deep .p-tabview .p-tabview-nav li {
     width: 100%;
   }
+}
+
+/* Paginador Mejorado */
+::ng-deep .custom-paginator {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(168, 230, 207, 0.1)) !important;
+  border-top: 2px solid rgba(76, 175, 80, 0.2) !important;
+  padding: 1.5rem 1rem !important;
+  border-radius: 0 0 25px 25px !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-current {
+  color: #2e7d32 !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  background: rgba(76, 175, 80, 0.1) !important;
+  padding: 0.75rem 1.5rem !important;
+  border-radius: 15px !important;
+  border: 2px solid rgba(76, 175, 80, 0.3) !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-pages .p-paginator-page {
+  min-width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 12px !important;
+  margin: 0 0.25rem !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(76, 175, 80, 0.2) !important;
+  color: #2e7d32 !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-pages .p-paginator-page:hover {
+  background: rgba(76, 175, 80, 0.15) !important;
+  border-color: #4caf50 !important;
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3) !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  border-color: #4caf50 !important;
+  color: white !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.5) !important;
+  transform: scale(1.1) !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-first,
+::ng-deep .custom-paginator .p-paginator-prev,
+::ng-deep .custom-paginator .p-paginator-next,
+::ng-deep .custom-paginator .p-paginator-last {
+  min-width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 12px !important;
+  margin: 0 0.25rem !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid rgba(76, 175, 80, 0.3) !important;
+  color: #2e7d32 !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-first:hover:not(.p-disabled),
+::ng-deep .custom-paginator .p-paginator-prev:hover:not(.p-disabled),
+::ng-deep .custom-paginator .p-paginator-next:hover:not(.p-disabled),
+::ng-deep .custom-paginator .p-paginator-last:hover:not(.p-disabled) {
+  background: linear-gradient(135deg, #4caf50, #66bb6a) !important;
+  border-color: #4caf50 !important;
+  color: white !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4) !important;
+}
+
+::ng-deep .custom-paginator .p-paginator-first.p-disabled,
+::ng-deep .custom-paginator .p-paginator-prev.p-disabled,
+::ng-deep .custom-paginator .p-paginator-next.p-disabled,
+::ng-deep .custom-paginator .p-paginator-last.p-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(76, 175, 80, 0.1) !important;
+}
+
+::ng-deep .custom-paginator .p-dropdown {
+  border-radius: 12px !important;
+  border: 2px solid rgba(76, 175, 80, 0.3) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #2e7d32 !important;
+  font-weight: 600 !important;
+  min-width: 5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+::ng-deep .custom-paginator .p-dropdown:hover {
+  border-color: #4caf50 !important;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2) !important;
+}
+
+::ng-deep .custom-paginator .p-dropdown .p-dropdown-trigger {
+  color: #4caf50 !important;
 }
 
 /* Animaciones de entrada */

@@ -9,58 +9,85 @@
     </div>
     <div class="justify-content-between flex flex-column lg:flex-row lg:align-items-center">
       <div class="flex gap-2 mt-3 lg:mt-0">
+        <p-button label="Filtros" icon="pi pi-filter" [outlined]="true" (onClick)="op.toggle($event)"
+                  [badge]="getActiveFiltersCount()" badgeClass="p-badge-info" />
         <p-button label="Mi Posición" icon="pi pi-user" [outlined]="true" (onClick)="scrollToMyPosition()" />
         <p-button label="Jugar Ahora" icon="pi pi-play" [routerLink]="['/game/lobby']" />
       </div>
     </div>
 
-    <!-- Filters -->
-    <div class="filters-section">
-      <div class="grid">
-        <div class="col-12 md:col-4">
-          <label class="block text-900 font-medium mb-2">Período</label>
-          <p-selectButton [options]="timeFilters" [(ngModel)]="selectedTimeFilter" optionLabel="label"
-            optionValue="value" (onChange)="onTimeFilterChange()" styleClass="w-full">
-            <ng-template pTemplate="option" let-option>
-              <div class="flex align-items-center gap-2">
-                <i [class]="option.icon"></i>
-                <span>{{ option.label }}</span>
-              </div>
-            </ng-template>
-          </p-selectButton>
-        </div>
-        <div class="col-12 md:col-4">
-          <label class="block text-900 font-medium mb-2">Categoría</label>
-          <p-dropdown [options]="categoryOptions" [(ngModel)]="selectedCategory" placeholder="Todas las categorías"
-            optionLabel="name" optionValue="id" [showClear]="true" (onChange)="onCategoryChange()" styleClass="w-full">
-            <ng-template pTemplate="selectedItem" let-category>
-              <div class="flex align-items-center gap-2" *ngIf="category">
-                <div class="category-icon-sm" [style.background-color]="category.color">
-                  <i [class]="category.icon" class="text-white"></i>
+    <!-- Filters Overlay Panel -->
+    <p-overlayPanel #op styleClass="filters-overlay">
+      <ng-template pTemplate="content">
+        <div class="filters-panel">
+          <div class="flex align-items-center justify-content-between mb-4">
+            <h3 class="m-0 text-900 font-bold">
+              <i class="pi pi-filter mr-2"></i>Filtros de Ranking
+            </h3>
+            <p-button label="Limpiar" icon="pi pi-times" [text]="true" size="small"
+                      (onClick)="clearFilters()" *ngIf="getActiveFiltersCount() > 0" />
+          </div>
+
+          <div class="filter-section mb-4">
+            <label class="block text-900 font-semibold mb-2">
+              <i class="pi pi-clock mr-2"></i>Período
+            </label>
+            <p-selectButton [options]="timeFilters" [(ngModel)]="selectedTimeFilter" optionLabel="label"
+              optionValue="value" (onChange)="onTimeFilterChange()" styleClass="w-full">
+              <ng-template pTemplate="option" let-option>
+                <div class="flex align-items-center gap-2">
+                  <i [class]="option.icon"></i>
+                  <span>{{ option.label }}</span>
                 </div>
-                <span>{{ category.name }}</span>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="item" let-category>
-              <div class="flex align-items-center gap-2">
-                <div class="category-icon-sm" [style.background-color]="category.color">
-                  <i [class]="category.icon" class="text-white"></i>
+              </ng-template>
+            </p-selectButton>
+          </div>
+
+          <div class="filter-section mb-4">
+            <label class="block text-900 font-semibold mb-2">
+              <i class="pi pi-tag mr-2"></i>Categoría
+            </label>
+            <p-dropdown [options]="categoryOptions" [(ngModel)]="selectedCategory" placeholder="Todas las categorías"
+              optionLabel="name" optionValue="id" [showClear]="true" (onChange)="onCategoryChange()" styleClass="w-full">
+              <ng-template pTemplate="selectedItem" let-category>
+                <div class="flex align-items-center gap-2" *ngIf="category">
+                  <div class="category-icon-sm" [style.background-color]="category.color">
+                    <i [class]="category.icon" class="text-white"></i>
+                  </div>
+                  <span>{{ category.name }}</span>
                 </div>
-                <span>{{ category.name }}</span>
-              </div>
-            </ng-template>
-          </p-dropdown>
+              </ng-template>
+              <ng-template pTemplate="item" let-category>
+                <div class="flex align-items-center gap-2">
+                  <div class="category-icon-sm" [style.background-color]="category.color">
+                    <i [class]="category.icon" class="text-white"></i>
+                  </div>
+                  <span>{{ category.name }}</span>
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="filter-section">
+            <label class="block text-900 font-semibold mb-2">
+              <i class="pi pi-search mr-2"></i>Buscar Usuario
+            </label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-search"></i>
+              <input type="text" pInputText [(ngModel)]="searchTerm" (input)="onSearch()"
+                placeholder="Buscar por nombre..." class="w-full" />
+            </span>
+          </div>
+
+          <p-divider />
+
+          <div class="flex justify-content-end gap-2">
+            <p-button label="Cerrar" icon="pi pi-times" [outlined]="true" size="small" (onClick)="hideOverlay()" />
+            <p-button label="Aplicar Filtros" icon="pi pi-check" size="small" (onClick)="applyFilters(); hideOverlay()" />
+          </div>
         </div>
-        <div class="col-12 md:col-4">
-          <label class="block text-900 font-medium mb-2">Buscar Usuario</label>
-          <span class="p-input-icon-left w-full">
-            <i class="pi pi-search"></i>
-            <input type="text" pInputText [(ngModel)]="searchTerm" (input)="onSearch()"
-              placeholder="Buscar por nombre..." class="w-full" />
-          </span>
-        </div>
-      </div>
-    </div>
+      </ng-template>
+    </p-overlayPanel>
   </div>
 
   <!-- Podium -->
@@ -175,9 +202,12 @@
     <!-- General Ranking -->
     <p-tabPanel header="🌍 Ranking General" leftIcon="pi pi-globe">
       <div *ngIf="!loading; else loadingTemplate">
-        <p-table [value]="leaderboard" [paginator]="true" [rows]="20" [showCurrentPageReport]="true"
+        <p-table [value]="filteredLeaderboard" [paginator]="true" [rows]="20" [showCurrentPageReport]="true"
           currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
-          [rowsPerPageOptions]="[10, 20, 50]" styleClass="ranking-table" dataKey="user_id" #dt>
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [paginatorDropdownAppendTo]="'body'"
+          paginatorStyleClass="custom-paginator"
+          styleClass="ranking-table" dataKey="user_id" #dt>
           <ng-template pTemplate="header">
             <tr>
               <th style="width: 4rem">Pos.</th>
