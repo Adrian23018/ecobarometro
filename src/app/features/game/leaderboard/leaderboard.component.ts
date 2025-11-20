@@ -120,7 +120,6 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    console.log('🚀 LeaderboardComponent - ngOnInit ejecutado');
     this.loadCurrentUser();
     this.loadInitialData();
   }
@@ -131,29 +130,20 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentUser(): void {
-    console.log('👤 Cargando usuario desde localStorage...');
     const userData = localStorage.getItem('ecobarometro_user');
-    console.log('📦 userData raw:', userData);
 
     if (userData) {
       try {
         this.currentUser = JSON.parse(userData);
-        console.log('✅ Usuario cargado exitosamente:', this.currentUser);
-        console.log('🆔 Admin ID:', this.currentUser?.admin_id);
-        console.log('👨 User ID:', this.currentUser?.id);
       } catch (error) {
-        console.error('❌ Error parseando usuario:', error);
+        console.error('Error parseando usuario:', error);
         this.currentUser = null;
       }
-    } else {
-      console.warn('⚠️ No se encontró usuario en localStorage');
-      console.log('🔍 Todas las keys en localStorage:', Object.keys(localStorage));
     }
   }
 
   loadInitialData(): void {
     if (!this.currentUser) {
-      console.error('❌ No hay usuario actual');
       this.loading = false;
       this.messageService.add({
         severity: 'warn',
@@ -163,29 +153,22 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    console.log('🔄 Cargando datos del ranking para admin:', this.currentUser.admin_id);
-    console.log('👤 Usuario actual completo:', this.currentUser);
     this.loading = true;
 
-    // Primero cargar solo el ranking global para diagnosticar
-    console.log('📊 Iniciando carga de globalRanking...');
+    // Cargar ranking global
     this.rankingService.getGlobalRanking(this.currentUser.admin_id, this.buildFilters())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (globalRanking) => {
-          console.log('✅ Global Ranking recibido:', globalRanking);
           this.processGlobalRanking(globalRanking);
-
-          // Luego cargar el resto
           this.loadAdditionalData();
         },
         error: (error) => {
-          console.error('❌ Error cargando globalRanking:', error);
-          console.error('❌ Error completo:', JSON.stringify(error, null, 2));
+          console.error('Error cargando ranking:', error);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'No se pudo cargar el ranking: ' + (error.message || 'Error desconocido')
+            detail: 'No se pudo cargar el ranking'
           });
           this.loading = false;
         }
@@ -206,7 +189,6 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (results) => {
-          console.log('✅ Datos adicionales recibidos:', results);
           this.categoryOptions = results.categories;
           this.userStats = results.userStats;
           this.processWeeklyChampions(results.weeklyChampions);
@@ -214,28 +196,21 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (error) => {
-          console.error('❌ Error cargando datos adicionales:', error);
+          console.error('Error cargando datos adicionales:', error);
           this.loading = false;
         }
       });
   }
 
   private processGlobalRanking(globalRanking: any): void {
-    console.log('📊 Global Ranking Data:', globalRanking);
-
     this.leaderboard = globalRanking.overall_rankings.map((entry: LeaderboardEntry) => ({
       ...entry,
       is_current_user: entry.user_id === this.currentUser?.id
     }));
 
-    console.log('👥 Leaderboard processed:', this.leaderboard);
-    console.log('📈 Total usuarios en leaderboard:', this.leaderboard.length);
-
     this.filteredLeaderboard = [...this.leaderboard];
     this.topUsers = this.leaderboard.slice(0, 3);
     this.categoryRankings = globalRanking.category_rankings;
-
-    console.log('✅ Filtered Leaderboard:', this.filteredLeaderboard);
   }
 
   private processWeeklyChampions(champions: LeaderboardEntry[]): void {

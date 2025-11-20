@@ -29,15 +29,11 @@ export class RankingService {
   }
 
   private async buildGlobalRanking(adminId: string, filters?: RankingFilters): Promise<GlobalRanking> {
-    console.log('🔍 buildGlobalRanking - AdminID:', adminId, 'Filters:', filters);
-
     // Obtener ranking general
     const overallRankings = await this.getOverallLeaderboard(adminId, filters);
-    console.log('📊 Overall Rankings obtenidos:', overallRankings.length, 'usuarios');
 
     // Obtener rankings por categoría
     const categoryRankings = await this.getCategoryRankings(adminId, filters);
-    console.log('📂 Category Rankings obtenidos:', categoryRankings.length, 'categorías');
 
     // Obtener estadísticas del usuario (si se especifica en los filtros)
     let userStats: UserRankingStats = {
@@ -56,8 +52,6 @@ export class RankingService {
   }
 
   private async getOverallLeaderboard(adminId: string, filters?: RankingFilters): Promise<LeaderboardEntry[]> {
-    console.log('👥 getOverallLeaderboard - AdminID:', adminId);
-
     let query = this.supabase
       .from('users')
       .select(`
@@ -86,41 +80,52 @@ export class RankingService {
 
     const { data: users, error } = await query;
 
-    console.log('👤 Usuarios obtenidos:', users?.length || 0);
     if (error) {
-      console.error('❌ Error obteniendo usuarios:', error);
+      console.error('Error obteniendo usuarios:', error);
       return [];
     }
 
     if (!users || users.length === 0) {
-      console.warn('⚠️ No se encontraron usuarios activos para el admin:', adminId);
       return [];
     }
 
-    const leaderboard: LeaderboardEntry[] = [];
+    // Obtener todas las sesiones de una vez
+    const userIds = users.map(u => u.id);
+    const { data: allSessions } = await this.supabase
+      .from('game_sessions')
+      .select('user_id, completion_percentage')
+      .in('user_id', userIds)
+      .eq('status', 'completed');
 
-    for (let i = 0; i < users.length; i++) {
-      const user = users[i];
-      console.log(`  Processing user ${i + 1}/${users.length}: ${user.username}`);
-      
-      // Calcular promedio de puntuación
-      const { data: sessions } = await this.supabase
-        .from('game_sessions')
-        .select('completion_percentage')
-        .eq('user_id', user.id)
-        .eq('status', 'completed');
+    // Obtener todos los logros de una vez
+    const { data: allAchievements } = await this.supabase
+      .from('user_achievements')
+      .select('user_id')
+      .in('user_id', userIds);
 
-      const avgScore = sessions && sessions.length > 0
-        ? sessions.reduce((sum, s) => sum + s.completion_percentage, 0) / sessions.length
+    // Agrupar por usuario
+    const sessionsByUser = new Map<string, number[]>();
+    allSessions?.forEach(session => {
+      if (!sessionsByUser.has(session.user_id)) {
+        sessionsByUser.set(session.user_id, []);
+      }
+      sessionsByUser.get(session.user_id)?.push(session.completion_percentage);
+    });
+
+    const achievementsByUser = new Map<string, number>();
+    allAchievements?.forEach(achievement => {
+      const count = achievementsByUser.get(achievement.user_id) || 0;
+      achievementsByUser.set(achievement.user_id, count + 1);
+    });
+
+    // Construir leaderboard
+    const leaderboard: LeaderboardEntry[] = users.map((user, i) => {
+      const userSessions = sessionsByUser.get(user.id) || [];
+      const avgScore = userSessions.length > 0
+        ? userSessions.reduce((sum, s) => sum + s, 0) / userSessions.length
         : 0;
 
-      // Contar logros
-      const { count: achievementsCount } = await this.supabase
-        .from('user_achievements')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-
-      leaderboard.push({
+      return {
         user_id: user.id,
         username: user.username,
         full_name: user.full_name,
@@ -130,9 +135,9 @@ export class RankingService {
         games_played: user.games_played,
         avg_score: Math.round(avgScore),
         level: user.level,
-        achievements_count: achievementsCount || 0
-      });
-    }
+        achievements_count: achievementsByUser.get(user.id) || 0
+      };
+    });
 
     return leaderboard;
   }
