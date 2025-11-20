@@ -11,11 +11,11 @@
 
 
 /* Reset y configuración base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+// * {
+//   margin: 0;
+//   padding: 0;
+//   box-sizing: border-box;
+// }
 
 html, body {
   height: 100%;
@@ -27,6 +27,11 @@ body {
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
   min-height: 100vh;
   line-height: 1.6;
+}
+
+/* Padding global para todos los p-tag */
+::ng-deep p-tag .p-tag {
+  padding: 0px 6px !important;
 }
 
 /* Componentes personalizados para el juego */

@@ -8,6 +8,11 @@
   overflow-x: hidden;
 }
 
+/* Padding global para todos los spans */
+.leaderboard span {
+  padding: 0px 6px;
+}
+
 /* Efectos de fondo animados */
 .leaderboard::before {
   content: '';
