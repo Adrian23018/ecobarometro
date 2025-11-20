@@ -120,6 +120,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    console.log('🚀 LeaderboardComponent - ngOnInit ejecutado');
     this.loadCurrentUser();
     this.loadInitialData();
   }
@@ -130,9 +131,13 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   }
 
   loadCurrentUser(): void {
+    console.log('👤 Cargando usuario desde localStorage...');
     const userData = localStorage.getItem('user');
     if (userData) {
       this.currentUser = JSON.parse(userData);
+      console.log('✅ Usuario cargado:', this.currentUser);
+    } else {
+      console.warn('⚠️ No se encontró usuario en localStorage');
     }
   }
 
@@ -147,6 +152,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('🔄 Cargando datos del ranking para admin:', this.currentUser.admin_id);
     this.loading = true;
 
     // Cargar datos en paralelo
@@ -158,10 +164,13 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
       monthlyStars: this.rankingService.getTopPerformers(this.currentUser.admin_id, 'month')
     };
 
+    console.log('📦 Tareas a cargar:', Object.keys(loadTasks));
+
     forkJoin(loadTasks)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (results) => {
+          console.log('✅ Resultados recibidos:', results);
           this.categoryOptions = results.categories;
           this.processGlobalRanking(results.globalRanking);
           this.userStats = results.userStats;
@@ -170,11 +179,13 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading leaderboard data:', error);
+          console.error('❌ Error completo loading leaderboard data:', error);
+          console.error('❌ Error stack:', error.stack);
+          console.error('❌ Error message:', error.message);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'No se pudieron cargar los datos del ranking'
+            detail: 'No se pudieron cargar los datos del ranking: ' + error.message
           });
           this.loading = false;
         }
@@ -182,14 +193,21 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
   }
 
   private processGlobalRanking(globalRanking: any): void {
+    console.log('📊 Global Ranking Data:', globalRanking);
+
     this.leaderboard = globalRanking.overall_rankings.map((entry: LeaderboardEntry) => ({
       ...entry,
       is_current_user: entry.user_id === this.currentUser?.id
     }));
 
+    console.log('👥 Leaderboard processed:', this.leaderboard);
+    console.log('📈 Total usuarios en leaderboard:', this.leaderboard.length);
+
     this.filteredLeaderboard = [...this.leaderboard];
     this.topUsers = this.leaderboard.slice(0, 3);
     this.categoryRankings = globalRanking.category_rankings;
+
+    console.log('✅ Filtered Leaderboard:', this.filteredLeaderboard);
   }
 
   private processWeeklyChampions(champions: LeaderboardEntry[]): void {

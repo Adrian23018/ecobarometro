@@ -29,12 +29,16 @@ export class RankingService {
   }
 
   private async buildGlobalRanking(adminId: string, filters?: RankingFilters): Promise<GlobalRanking> {
+    console.log('🔍 buildGlobalRanking - AdminID:', adminId, 'Filters:', filters);
+
     // Obtener ranking general
     const overallRankings = await this.getOverallLeaderboard(adminId, filters);
-    
+    console.log('📊 Overall Rankings obtenidos:', overallRankings.length, 'usuarios');
+
     // Obtener rankings por categoría
     const categoryRankings = await this.getCategoryRankings(adminId, filters);
-    
+    console.log('📂 Category Rankings obtenidos:', categoryRankings.length, 'categorías');
+
     // Obtener estadísticas del usuario (si se especifica en los filtros)
     let userStats: UserRankingStats = {
       overall_position: 0,
@@ -52,6 +56,8 @@ export class RankingService {
   }
 
   private async getOverallLeaderboard(adminId: string, filters?: RankingFilters): Promise<LeaderboardEntry[]> {
+    console.log('👥 getOverallLeaderboard - AdminID:', adminId);
+
     let query = this.supabase
       .from('users')
       .select(`
@@ -78,14 +84,24 @@ export class RankingService {
       query = query.range(filters.offset, filters.offset + (filters.limit || 100) - 1);
     }
 
-    const { data: users } = await query;
+    const { data: users, error } = await query;
 
-    if (!users) return [];
+    console.log('👤 Usuarios obtenidos:', users?.length || 0);
+    if (error) {
+      console.error('❌ Error obteniendo usuarios:', error);
+      return [];
+    }
+
+    if (!users || users.length === 0) {
+      console.warn('⚠️ No se encontraron usuarios activos para el admin:', adminId);
+      return [];
+    }
 
     const leaderboard: LeaderboardEntry[] = [];
 
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
+      console.log(`  Processing user ${i + 1}/${users.length}: ${user.username}`);
       
       // Calcular promedio de puntuación
       const { data: sessions } = await this.supabase
