@@ -132,17 +132,28 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
 
   loadCurrentUser(): void {
     console.log('👤 Cargando usuario desde localStorage...');
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('ecobarometro_user');
+    console.log('📦 userData raw:', userData);
+
     if (userData) {
-      this.currentUser = JSON.parse(userData);
-      console.log('✅ Usuario cargado:', this.currentUser);
+      try {
+        this.currentUser = JSON.parse(userData);
+        console.log('✅ Usuario cargado exitosamente:', this.currentUser);
+        console.log('🆔 Admin ID:', this.currentUser?.admin_id);
+        console.log('👨 User ID:', this.currentUser?.id);
+      } catch (error) {
+        console.error('❌ Error parseando usuario:', error);
+        this.currentUser = null;
+      }
     } else {
       console.warn('⚠️ No se encontró usuario en localStorage');
+      console.log('🔍 Todas las keys en localStorage:', Object.keys(localStorage));
     }
   }
 
   loadInitialData(): void {
     if (!this.currentUser) {
+      console.error('❌ No hay usuario actual');
       this.loading = false;
       this.messageService.add({
         severity: 'warn',
@@ -153,40 +164,57 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     }
 
     console.log('🔄 Cargando datos del ranking para admin:', this.currentUser.admin_id);
+    console.log('👤 Usuario actual completo:', this.currentUser);
     this.loading = true;
 
-    // Cargar datos en paralelo
+    // Primero cargar solo el ranking global para diagnosticar
+    console.log('📊 Iniciando carga de globalRanking...');
+    this.rankingService.getGlobalRanking(this.currentUser.admin_id, this.buildFilters())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (globalRanking) => {
+          console.log('✅ Global Ranking recibido:', globalRanking);
+          this.processGlobalRanking(globalRanking);
+
+          // Luego cargar el resto
+          this.loadAdditionalData();
+        },
+        error: (error) => {
+          console.error('❌ Error cargando globalRanking:', error);
+          console.error('❌ Error completo:', JSON.stringify(error, null, 2));
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo cargar el ranking: ' + (error.message || 'Error desconocido')
+          });
+          this.loading = false;
+        }
+      });
+  }
+
+  private loadAdditionalData(): void {
+    if (!this.currentUser) return;
+
     const loadTasks = {
       categories: this.categoryService.getAvailableCategories(this.currentUser.admin_id),
-      globalRanking: this.rankingService.getGlobalRanking(this.currentUser.admin_id, this.buildFilters()),
       userStats: this.rankingService.getUserRankingStats(this.currentUser.id),
       weeklyChampions: this.rankingService.getTopPerformers(this.currentUser.admin_id, 'week'),
       monthlyStars: this.rankingService.getTopPerformers(this.currentUser.admin_id, 'month')
     };
 
-    console.log('📦 Tareas a cargar:', Object.keys(loadTasks));
-
     forkJoin(loadTasks)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (results) => {
-          console.log('✅ Resultados recibidos:', results);
+          console.log('✅ Datos adicionales recibidos:', results);
           this.categoryOptions = results.categories;
-          this.processGlobalRanking(results.globalRanking);
           this.userStats = results.userStats;
           this.processWeeklyChampions(results.weeklyChampions);
           this.processRisingStars(results.monthlyStars);
           this.loading = false;
         },
         error: (error) => {
-          console.error('❌ Error completo loading leaderboard data:', error);
-          console.error('❌ Error stack:', error.stack);
-          console.error('❌ Error message:', error.message);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudieron cargar los datos del ranking: ' + error.message
-          });
+          console.error('❌ Error cargando datos adicionales:', error);
           this.loading = false;
         }
       });

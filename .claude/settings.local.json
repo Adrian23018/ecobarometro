@@ -6,7 +6,10 @@
       "Bash(npm start)",
       "Bash(ng serve:*)",
       "Bash(timeout /t 5)",
-      "Bash(ng generate:*)"
+      "Bash(ng generate:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout /t 3)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []
