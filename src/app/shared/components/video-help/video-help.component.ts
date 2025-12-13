@@ -1,6 +1,6 @@
 // src/app/shared/components/video-help/video-help.component.ts
 
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -44,7 +44,7 @@ declare global {
   templateUrl: './video-help.component.html',
   styleUrls: ['./video-help.component.css']
 })
-export class VideoHelpComponent implements OnInit, OnDestroy {
+export class VideoHelpComponent implements OnInit, OnChanges, OnDestroy {
   @Input() visible = false;
   @Input() video: EducationalVideo | null = null;
   @Input() gameSessionId = '';
@@ -81,9 +81,25 @@ export class VideoHelpComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (this.video) {
-      this.loadYouTubeAPI();
+    // Cargar YouTube API al iniciar
+    this.loadYouTubeAPI();
+  }
+
+  ngOnChanges(changes: any): void {
+    // Cuando el dialog se hace visible y hay un video
+    if (changes.visible && this.visible && this.video) {
       this.initializeVideo();
+      // Esperar a que el DOM se actualice antes de inicializar el player
+      setTimeout(() => {
+        if (window.YT && window.YT.Player) {
+          this.initializePlayer();
+        }
+      }, 300);
+    }
+
+    // Limpiar cuando se cierra el dialog
+    if (changes.visible && !this.visible) {
+      this.cleanup();
     }
   }
 
@@ -98,7 +114,7 @@ export class VideoHelpComponent implements OnInit, OnDestroy {
   loadYouTubeAPI(): void {
     // Verificar si ya está cargado
     if (window.YT && window.YT.Player) {
-      this.initializePlayer();
+      console.log('YouTube API ya está cargada');
       return;
     }
 
@@ -108,11 +124,12 @@ export class VideoHelpComponent implements OnInit, OnDestroy {
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
       firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+      console.log('Cargando YouTube IFrame API...');
     }
 
-    // Configurar callback global
+    // El callback se manejará cuando sea necesario
     window.onYouTubeIframeAPIReady = () => {
-      this.initializePlayer();
+      console.log('YouTube API lista');
     };
   }
 
@@ -122,29 +139,61 @@ export class VideoHelpComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Esperar a que el contenedor esté disponible
-    setTimeout(() => {
+    // Verificar que la API de YouTube esté cargada
+    if (!window.YT || !window.YT.Player) {
+      console.error('YouTube API no está disponible');
+      return;
+    }
+
+    // Verificar que el contenedor existe
+    const container = document.getElementById('youtube-player');
+    if (!container) {
+      console.error('Contenedor del video no encontrado');
+      return;
+    }
+
+    // Limpiar player anterior si existe
+    if (this.player) {
       try {
-        this.player = new window.YT.Player('youtube-player', {
-          height: '100%',
-          width: '100%',
-          videoId: this.video!.youtube_video_id,
-          playerVars: {
-            autoplay: 0,
-            controls: 1,
-            modestbranding: 1,
-            rel: 0,
-            fs: 1
-          },
-          events: {
-            onReady: (event: any) => this.onPlayerReady(event),
-            onStateChange: (event: any) => this.onPlayerStateChange(event)
-          }
-        });
-      } catch (error) {
-        console.error('Error al inicializar YouTube player:', error);
+        this.player.destroy();
+      } catch (e) {
+        console.log('Error al limpiar player anterior:', e);
       }
-    }, 500);
+      this.player = null;
+    }
+
+    try {
+      console.log('Inicializando player con video ID:', this.video.youtube_video_id);
+      this.player = new window.YT.Player('youtube-player', {
+        height: '100%',
+        width: '100%',
+        videoId: this.video.youtube_video_id,
+        playerVars: {
+          autoplay: 0,
+          controls: 1,
+          modestbranding: 1,
+          rel: 0,
+          fs: 1
+        },
+        events: {
+          onReady: (event: any) => this.onPlayerReady(event),
+          onStateChange: (event: any) => this.onPlayerStateChange(event),
+          onError: (event: any) => this.onPlayerError(event)
+        }
+      });
+    } catch (error) {
+      console.error('Error al inicializar YouTube player:', error);
+    }
+  }
+
+  onPlayerError(event: any): void {
+    console.error('Error en YouTube player:', event.data);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'No se pudo cargar el video',
+      life: 3000
+    });
   }
 
   onPlayerReady(event: any): void {

@@ -97,10 +97,15 @@ export class VideosManagerComponent implements OnInit, OnDestroy {
   loadCurrentAdmin(): void {
     this.authService.currentUser$.pipe(takeUntil(this.destroy$)).subscribe({
       next: (user:any) => {
-        if (user?.admin_id) {
-          this.currentAdminId = user.admin_id;
+        // Si es un admin logueado, usar user.id
+        // Si es un usuario regular, usar user.admin_id
+        const adminId = user?.id || user?.admin_id;
+
+        if (adminId && adminId.trim() !== '') {
+          this.currentAdminId = adminId;
           this.loadVideos();
         } else {
+          this.isLoading = false;
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
@@ -108,6 +113,16 @@ export class VideosManagerComponent implements OnInit, OnDestroy {
             life: 3000
           });
         }
+      },
+      error: (error) => {
+        console.error('Error loading admin:', error);
+        this.isLoading = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo cargar la información del administrador',
+          life: 3000
+        });
       }
     });
   }
@@ -133,6 +148,12 @@ export class VideosManagerComponent implements OnInit, OnDestroy {
   // ========== CRUD OPERATIONS ==========
 
   loadVideos(): void {
+    if (!this.currentAdminId || this.currentAdminId.trim() === '') {
+      console.error('No admin ID available');
+      this.isLoading = false;
+      return;
+    }
+
     this.isLoading = true;
 
     this.videoService.getVideosByAdmin(this.currentAdminId)
