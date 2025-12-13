@@ -1,5 +1,5 @@
 <!-- src/app/app.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex flex-col">
   <!-- Toast para notificaciones -->
   <p-toast></p-toast>
 
@@ -13,5 +13,21 @@
   <app-navbar></app-navbar>
 
   <!-- Router Outlet principal -->
-  <router-outlet></router-outlet>
+  <div class="flex-grow">
+    <router-outlet></router-outlet>
+  </div>
+
+  <!-- Footer con crédito de autor -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <p class="footer-text">
+        <span class="footer-icon">💚</span>
+        <span class="footer-creator">Creado por <strong>Adrian Cardenas S</strong></span>
+        <span class="footer-separator">•</span>
+        <span class="footer-year">{{ currentYear }}</span>
+        <span class="footer-separator">•</span>
+        <span class="footer-app">EcoBarómetro</span>
+      </p>
+    </div>
+  </footer>
 </div>

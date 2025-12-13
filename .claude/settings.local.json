@@ -9,7 +9,8 @@
       "Bash(ng generate:*)",
       "Bash(npm run build:*)",
       "Bash(timeout /t 3)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
