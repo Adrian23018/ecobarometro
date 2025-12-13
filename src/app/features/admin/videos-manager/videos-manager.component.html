@@ -2,56 +2,60 @@
 
 <div class="container mx-auto px-4 py-6">
   <!-- Header -->
-  <div class="mb-6">
-    <div class="flex justify-between items-center">
+  <div class="header-section mb-6">
+    <div class="flex justify-between items-center flex-wrap gap-4">
       <div>
-        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-          <span class="text-4xl">🎥</span>
+        <h1 class="text-4xl font-bold flex items-center gap-3 mb-2">
+          <span class="text-5xl">🎥</span>
           <span>Gestión de Videos Educativos</span>
         </h1>
-        <p class="text-gray-600 mt-2">Administra los videos de ayuda para los jugadores</p>
+        <p class="text-lg mt-2">Administra los videos de ayuda para los jugadores</p>
       </div>
       <p-button
-        label="Nuevo Video"
-        icon="pi pi-plus"
+        label="Crear Nuevo Video"
+        icon="pi pi-plus-circle"
         (onClick)="openCreateDialog()"
-        severity="success"
-        size="large">
+        styleClass="p-button-success p-button-lg"
+        [style]="{'background': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 'border': 'none', 'box-shadow': '0 4px 15px rgba(16, 185, 129, 0.4)', 'padding': '0.75rem 2rem', 'font-size': '1.1rem', 'font-weight': '600'}">
       </p-button>
     </div>
   </div>
 
   <!-- Statistics Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <p-card styleClass="shadow-md">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <p-card>
       <div class="text-center">
-        <div class="text-4xl mb-2">📹</div>
-        <div class="text-3xl font-bold text-blue-600">{{ totalVideos }}</div>
-        <div class="text-sm text-gray-600 font-semibold">Videos Totales</div>
+        <div class="stats-card-icon">📹</div>
+        <div class="stats-card-value mb-2">{{ totalVideos }}</div>
+        <div class="text-base text-gray-700 font-bold uppercase tracking-wide">Videos Totales</div>
+        <div class="text-sm text-gray-500 mt-1">En tu biblioteca</div>
       </div>
     </p-card>
 
-    <p-card styleClass="shadow-md">
+    <p-card>
       <div class="text-center">
-        <div class="text-4xl mb-2">👁️</div>
-        <div class="text-3xl font-bold text-purple-600">{{ totalViews }}</div>
-        <div class="text-sm text-gray-600 font-semibold">Visualizaciones</div>
+        <div class="stats-card-icon">👁️</div>
+        <div class="stats-card-value mb-2">{{ totalViews }}</div>
+        <div class="text-base text-gray-700 font-bold uppercase tracking-wide">Visualizaciones</div>
+        <div class="text-sm text-gray-500 mt-1">Total de reproducciones</div>
       </div>
     </p-card>
 
-    <p-card styleClass="shadow-md">
+    <p-card>
       <div class="text-center">
-        <div class="text-4xl mb-2">✅</div>
-        <div class="text-3xl font-bold text-green-600">{{ totalSuccesses }}</div>
-        <div class="text-sm text-gray-600 font-semibold">Completados</div>
+        <div class="stats-card-icon">✅</div>
+        <div class="stats-card-value mb-2">{{ totalSuccesses }}</div>
+        <div class="text-base text-gray-700 font-bold uppercase tracking-wide">Completados</div>
+        <div class="text-sm text-gray-500 mt-1">Mini-juegos terminados</div>
       </div>
     </p-card>
 
-    <p-card styleClass="shadow-md">
+    <p-card>
       <div class="text-center">
-        <div class="text-4xl mb-2">📊</div>
-        <div class="text-3xl font-bold text-orange-600">{{ successRate }}%</div>
-        <div class="text-sm text-gray-600 font-semibold">Tasa de Éxito</div>
+        <div class="stats-card-icon">📊</div>
+        <div class="stats-card-value mb-2">{{ successRate }}%</div>
+        <div class="text-base text-gray-700 font-bold uppercase tracking-wide">Tasa de Éxito</div>
+        <div class="text-sm text-gray-500 mt-1">Efectividad general</div>
       </div>
     </p-card>
   </div>
@@ -84,61 +88,80 @@
       <ng-template pTemplate="body" let-video>
         <tr>
           <td>
-            <img
-              [src]="getThumbnailUrl(video)"
-              [alt]="video.title"
-              class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
-              (click)="openPreview(video)"
-              pTooltip="Click para vista previa">
+            <div class="flex justify-center">
+              <img
+                [src]="getThumbnailUrl(video)"
+                [alt]="video.title"
+                class="video-thumbnail"
+                (click)="openPreview(video)"
+                pTooltip="Click para vista previa completa"
+                tooltipPosition="right">
+            </div>
           </td>
           <td>
-            <div class="font-semibold text-gray-800">{{ video.title }}</div>
-            <div class="text-sm text-gray-500">{{ video.description || 'Sin descripción' }}</div>
+            <div class="font-bold text-gray-900 text-lg mb-1">{{ video.title }}</div>
+            <div class="text-sm text-gray-600 line-clamp-2">
+              {{ video.description || 'Sin descripción' }}
+            </div>
+            <div class="text-xs text-gray-400 mt-1">
+              ID: {{ video.youtube_video_id }}
+            </div>
           </td>
           <td class="text-center">
-            <p-tag [value]="video.completion_threshold + '%'" severity="info"></p-tag>
+            <p-tag
+              [value]="video.completion_threshold + '%'"
+              [style]="{'background': 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 'font-weight': '600', 'padding': '0.5rem 1rem'}">
+            </p-tag>
           </td>
           <td class="text-center">
-            <span class="font-semibold text-purple-600">{{ video.view_count || 0 }}</span>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-2xl font-bold text-purple-600">{{ video.view_count || 0 }}</span>
+              <span class="text-xs text-gray-500">reproducciones</span>
+            </div>
           </td>
           <td class="text-center">
-            <span class="font-semibold text-green-600">{{ video.success_count || 0 }}</span>
+            <div class="flex flex-col items-center gap-1">
+              <span class="text-2xl font-bold text-green-600">{{ video.success_count || 0 }}</span>
+              <span class="text-xs text-gray-500">completados</span>
+            </div>
           </td>
           <td class="text-center">
-            <p-tag [value]="(video.steps?.length || 0) + ' pasos'" severity="warning"></p-tag>
+            <p-tag
+              [value]="(video.steps?.length || 0) + ' pasos'"
+              [severity]="(video.steps?.length || 0) >= 3 ? 'success' : 'danger'"
+              [style]="{'font-weight': '600', 'padding': '0.5rem 1rem'}">
+            </p-tag>
           </td>
           <td class="text-center">
             <p-tag
               [value]="video.is_active ? 'Activo' : 'Inactivo'"
-              [severity]="video.is_active ? 'success' : 'danger'">
+              [severity]="video.is_active ? 'success' : 'danger'"
+              [style]="{'font-weight': '600', 'padding': '0.5rem 1rem', 'text-transform': 'uppercase'}">
             </p-tag>
           </td>
           <td>
-            <div class="flex gap-2 justify-center">
-              <p-button
-                icon="pi pi-eye"
-                (onClick)="openPreview(video)"
-                [rounded]="true"
-                [text]="true"
-                severity="info"
-                pTooltip="Vista previa">
-              </p-button>
-              <p-button
-                icon="pi pi-pencil"
-                (onClick)="openEditDialog(video)"
-                [rounded]="true"
-                [text]="true"
-                severity="warning"
-                pTooltip="Editar">
-              </p-button>
-              <p-button
-                icon="pi pi-trash"
-                (onClick)="deleteVideo(video)"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                pTooltip="Eliminar">
-              </p-button>
+            <div class="flex gap-3 justify-center">
+              <button
+                (click)="openPreview(video)"
+                class="action-button preview-button"
+                pTooltip="Vista previa del video"
+                tooltipPosition="top">
+                <span class="text-2xl">👁️</span>
+              </button>
+              <button
+                (click)="openEditDialog(video)"
+                class="action-button edit-button"
+                pTooltip="Editar video"
+                tooltipPosition="top">
+                <span class="text-2xl">✏️</span>
+              </button>
+              <button
+                (click)="deleteVideo(video)"
+                class="action-button delete-button"
+                pTooltip="Eliminar video"
+                tooltipPosition="top">
+                <span class="text-2xl">🗑️</span>
+              </button>
             </div>
           </td>
         </tr>
@@ -146,11 +169,19 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="8" class="text-center py-8">
-            <div class="text-gray-500">
-              <div class="text-6xl mb-4">📹</div>
-              <p class="text-lg font-semibold">No hay videos educativos todavía</p>
-              <p class="text-sm mt-2">Crea tu primer video para comenzar</p>
+          <td colspan="8" class="text-center py-12">
+            <div class="flex flex-col items-center justify-center">
+              <div class="text-8xl mb-6 animate-bounce">📹</div>
+              <p class="text-2xl font-bold text-gray-700 mb-2">No hay videos educativos todavía</p>
+              <p class="text-base text-gray-500 mb-6">Crea tu primer video para comenzar a ayudar a tus usuarios</p>
+              <p-button
+                label="Crear Primer Video"
+                icon="pi pi-plus-circle"
+                (onClick)="openCreateDialog()"
+                severity="success"
+                size="large"
+                [style]="{'background': 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 'border': 'none', 'padding': '0.75rem 2rem', 'font-size': '1.1rem'}">
+              </p-button>
             </div>
           </td>
         </tr>
