@@ -113,8 +113,8 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error de Acceso',
-          detail: result.error || 'Credenciales incorrectas',
-          life: 5000
+          detail: result.error || 'Credenciales incorrectas.',
+          life: 1500000
         });
       }
     } catch (error) {
