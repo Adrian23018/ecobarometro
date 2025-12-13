@@ -25,15 +25,18 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { Question, QuestionOption, GameQuestion } from '../../../core/models/question';
 import { User, UserResponse } from '../../../core/models/user';
 import { GameSession, ActiveGameSession } from '../../../core/models/game-session';
+import { EducationalVideo, VideoHelpResult } from '../../../core/models/educational-video';
 
 // Services
 import { GameSessionService } from '../../../core/services/game-session.service';
 import { QuestionsService } from '../../../core/services/questions.service';
 import { UserService } from '../../../core/services/user.service';
+import { VideoService } from '../../../core/services/video.service';
 import { FilterPipe } from '../../../shared/pipes/filter.pipe';
 
 // Components
 import { BackButtonComponent } from '../../../shared/components/back-button/back-button.component';
+import { VideoHelpComponent } from '../../../shared/components/video-help/video-help.component';
 
 interface GameStats {
   currentQuestionNumber: number;
@@ -63,7 +66,8 @@ interface GameStats {
     AvatarModule,
     ConfirmDialogModule,
     FilterPipe,
-    BackButtonComponent
+    BackButtonComponent,
+    VideoHelpComponent
   ],
   templateUrl: './game-play.component.html',
   styleUrls: ['./game-play.component.css'],
@@ -106,6 +110,12 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   showFeedback = false;
   feedbackType: 'correct' | 'incorrect' | null = null;
 
+  // Video Help
+  showVideoHelp = false;
+  currentVideo: EducationalVideo | null = null;
+  canUseVideoHelp = false;
+  videoHelpUsed = false;
+
   // Make String available in template
   String = String;
 
@@ -115,6 +125,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     private gameSessionService: GameSessionService,
     private questionsService: QuestionsService,
     private userService: UserService,
+    private videoService: VideoService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
@@ -124,7 +135,28 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.sessionId = params['sessionId'];
       this.initializeGame();
+      this.checkVideoHelpAvailability();
     });
+  }
+
+  /**
+   * Verificar si el usuario puede usar la ayuda de video en esta partida
+   */
+  checkVideoHelpAvailability(): void {
+    if (!this.sessionId) return;
+
+    this.videoService.hasUsedVideoHelp(this.sessionId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (hasUsed) => {
+          this.videoHelpUsed = hasUsed;
+          this.canUseVideoHelp = !hasUsed;
+        },
+        error: (err) => {
+          console.error('Error checking video help availability:', err);
+          this.canUseVideoHelp = false;
+        }
+      });
   }
 
   ngOnDestroy(): void {
@@ -326,6 +358,24 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     } else {
       this.gameStats.streakCount = 0;
       this.feedbackType = 'incorrect';
+
+      // Si es incorrecta Y puede usar video help, NO avanzar automáticamente
+      if (this.canUseVideoHelp && !this.videoHelpUsed) {
+        this.showFeedback = true;
+        this.isSubmitting = false;
+
+        // Save response to backend
+        try {
+          await this.gameSessionService.submitResponse(response).toPromise();
+        } catch (error) {
+          console.error('Error saving response:', error);
+        }
+
+        this.gameSession.responses.push(response);
+
+        // Mostrar opción de ayuda en lugar de avanzar
+        return; // Salir temprano
+      }
     }
 
     this.gameStats.totalPoints += response.points_earned;
@@ -340,6 +390,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     } catch (error) {
       console.error('Error saving response:', error);
     }
+
+    this.isSubmitting = false;
 
     // Move to next question after delay
     setTimeout(() => {
@@ -690,5 +742,106 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         ]
       }
     ];
+  }
+
+  // ==================== VIDEO HELP METHODS ====================
+
+  /**
+   * Abrir modal de ayuda con video educativo
+   */
+  openVideoHelp(): void {
+    if (!this.canUseVideoHelp || this.videoHelpUsed) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Ayuda no disponible',
+        detail: 'Ya has usado la ayuda de video en esta partida',
+        life: 3000
+      });
+      return;
+    }
+
+    const userData = localStorage.getItem('ecobarometro_user');
+    if (!userData) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No se pudo obtener la información del usuario',
+        life: 3000
+      });
+      return;
+    }
+
+    const user = JSON.parse(userData);
+
+    // Obtener video aleatorio
+    this.videoService.getRandomVideo(user.admin_id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (video) => {
+          this.currentVideo = video;
+          this.showVideoHelp = true;
+        },
+        error: (err) => {
+          console.error('Error loading video:', err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo cargar el video educativo. Es posible que no haya videos disponibles.',
+            life: 4000
+          });
+        }
+      });
+  }
+
+  /**
+   * Manejar completación exitosa del video help
+   */
+  onVideoHelpCompleted(result: VideoHelpResult): void {
+    // Aplicar bonificaciones
+    this.gameStats.timeRemaining += result.time_bonus; // +30s
+    this.gameStats.totalPoints += result.points_bonus; // +10 puntos
+
+    // Marcar como usado
+    this.videoHelpUsed = true;
+    this.canUseVideoHelp = false;
+
+    // Mostrar mensaje de éxito
+    this.messageService.add({
+      severity: 'success',
+      summary: '¡Bonificación aplicada!',
+      detail: `+${result.time_bonus}s de tiempo y +${result.points_bonus} puntos ganados`,
+      life: 5000
+    });
+
+    // Cerrar modal
+    this.showVideoHelp = false;
+    this.currentVideo = null;
+
+    // Continuar con siguiente pregunta después de un breve delay
+    setTimeout(() => {
+      this.nextQuestion();
+    }, 1500);
+  }
+
+  /**
+   * Manejar cancelación del video help
+   */
+  onVideoHelpCancelled(): void {
+    this.showVideoHelp = false;
+    this.currentVideo = null;
+
+    // Continuar con siguiente pregunta
+    setTimeout(() => {
+      this.nextQuestion();
+    }, 500);
+  }
+
+  /**
+   * Continuar sin usar la ayuda de video
+   */
+  continueWithoutHelp(): void {
+    setTimeout(() => {
+      this.nextQuestion();
+    }, 500);
   }
 }

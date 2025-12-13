@@ -58,6 +58,11 @@ const routes: Routes = [
         title: 'Gestión de Logros - EcoBarómetro Admin'
       },
       {
+        path: 'videos',
+        loadComponent: () => import('./videos-manager/videos-manager.component').then(m => m.VideosManagerComponent),
+        title: 'Gestión de Videos Educativos - EcoBarómetro Admin'
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./settings/settings.component').then(m => m.SettingsComponent),
         title: 'Configuración - EcoBarómetro Admin'

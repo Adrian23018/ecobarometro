@@ -133,6 +133,37 @@
                 </div>
               </div>
             </div>
+
+            <!-- Video Help Option (only shows after incorrect answer if eligible) -->
+            <div *ngIf="feedbackType === 'incorrect' && canUseVideoHelp && !videoHelpUsed"
+                 class="mt-4 pt-4 border-t border-red-300">
+              <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-blue-300">
+                <div class="flex items-start gap-3">
+                  <div class="text-3xl flex-shrink-0">🎥</div>
+                  <div class="flex-1">
+                    <h5 class="font-bold text-gray-800 mb-2">¿Necesitas ayuda?</h5>
+                    <p class="text-sm text-gray-700 mb-3">
+                      Mira un video educativo y completa un desafío para ganar
+                      <span class="font-bold text-blue-600">+30 segundos</span> y
+                      <span class="font-bold text-green-600">+10 puntos</span>
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        (click)="openVideoHelp()"
+                        class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2">
+                        <span>🎓</span>
+                        <span>Ver Video Educativo</span>
+                      </button>
+                      <button
+                        (click)="continueWithoutHelp()"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200">
+                        Continuar sin ayuda
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Streak Indicator -->
@@ -255,6 +286,16 @@
     </div>
   </p-card>
 </div>
+
+<!-- Video Help Modal -->
+<app-video-help
+  [(visible)]="showVideoHelp"
+  [video]="currentVideo"
+  [gameSessionId]="sessionId"
+  [userId]="currentUser?.id || ''"
+  (completed)="onVideoHelpCompleted($event)"
+  (cancelled)="onVideoHelpCancelled()">
+</app-video-help>
 
 <!-- Toast Messages -->
 <p-toast></p-toast>

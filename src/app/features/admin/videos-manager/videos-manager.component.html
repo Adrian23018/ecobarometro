@@ -1,0 +1,425 @@
+<!-- src/app/features/admin/videos-manager/videos-manager.component.html -->
+
+<div class="container mx-auto px-4 py-6">
+  <!-- Header -->
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <span class="text-4xl">🎥</span>
+          <span>Gestión de Videos Educativos</span>
+        </h1>
+        <p class="text-gray-600 mt-2">Administra los videos de ayuda para los jugadores</p>
+      </div>
+      <p-button
+        label="Nuevo Video"
+        icon="pi pi-plus"
+        (onClick)="openCreateDialog()"
+        severity="success"
+        size="large">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <p-card styleClass="shadow-md">
+      <div class="text-center">
+        <div class="text-4xl mb-2">📹</div>
+        <div class="text-3xl font-bold text-blue-600">{{ totalVideos }}</div>
+        <div class="text-sm text-gray-600 font-semibold">Videos Totales</div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-md">
+      <div class="text-center">
+        <div class="text-4xl mb-2">👁️</div>
+        <div class="text-3xl font-bold text-purple-600">{{ totalViews }}</div>
+        <div class="text-sm text-gray-600 font-semibold">Visualizaciones</div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-md">
+      <div class="text-center">
+        <div class="text-4xl mb-2">✅</div>
+        <div class="text-3xl font-bold text-green-600">{{ totalSuccesses }}</div>
+        <div class="text-sm text-gray-600 font-semibold">Completados</div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="shadow-md">
+      <div class="text-center">
+        <div class="text-4xl mb-2">📊</div>
+        <div class="text-3xl font-bold text-orange-600">{{ successRate }}%</div>
+        <div class="text-sm text-gray-600 font-semibold">Tasa de Éxito</div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Videos Table -->
+  <p-card styleClass="shadow-lg">
+    <p-table
+      [value]="videos"
+      [loading]="isLoading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} videos"
+      styleClass="p-datatable-gridlines">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 80px;">Vista Previa</th>
+          <th>Título</th>
+          <th style="width: 100px;">Umbral</th>
+          <th style="width: 100px;">Vistas</th>
+          <th style="width: 100px;">Completados</th>
+          <th style="width: 100px;">Pasos</th>
+          <th style="width: 120px;">Estado</th>
+          <th style="width: 200px;">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-video>
+        <tr>
+          <td>
+            <img
+              [src]="getThumbnailUrl(video)"
+              [alt]="video.title"
+              class="w-16 h-12 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+              (click)="openPreview(video)"
+              pTooltip="Click para vista previa">
+          </td>
+          <td>
+            <div class="font-semibold text-gray-800">{{ video.title }}</div>
+            <div class="text-sm text-gray-500">{{ video.description || 'Sin descripción' }}</div>
+          </td>
+          <td class="text-center">
+            <p-tag [value]="video.completion_threshold + '%'" severity="info"></p-tag>
+          </td>
+          <td class="text-center">
+            <span class="font-semibold text-purple-600">{{ video.view_count || 0 }}</span>
+          </td>
+          <td class="text-center">
+            <span class="font-semibold text-green-600">{{ video.success_count || 0 }}</span>
+          </td>
+          <td class="text-center">
+            <p-tag [value]="(video.steps?.length || 0) + ' pasos'" severity="warning"></p-tag>
+          </td>
+          <td class="text-center">
+            <p-tag
+              [value]="video.is_active ? 'Activo' : 'Inactivo'"
+              [severity]="video.is_active ? 'success' : 'danger'">
+            </p-tag>
+          </td>
+          <td>
+            <div class="flex gap-2 justify-center">
+              <p-button
+                icon="pi pi-eye"
+                (onClick)="openPreview(video)"
+                [rounded]="true"
+                [text]="true"
+                severity="info"
+                pTooltip="Vista previa">
+              </p-button>
+              <p-button
+                icon="pi pi-pencil"
+                (onClick)="openEditDialog(video)"
+                [rounded]="true"
+                [text]="true"
+                severity="warning"
+                pTooltip="Editar">
+              </p-button>
+              <p-button
+                icon="pi pi-trash"
+                (onClick)="deleteVideo(video)"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
+                pTooltip="Eliminar">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-8">
+            <div class="text-gray-500">
+              <div class="text-6xl mb-4">📹</div>
+              <p class="text-lg font-semibold">No hay videos educativos todavía</p>
+              <p class="text-sm mt-2">Crea tu primer video para comenzar</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="8">
+            <div class="flex flex-col gap-2">
+              <p-skeleton height="3rem"></p-skeleton>
+              <p-skeleton height="3rem"></p-skeleton>
+              <p-skeleton height="3rem"></p-skeleton>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Create/Edit Dialog -->
+<p-dialog
+  [(visible)]="showDialog"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [style]="{ width: '90vw', maxWidth: '800px' }"
+  [breakpoints]="{ '960px': '95vw' }"
+  [header]="editMode ? 'Editar Video' : 'Crear Nuevo Video'"
+  styleClass="video-form-dialog">
+
+  <form [formGroup]="videoForm" class="space-y-4">
+    <!-- Title -->
+    <div class="field">
+      <label for="title" class="block font-semibold mb-2 text-gray-700">
+        Título <span class="text-red-500">*</span>
+      </label>
+      <input
+        pInputText
+        id="title"
+        formControlName="title"
+        placeholder="Ej: Cuidado del Agua"
+        class="w-full"
+        maxlength="255">
+      <small *ngIf="videoForm.get('title')?.invalid && videoForm.get('title')?.touched" class="text-red-500">
+        El título es requerido (máximo 255 caracteres)
+      </small>
+    </div>
+
+    <!-- Description -->
+    <div class="field">
+      <label for="description" class="block font-semibold mb-2 text-gray-700">Descripción</label>
+      <textarea
+        pInputTextarea
+        id="description"
+        formControlName="description"
+        placeholder="Descripción breve del video"
+        rows="3"
+        class="w-full"
+        maxlength="500">
+      </textarea>
+    </div>
+
+    <!-- YouTube URL -->
+    <div class="field">
+      <label for="youtube_url" class="block font-semibold mb-2 text-gray-700">
+        URL de YouTube <span class="text-red-500">*</span>
+      </label>
+      <input
+        pInputText
+        id="youtube_url"
+        formControlName="youtube_url"
+        placeholder="https://www.youtube.com/watch?v=..."
+        class="w-full">
+      <small *ngIf="videoForm.get('youtube_url')?.invalid && videoForm.get('youtube_url')?.touched" class="text-red-500">
+        Ingresa una URL válida de YouTube
+      </small>
+    </div>
+
+    <!-- Completion Threshold -->
+    <div class="field">
+      <label for="completion_threshold" class="block font-semibold mb-2 text-gray-700">
+        Umbral de Completitud (%) <span class="text-red-500">*</span>
+      </label>
+      <p-inputNumber
+        id="completion_threshold"
+        formControlName="completion_threshold"
+        [min]="10"
+        [max]="100"
+        [step]="5"
+        suffix="%"
+        class="w-full">
+      </p-inputNumber>
+      <small class="text-gray-500">Porcentaje mínimo que debe ver el usuario para desbloquear el mini-juego</small>
+    </div>
+
+    <p-divider></p-divider>
+
+    <!-- Steps Section -->
+    <div class="field">
+      <div class="flex justify-between items-center mb-3">
+        <label class="block font-semibold text-gray-700">
+          Pasos del Desafío <span class="text-red-500">* (mínimo 3)</span>
+        </label>
+        <p-button
+          label="Agregar Paso"
+          icon="pi pi-plus"
+          (onClick)="addStep()"
+          [text]="true"
+          size="small">
+        </p-button>
+      </div>
+
+      <div
+        cdkDropList
+        (cdkDropListDropped)="onStepDrop($event)"
+        class="space-y-3">
+        <div
+          *ngFor="let stepControl of stepsArray.controls; let i = index"
+          cdkDrag
+          class="bg-gray-50 p-4 rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors"
+          [formGroup]="getStepFormGroup(i)">
+
+          <div class="flex items-start gap-3">
+            <!-- Drag Handle -->
+            <div class="drag-handle text-2xl text-gray-400 cursor-grab active:cursor-grabbing mt-6">
+              ⋮⋮
+            </div>
+
+            <!-- Step Content -->
+            <div class="flex-1 space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-blue-600">Paso {{ i + 1 }}</span>
+              </div>
+
+              <div class="field">
+                <label [for]="'step_text_' + i" class="block text-sm font-semibold mb-1">
+                  Texto del paso <span class="text-red-500">*</span>
+                </label>
+                <input
+                  pInputText
+                  [id]="'step_text_' + i"
+                  formControlName="step_text"
+                  placeholder="Ej: Cerrar la llave mientras te cepillas los dientes"
+                  class="w-full"
+                  maxlength="200">
+              </div>
+
+              <div class="field">
+                <label [for]="'hint_' + i" class="block text-sm font-semibold mb-1">Pista (opcional)</label>
+                <input
+                  pInputText
+                  [id]="'hint_' + i"
+                  formControlName="hint"
+                  placeholder="Pista para ayudar al usuario"
+                  class="w-full"
+                  maxlength="150">
+              </div>
+            </div>
+
+            <!-- Remove Button -->
+            <button
+              type="button"
+              (click)="removeStep(i)"
+              class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors mt-6"
+              [disabled]="stepsArray.length <= 1">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <small *ngIf="stepsArray.length < 3" class="text-red-500 block mt-2">
+        Debes agregar al menos 3 pasos
+      </small>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-between gap-2">
+      <p-button
+        label="Cancelar"
+        icon="pi pi-times"
+        (onClick)="showDialog = false"
+        severity="secondary"
+        [text]="true">
+      </p-button>
+      <p-button
+        [label]="editMode ? 'Actualizar' : 'Crear'"
+        icon="pi pi-check"
+        (onClick)="saveVideo()"
+        [disabled]="videoForm.invalid || stepsArray.length < 3"
+        severity="success">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Preview Dialog -->
+<p-dialog
+  [(visible)]="showPreviewDialog"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [style]="{ width: '90vw', maxWidth: '900px' }"
+  [header]="previewVideo?.title || 'Vista Previa'"
+  styleClass="video-preview-dialog">
+
+  <div *ngIf="previewVideo">
+    <!-- Video Preview -->
+    <div class="mb-4">
+      <div class="video-container relative rounded-lg overflow-hidden shadow-lg"
+           style="padding-bottom: 56.25%; height: 0;">
+        <iframe
+          [src]="getPreviewUrl(previewVideo) | safe:'resourceUrl'"
+          class="absolute top-0 left-0 w-full h-full"
+          frameborder="0"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+    <!-- Video Details -->
+    <div class="space-y-3">
+      <div>
+        <span class="font-semibold text-gray-700">Descripción:</span>
+        <p class="text-gray-600 mt-1">{{ previewVideo.description || 'Sin descripción' }}</p>
+      </div>
+
+      <div class="flex gap-4">
+        <div>
+          <span class="font-semibold text-gray-700">Umbral:</span>
+          <span class="ml-2 text-blue-600">{{ previewVideo.completion_threshold }}%</span>
+        </div>
+        <div>
+          <span class="font-semibold text-gray-700">Vistas:</span>
+          <span class="ml-2 text-purple-600">{{ previewVideo.view_count || 0 }}</span>
+        </div>
+        <div>
+          <span class="font-semibold text-gray-700">Completados:</span>
+          <span class="ml-2 text-green-600">{{ previewVideo.success_count || 0 }}</span>
+        </div>
+      </div>
+
+      <!-- Steps Preview -->
+      <div *ngIf="previewVideo.steps && previewVideo.steps.length > 0">
+        <span class="font-semibold text-gray-700 block mb-2">Pasos del Desafío:</span>
+        <ol class="list-decimal list-inside space-y-2">
+          <li *ngFor="let step of previewVideo.steps" class="text-gray-700">
+            {{ step.step_text }}
+            <span *ngIf="step.hint" class="text-sm text-gray-500 block ml-6">💡 {{ step.hint }}</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cerrar"
+      icon="pi pi-times"
+      (onClick)="showPreviewDialog = false"
+      severity="secondary">
+    </p-button>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirm Dialog -->
+<p-confirmDialog></p-confirmDialog>
