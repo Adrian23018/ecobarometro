@@ -113,8 +113,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   // Video Help
   showVideoHelp = false;
   currentVideo: EducationalVideo | null = null;
-  canUseVideoHelp = false;
-  videoHelpUsed = false;
+  canUseVideoHelp = true; // Siempre disponible
+  videoHelpUsedForCurrentQuestion = false; // Se resetea con cada pregunta
 
   // Make String available in template
   String = String;
@@ -135,28 +135,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.route.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.sessionId = params['sessionId'];
       this.initializeGame();
-      this.checkVideoHelpAvailability();
     });
-  }
-
-  /**
-   * Verificar si el usuario puede usar la ayuda de video en esta partida
-   */
-  checkVideoHelpAvailability(): void {
-    if (!this.sessionId) return;
-
-    this.videoService.hasUsedVideoHelp(this.sessionId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (hasUsed) => {
-          this.videoHelpUsed = hasUsed;
-          this.canUseVideoHelp = !hasUsed;
-        },
-        error: (err) => {
-          console.error('Error checking video help availability:', err);
-          this.canUseVideoHelp = false;
-        }
-      });
   }
 
   ngOnDestroy(): void {
@@ -359,8 +338,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       this.gameStats.streakCount = 0;
       this.feedbackType = 'incorrect';
 
-      // Si es incorrecta Y puede usar video help, NO avanzar automáticamente
-      if (this.canUseVideoHelp && !this.videoHelpUsed) {
+      // Si es incorrecta Y puede usar video help (y no lo ha usado para esta pregunta), NO avanzar automáticamente
+      if (this.canUseVideoHelp && !this.videoHelpUsedForCurrentQuestion) {
         this.showFeedback = true;
         this.isSubmitting = false;
 
@@ -443,6 +422,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.showFeedback = false;
     this.feedbackType = null;
     this.questionTransition = true;
+
+    // Resetear la ayuda de video para la nueva pregunta
+    this.videoHelpUsedForCurrentQuestion = false;
 
     if (this.gameSession) {
       this.gameSession.current_question_index++;
@@ -750,11 +732,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
    * Abrir modal de ayuda con video educativo
    */
   openVideoHelp(): void {
-    if (!this.canUseVideoHelp || this.videoHelpUsed) {
+    if (!this.canUseVideoHelp || this.videoHelpUsedForCurrentQuestion) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Ayuda no disponible',
-        detail: 'Ya has usado la ayuda de video en esta partida',
+        detail: 'Ya has usado la ayuda de video para esta pregunta',
         life: 3000
       });
       return;
@@ -801,9 +783,8 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.gameStats.timeRemaining += result.time_bonus; // +30s
     this.gameStats.totalPoints += result.points_bonus; // +10 puntos
 
-    // Marcar como usado
-    this.videoHelpUsed = true;
-    this.canUseVideoHelp = false;
+    // Marcar como usado solo para esta pregunta
+    this.videoHelpUsedForCurrentQuestion = true;
 
     // Mostrar mensaje de éxito
     this.messageService.add({

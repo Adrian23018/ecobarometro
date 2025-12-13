@@ -135,7 +135,7 @@
             </div>
 
             <!-- Video Help Option (only shows after incorrect answer if eligible) -->
-            <div *ngIf="feedbackType === 'incorrect' && canUseVideoHelp && !videoHelpUsed"
+            <div *ngIf="feedbackType === 'incorrect' && canUseVideoHelp && !videoHelpUsedForCurrentQuestion"
                  class="mt-4 pt-4 border-t border-red-300">
               <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-blue-300">
                 <div class="flex items-start gap-3">
