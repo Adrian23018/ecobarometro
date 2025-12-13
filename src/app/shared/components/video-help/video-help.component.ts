@@ -317,13 +317,23 @@ export class VideoHelpComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   shuffleSteps(): void {
+    console.log('shuffleSteps - video:', this.video);
+    console.log('shuffleSteps - steps:', this.video?.steps);
+
     if (!this.video?.steps || this.video.steps.length === 0) {
-      console.error('No hay pasos para mezclar');
+      console.error('No hay pasos para mezclar. Video:', this.video);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Este video no tiene pasos configurados. Por favor contacta al administrador.',
+        life: 5000
+      });
       return;
     }
 
     // Copiar y mezclar pasos
     this.shuffledSteps = [...this.video.steps].sort(() => Math.random() - 0.5);
+    console.log('shuffledSteps resultado:', this.shuffledSteps);
   }
 
   onStepDrop(event: CdkDragDrop<VideoStep[]>): void {
