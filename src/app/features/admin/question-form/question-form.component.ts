@@ -286,9 +286,7 @@ export class QuestionFormComponent implements OnInit {
       category_id: v.category_id,
       question_type: v.question_type,
       difficulty_level: v.difficulty_level,
-      explanation: v.explanation,
       points: v.points,
-      time_limit: v.time_limit,
       options: []
     };
 
