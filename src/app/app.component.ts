@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RoleIndicatorComponent } from './shared/components/role-indicator/role-indicator.component';
+import { NavbarComponent } from './shared/components/navbar/navbar.component';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,8 @@ import { RoleIndicatorComponent } from './shared/components/role-indicator/role-
     RouterOutlet,
     ToastModule,
     ConfirmDialogModule,
-    RoleIndicatorComponent
+    RoleIndicatorComponent,
+    NavbarComponent
   ]
 })
 export class AppComponent {

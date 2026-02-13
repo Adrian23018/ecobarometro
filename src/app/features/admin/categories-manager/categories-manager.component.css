@@ -3,6 +3,7 @@
    ============================================ */
 .categories-manager {
   padding: 2rem;
+  padding-bottom: 5rem;
   min-height: 100vh;
   background: #f8fafc;
 }

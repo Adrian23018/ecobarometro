@@ -1,5 +1,6 @@
 // src/app/shared/components/navbar/navbar.component.ts
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -23,6 +24,8 @@ interface NavbarUser {
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   @ViewChild('hamburgerMenu', { static: false }) hamburgerMenu!: ElementRef;
@@ -33,75 +36,24 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   // Menu items for different user types
   userMenuItems = [
-    {
-      label: 'Dashboard',
-      icon: 'pi pi-home',
-      route: '/user/dashboard',
-      roles: ['user']
-    },
-    {
-      label: 'Jugar EcoChallenge',
-      icon: 'pi pi-play',
-      route: '/game/play',
-      roles: ['user']
-    },
-    {
-      label: 'Mi Perfil',
-      icon: 'pi pi-user',
-      route: '/user/profile',
-      roles: ['user']
-    },
-    {
-      label: 'Logros',
-      icon: 'pi pi-trophy',
-      route: '/user/achievements',
-      roles: ['user']
-    },
-    {
-      label: 'Configuración',
-      icon: 'pi pi-cog',
-      route: '/user/settings',
-      roles: ['user']
-    }
+    { label: 'Dashboard',         icon: 'pi pi-home',      route: '/user/dashboard',     roles: ['user'] },
+    { label: 'Jugar EcoChallenge',icon: 'pi pi-play',      route: '/game/lobby',         roles: ['user'] },
+    { label: 'Ranking Global',    icon: 'pi pi-chart-bar', route: '/game/leaderboard',   roles: ['user'] },
+    { label: 'Mi Ranking',        icon: 'pi pi-trophy',    route: '/user/ranking',       roles: ['user'] },
+    { label: 'Mis Logros',        icon: 'pi pi-star',      route: '/user/achievements',  roles: ['user'] },
+    { label: 'Mi Perfil',         icon: 'pi pi-user',      route: '/user/profile',       roles: ['user'] },
   ];
 
   adminMenuItems = [
-    {
-      label: 'Panel Admin',
-      icon: 'pi pi-desktop',
-      route: '/admin/dashboard',
-      roles: ['admin']
-    },
-    {
-      label: 'Gestionar Preguntas',
-      icon: 'pi pi-question-circle',
-      route: '/admin/questions',
-      roles: ['admin']
-    },
-    {
-      label: 'Usuarios',
-      icon: 'pi pi-users',
-      route: '/admin/users',
-      roles: ['admin']
-    },
-    {
-      label: 'Reportes',
-      icon: 'pi pi-chart-bar',
-      route: '/admin/reports',
-      roles: ['admin']
-    },
-    {
-      label: 'Mi Perfil',
-      icon: 'pi pi-user',
-      route: '/admin/profile',
-      roles: ['admin']
-    },
-    {
-      label: 'Configuración',
-      icon: 'pi pi-cog',
-      route: '/admin/settings',
-      roles: ['admin']
-    }
+    { label: 'Panel Admin',       icon: 'pi pi-desktop',        route: '/admin/dashboard',    roles: ['admin'] },
+    { label: 'Categorías',        icon: 'pi pi-tags',           route: '/admin/categories',   roles: ['admin'] },
+    { label: 'Preguntas',         icon: 'pi pi-question-circle',route: '/admin/questions',    roles: ['admin'] },
+    { label: 'Usuarios',          icon: 'pi pi-users',          route: '/admin/users',        roles: ['admin'] },
+    { label: 'Analíticas',        icon: 'pi pi-chart-bar',      route: '/admin/analytics',    roles: ['admin'] },
+    { label: 'Logros',            icon: 'pi pi-star',           route: '/admin/achievements', roles: ['admin'] },
+    { label: 'Videos',            icon: 'pi pi-video',          route: '/admin/videos',       roles: ['admin'] },
+    { label: 'Mi Perfil',         icon: 'pi pi-user',           route: '/admin/profile',      roles: ['admin'] },
+    { label: 'Configuración',     icon: 'pi pi-cog',            route: '/admin/settings',     roles: ['admin'] },
   ];
 
   constructor(
