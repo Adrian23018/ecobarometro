@@ -1,453 +1,227 @@
-<div class="user-analytics">
-      <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
-        <div>
-          <h1 class="text-3xl font-bold text-900 mb-2">📊 Análisis de Usuarios</h1>
-          <p class="text-600">Métricas y estadísticas detalladas de tu EcoBarómetro</p>
-        </div>
-        <div class="flex gap-2 mt-3 lg:mt-0">
-          <p-button 
-            label="Exportar Reporte"
-            icon="pi pi-download"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="exportReport()"
-          />
-          <p-button 
-            label="Ver Usuarios"
-            icon="pi pi-users"
-            [routerLink]="['/admin/users']"
-          />
-        </div>
-      </div>
+<div class="ua-page">
+  <p-toast position="top-right"></p-toast>
 
-      <!-- Filters -->
-      <p-card styleClass="mb-4">
-        <div class="grid">
-          <div class="col-12 md:col-3">
-            <label class="block text-900 font-medium mb-2">Período</label>
-            <p-calendar 
-              [(ngModel)]="filters.dateRange"
-              [selectionMode]="'range'"
-              [readonlyInput]="true"
-              placeholder="Seleccionar período"
-              class="w-full"
-              (onSelect)="updateAnalytics()"
-            />
-          </div>
-          <div class="col-12 md:col-3">
-            <label class="block text-900 font-medium mb-2">Categorías</label>
-            <p-multiSelect 
-              [options]="categoryOptions"
-              [(ngModel)]="filters.categories"
-              placeholder="Todas las categorías"
-              [showToggleAll]="true"
-              [showHeader]="true"
-              class="w-full"
-              (onChange)="updateAnalytics()"
-            />
-          </div>
-          <div class="col-12 md:col-3">
-            <label class="block text-900 font-medium mb-2">Estado de Usuario</label>
-            <p-dropdown 
-              [options]="userStatusOptions"
-              [(ngModel)]="filters.userStatus"
-              placeholder="Todos los usuarios"
-              class="w-full"
-              (onChange)="updateAnalytics()"
-            />
-          </div>
-          <div class="col-12 md:col-3">
-            <label class="block text-900 font-medium mb-2">Marco Temporal</label>
-            <p-dropdown 
-              [options]="timeframeOptions"
-              [(ngModel)]="filters.timeframe"
-              class="w-full"
-              (onChange)="updateAnalytics()"
-            />
-          </div>
-        </div>
-      </p-card>
-
-      <!-- Key Metrics Cards -->
-      <div class="grid mb-4">
-        <div class="col-12 md:col-6 xl:col-3">
-          <p-card styleClass="text-center h-full">
-            <div class="text-3xl font-bold text-blue-500 mb-2">{{ metrics.totalUsers | number }}</div>
-            <div class="text-600 mb-2">Usuarios Totales</div>
-            <div class="flex align-items-center justify-content-center gap-1">
-              <i class="pi pi-arrow-up text-green-500 text-sm"></i>
-              <span class="text-green-500 text-sm">+{{ metrics.newUsersThisMonth }} este mes</span>
-            </div>
-          </p-card>
-        </div>
-        
-        <div class="col-12 md:col-6 xl:col-3">
-          <p-card styleClass="text-center h-full">
-            <div class="text-3xl font-bold text-green-500 mb-2">{{ metrics.activeUsers | number }}</div>
-            <div class="text-600 mb-2">Usuarios Activos</div>
-            <p-progressBar 
-              [value]="(metrics.activeUsers / metrics.totalUsers) * 100"
-              [showValue]="false"
-              styleClass="h-1rem"
-            />
-          </p-card>
-        </div>
-        
-        <div class="col-12 md:col-6 xl:col-3">
-          <p-card styleClass="text-center h-full">
-            <div class="text-3xl font-bold text-orange-500 mb-2">{{ metrics.avgScore }}%</div>
-            <div class="text-600 mb-2">Puntuación Promedio</div>
-            <p-knob 
-              [(ngModel)]="metrics.avgScore"
-              [readonly]="true"
-              [size]="60"
-              [strokeWidth]="8"
-              valueColor="#f97316"
-              rangeColor="#e5e7eb"
-            />
-          </p-card>
-        </div>
-        
-        <div class="col-12 md:col-6 xl:col-3">
-          <p-card styleClass="text-center h-full">
-            <div class="text-3xl font-bold text-purple-500 mb-2">{{ metrics.completionRate }}%</div>
-            <div class="text-600 mb-2">Tasa de Finalización</div>
-            <div class="text-sm text-500">{{ metrics.totalGamesSessions }} partidas jugadas</div>
-          </p-card>
-        </div>
-      </div>
-
-      <!-- Tabs Content -->
-      <p-tabView [(activeIndex)]="activeTabIndex">
-        <!-- Overview Tab -->
-        <p-tabPanel header="Resumen" leftIcon="pi pi-chart-line">
-          <div class="grid">
-            <!-- User Activity Chart -->
-            <div class="col-12 xl:col-8">
-              <p-card header="Actividad de Usuarios" styleClass="h-full">
-                <p-chart 
-                  type="line" 
-                  [data]="userActivityChart" 
-                  [options]="lineChartOptions"
-                  height="300"
-                />
-              </p-card>
-            </div>
-            
-            <!-- User Distribution -->
-            <div class="col-12 xl:col-4">
-              <p-card header="Distribución por Nivel" styleClass="h-full">
-                <p-chart 
-                  type="doughnut" 
-                  [data]="userLevelChart" 
-                  [options]="doughnutChartOptions"
-                  height="300"
-                />
-              </p-card>
-            </div>
-            
-            <!-- Recent Activity -->
-            <div class="col-12 md:col-6">
-              <p-card header="Actividad Reciente" styleClass="h-full">
-                <div class="flex flex-column gap-3">
-                  <div 
-                    *ngFor="let activity of recentActivity"
-                    class="flex align-items-center gap-3 p-2 border-round surface-hover"
-                  >
-                    <p-avatar 
-                      [image]="activity.user?.avatar_url"
-                      [label]="activity.user?.full_name?.charAt(0) || '?'"
-                      size="normal"
-                      shape="circle"
-                    />
-                    <div class="flex-1">
-                      <div class="font-medium">{{ activity.description }}</div>
-                      <small class="text-500">{{ activity.timestamp | date:'short' }}</small>
-                    </div>
-                    <p-tag 
-                      [value]="activity.type" 
-                      [severity]="getActivitySeverity(activity.type)"
-                      size="small"
-                    />
-                  </div>
-                </div>
-              </p-card>
-            </div>
-            
-            <!-- Top Performers -->
-            <div class="col-12 md:col-6">
-              <p-card header="Top Performers" styleClass="h-full">
-                <p-table 
-                  [value]="topPerformers" 
-                  [paginator]="false"
-                  styleClass="p-datatable-sm"
-                >
-                  <ng-template pTemplate="header">
-                    <tr>
-                      <th>Usuario</th>
-                      <th>Puntos</th>
-                      <th>Nivel</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template pTemplate="body" let-user let-i="rowIndex">
-                    <tr>
-                      <td>
-                        <div class="flex align-items-center gap-2">
-                          <p-badge 
-                            [value]="i + 1" 
-                            [severity]="getRankSeverity(i)"
-                            size="large"
-                          />
-                          <p-avatar 
-                            [image]="user.avatar_url"
-                            [label]="user.full_name?.charAt(0) || '?'"
-                            size="normal"
-                            shape="circle"
-                          />
-                          <div>
-                            <div class="font-medium text-sm">{{ user.full_name }}</div>
-                            <small class="text-500">{{ user.username }}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p-tag 
-                          [value]="(user.total_points | number) || ''" 
-                          severity="success"
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <p-badge 
-                          [value]="user.level" 
-                          severity="info"
-                          size="large"
-                        />
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </p-card>
-            </div>
-          </div>
-        </p-tabPanel>
-
-        <!-- Performance by Category Tab -->
-        <p-tabPanel header="Rendimiento por Categoría" leftIcon="pi pi-chart-bar">
-          <div class="grid">
-            <div class="col-12">
-              <p-card header="Comparativa de Categorías">
-                <p-chart 
-                  type="bar" 
-                  [data]="categoryPerformanceChart" 
-                  [options]="barChartOptions"
-                  height="400"
-                />
-              </p-card>
-            </div>
-            
-            <!-- Category Performance Cards -->
-            <div class="col-12 md:col-6 xl:col-3" *ngFor="let catPerf of categoryPerformance">
-              <p-card styleClass="h-full">
-                <div class="flex align-items-center gap-3 mb-3">
-                  <div 
-                    class="flex align-items-center justify-content-center border-circle"
-                    [style.background-color]="catPerf.category.color"
-                    style="width: 3rem; height: 3rem;"
-                  >
-                    <span class="text-xl">{{ catPerf.category.icon | icon }}</span>
-                  </div>
-                  <div>
-                    <h4 class="m-0">{{ catPerf.category.name }}</h4>
-                    <small class="text-500">{{ catPerf.totalAttempts }} intentos</small>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="flex justify-content-between align-items-center mb-2">
-                    <span class="text-600">Puntuación Promedio</span>
-                    <span class="font-bold">{{ catPerf.avgScore }}%</span>
-                  </div>
-                  <p-progressBar 
-                    [value]="catPerf.avgScore"
-                    [showValue]="false"
-                    styleClass="h-0.5rem"
-                  />
-                </div>
-                
-                <div class="mb-3">
-                  <div class="flex justify-content-between align-items-center mb-2">
-                    <span class="text-600">Tasa de Finalización</span>
-                    <span class="font-bold">{{ catPerf.completionRate }}%</span>
-                  </div>
-                  <p-progressBar 
-                    [value]="catPerf.completionRate"
-                    [showValue]="false"
-                    styleClass="h-0.5rem"
-                  />
-                </div>
-                
-                <div>
-                  <span class="text-600 text-sm">Top Usuarios</span>
-                  <div class="flex gap-1 mt-1">
-                    <p-avatar 
-                      *ngFor="let user of catPerf.topUsers.slice(0, 3)"
-                      [image]="user.avatar_url"
-                      [label]="user.full_name ? user.full_name.charAt(0) : '?'"
-                      size="normal"
-                      shape="circle"
-                      [pTooltip]="user.full_name"
-                    />
-                  </div>
-                </div>
-              </p-card>
-            </div>
-          </div>
-        </p-tabPanel>
-
-        <!-- User Engagement Tab -->
-        <p-tabPanel header="Engagement de Usuarios" leftIcon="pi pi-users">
-          <div class="grid">
-            <!-- Engagement Metrics -->
-            <div class="col-12 md:col-4">
-              <p-card header="Métricas de Engagement" styleClass="h-full">
-                <div class="flex flex-column gap-4">
-                  <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-500">{{ metrics.retentionRate }}%</div>
-                    <div class="text-600">Tasa de Retención</div>
-                  </div>
-                  
-                  <div class="text-center">
-                    <div class="text-2xl font-bold text-green-500">{{ metrics.avgSessionDuration }}m</div>
-                    <div class="text-600">Duración Promedio</div>
-                  </div>
-                  
-                  <div class="text-center">
-                    <div class="text-2xl font-bold text-orange-500">3.2</div>
-                    <div class="text-600">Sesiones por Usuario</div>
-                  </div>
-                </div>
-              </p-card>
-            </div>
-            
-            <!-- Session Duration Chart -->
-            <div class="col-12 md:col-8">
-              <p-card header="Duración de Sesiones" styleClass="h-full">
-                <p-chart 
-                  type="line" 
-                  [data]="sessionDurationChart" 
-                  [options]="lineChartOptions"
-                  height="300"
-                />
-              </p-card>
-            </div>
-            
-            <!-- User Segments -->
-            <div class="col-12">
-              <p-card header="Segmentación de Usuarios">
-                <div class="grid">
-                  <div class="col-12 md:col-3 text-center">
-                    <div class="p-3 border-round bg-green-50">
-                      <i class="pi pi-star text-green-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-green-700">{{ userSegments.champions }}</div>
-                      <div class="text-green-600">Campeones</div>
-                      <small class="text-500">+80% puntuación</small>
-                    </div>
-                  </div>
-                  
-                  <div class="col-12 md:col-3 text-center">
-                    <div class="p-3 border-round bg-blue-50">
-                      <i class="pi pi-user text-blue-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-blue-700">{{ userSegments.active }}</div>
-                      <div class="text-blue-600">Activos</div>
-                      <small class="text-500">60-80% puntuación</small>
-                    </div>
-                  </div>
-                  
-                  <div class="col-12 md:col-3 text-center">
-                    <div class="p-3 border-round bg-orange-50">
-                      <i class="pi pi-clock text-orange-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-orange-700">{{ userSegments.casual }}</div>
-                      <div class="text-orange-600">Casuales</div>
-                      <small class="text-500">40-60% puntuación</small>
-                    </div>
-                  </div>
-                  
-                  <div class="col-12 md:col-3 text-center">
-                    <div class="p-3 border-round bg-red-50">
-                      <i class="pi pi-exclamation-triangle text-red-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-red-700">{{ userSegments.atRisk }}</div>
-                      <div class="text-red-600">En Riesgo</div>
-                      <small class="text-500">&lt;40% puntuación</small>
-                    </div>
-                  </div>
-                </div>
-              </p-card>
-            </div>
-          </div>
-        </p-tabPanel>
-
-        <!-- Trends Tab -->
-        <p-tabPanel header="Tendencias" leftIcon="pi pi-chart-line">
-          <div class="grid">
-            <!-- Growth Trends -->
-            <div class="col-12 md:col-6">
-              <p-card header="Crecimiento de Usuarios" styleClass="h-full">
-                <p-chart 
-                  type="line" 
-                  [data]="userGrowthChart" 
-                  [options]="lineChartOptions"
-                  height="300"
-                />
-              </p-card>
-            </div>
-            
-            <!-- Score Trends -->
-            <div class="col-12 md:col-6">
-              <p-card header="Evolución de Puntuaciones" styleClass="h-full">
-                <p-chart 
-                  type="line" 
-                  [data]="scoreTrendsChart" 
-                  [options]="lineChartOptions"
-                  height="300"
-                />
-              </p-card>
-            </div>
-            
-            <!-- Predictions -->
-            <div class="col-12">
-              <p-card header="Proyecciones">
-                <div class="grid">
-                  <div class="col-12 md:col-4 text-center">
-                    <div class="p-3">
-                      <i class="pi pi-trending-up text-blue-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-900">+{{ predictions.newUsersNextMonth }}</div>
-                      <div class="text-600">Nuevos usuarios próximo mes</div>
-                      <small class="text-green-500">Basado en tendencia actual</small>
-                    </div>
-                  </div>
-                  
-                  <div class="col-12 md:col-4 text-center">
-                    <div class="p-3">
-                      <i class="pi pi-chart-bar text-green-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-900">{{ predictions.avgScoreImprovement }}%</div>
-                      <div class="text-600">Mejora en puntuación esperada</div>
-                      <small class="text-green-500">Próximos 30 días</small>
-                    </div>
-                  </div>
-                  
-                  <div class="col-12 md:col-4 text-center">
-                    <div class="p-3">
-                      <i class="pi pi-target text-orange-500 text-3xl mb-2"></i>
-                      <div class="text-xl font-bold text-900">{{ predictions.completionRateTarget }}%</div>
-                      <div class="text-600">Meta de finalización</div>
-                      <small class="text-blue-500">Objetivo trimestral</small>
-                    </div>
-                  </div>
-                </div>
-              </p-card>
-            </div>
-          </div>
-        </p-tabPanel>
-      </p-tabView>
+  <!-- ── HEADER ── -->
+  <div class="ua-header">
+    <div>
+      <h1 class="ua-title">📊 Análisis de Usuarios</h1>
+      <p class="ua-subtitle">Estadísticas en tiempo real de tu EcoBarómetro</p>
     </div>
+    <div class="ua-header-actions">
+      <button class="ua-btn ua-btn-outline" [routerLink]="['/admin/users']">
+        <span>👥</span>
+        <span>Ver Usuarios</span>
+      </button>
+      <button class="ua-btn ua-btn-primary" (click)="exportReport()">
+        <span>📥</span>
+        <span>Exportar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── FILTERS ── -->
+  <div class="ua-filters">
+    <button class="ua-filter-pill" [class.active]="timeframe === '7d'" (click)="setTimeframe('7d')">
+      Última semana
+    </button>
+    <button class="ua-filter-pill" [class.active]="timeframe === '30d'" (click)="setTimeframe('30d')">
+      Último mes
+    </button>
+    <button class="ua-filter-pill" [class.active]="timeframe === '90d'" (click)="setTimeframe('90d')">
+      Últimos 3 meses
+    </button>
+    <button class="ua-filter-pill" [class.active]="timeframe === 'all'" (click)="setTimeframe('all')">
+      Todo el tiempo
+    </button>
+  </div>
+
+  <!-- ── KEY METRICS ── -->
+  <div class="ua-metrics" *ngIf="!loading; else loadingSkeleton">
+    <div class="ua-metric ua-metric-blue">
+      <span class="ua-metric-icon">👥</span>
+      <div class="ua-metric-content">
+        <span class="ua-metric-value">{{ metrics.totalUsers }}</span>
+        <span class="ua-metric-label">Usuarios Totales</span>
+        <span class="ua-metric-hint">{{ metrics.activeUsers }} activos</span>
+      </div>
+    </div>
+    <div class="ua-metric ua-metric-green">
+      <span class="ua-metric-icon">🎮</span>
+      <div class="ua-metric-content">
+        <span class="ua-metric-value">{{ metrics.totalSessions }}</span>
+        <span class="ua-metric-label">Partidas Jugadas</span>
+        <span class="ua-metric-hint">{{ metrics.completionRate }}% finalizadas</span>
+      </div>
+    </div>
+    <div class="ua-metric ua-metric-amber">
+      <span class="ua-metric-icon">⭐</span>
+      <div class="ua-metric-content">
+        <span class="ua-metric-value">{{ metrics.avgScore }}%</span>
+        <span class="ua-metric-label">Puntuación Media</span>
+        <span class="ua-metric-hint">{{ metrics.totalPoints | number }} pts total</span>
+      </div>
+    </div>
+    <div class="ua-metric ua-metric-purple">
+      <span class="ua-metric-icon">⏱️</span>
+      <div class="ua-metric-content">
+        <span class="ua-metric-value">{{ metrics.avgSessionDuration }}m</span>
+        <span class="ua-metric-label">Duración Media</span>
+        <span class="ua-metric-hint">Por sesión</span>
+      </div>
+    </div>
+  </div>
+  <ng-template #loadingSkeleton>
+    <div class="ua-metrics">
+      <div *ngFor="let i of [1,2,3,4]" class="ua-metric ua-metric-blue" style="opacity:.4">
+        <span class="ua-metric-icon">⏳</span>
+        <div class="ua-metric-content">
+          <span class="ua-metric-value">—</span>
+          <span class="ua-metric-label">Cargando...</span>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="ua-grid">
+    <!-- User Activity Chart -->
+    <div class="ua-card ua-card-wide">
+      <div class="ua-card-title">📈 Actividad de Usuarios (Últimos 30 días)</div>
+      <div class="ua-chart-wrap">
+        <p-chart type="line" [data]="userActivityChart" [options]="lineChartOptions" height="280"></p-chart>
+      </div>
+    </div>
+
+    <!-- User Distribution -->
+    <div class="ua-card">
+      <div class="ua-card-title">🎯 Distribución por Nivel</div>
+      <div class="ua-level-list">
+        <div *ngFor="let item of levelDistribution" class="ua-level-item">
+          <div class="ua-level-info">
+            <span class="ua-level-badge" [style.background]="item.color">Nv {{ item.level }}</span>
+            <span class="ua-level-count">{{ item.count }} usuarios</span>
+          </div>
+          <div class="ua-level-bar-wrap">
+            <div class="ua-level-bar" [style.width.%]="item.percentage" [style.background]="item.color"></div>
+          </div>
+          <span class="ua-level-pct">{{ item.percentage }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Performers -->
+    <div class="ua-card">
+      <div class="ua-card-title">🏆 Top 10 Usuarios</div>
+      <div class="ua-top-list">
+        <div *ngFor="let user of topUsers; let i = index" class="ua-top-item">
+          <span class="ua-top-rank">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}</span>
+          <div class="ua-top-avatar">{{ user.full_name ? user.full_name.charAt(0) : '?' }}</div>
+          <div class="ua-top-identity">
+            <span class="ua-top-name">{{ user.full_name }}</span>
+            <span class="ua-top-handle">&#64;{{ user.username }}</span>
+          </div>
+          <div class="ua-top-right">
+            <span class="ua-top-pts">{{ user.total_points | number }}</span>
+            <span class="ua-top-lv">Nv {{ user.level }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Performance -->
+    <div class="ua-card ua-card-wide">
+      <div class="ua-card-title">📊 Rendimiento por Categoría</div>
+      <div class="ua-category-grid" *ngIf="categoryStats.length > 0; else noCategories">
+        <div *ngFor="let cat of categoryStats" class="ua-category-item">
+          <div class="ua-cat-header">
+            <span class="ua-cat-emoji">{{ cat.icon }}</span>
+            <div class="ua-cat-info">
+              <span class="ua-cat-name">{{ cat.name }}</span>
+              <span class="ua-cat-count">{{ cat.totalQuestions }} preguntas</span>
+            </div>
+          </div>
+          <div class="ua-cat-stats">
+            <div class="ua-cat-stat">
+              <span class="ua-cat-stat-label">Partidas</span>
+              <span class="ua-cat-stat-value">{{ cat.totalSessions }}</span>
+            </div>
+            <div class="ua-cat-stat">
+              <span class="ua-cat-stat-label">Puntuación</span>
+              <span class="ua-cat-stat-value">{{ cat.avgScore }}%</span>
+            </div>
+            <div class="ua-cat-stat">
+              <span class="ua-cat-stat-label">Finalización</span>
+              <span class="ua-cat-stat-value">{{ cat.completionRate }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noCategories>
+        <div class="ua-empty">
+          <span>🏷️</span>
+          <p>Sin categorías disponibles</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="ua-card">
+      <div class="ua-card-title">🕐 Actividad Reciente</div>
+      <div class="ua-activity-list" *ngIf="recentActivity.length > 0; else noActivity">
+        <div *ngFor="let act of recentActivity" class="ua-activity-item">
+          <div class="ua-activity-icon">{{ act.icon }}</div>
+          <div class="ua-activity-body">
+            <p class="ua-activity-desc">{{ act.description }}</p>
+            <small class="ua-activity-time">{{ act.timestamp | date:'d/M/yy, h:mm a' }}</small>
+          </div>
+        </div>
+      </div>
+      <ng-template #noActivity>
+        <div class="ua-empty">
+          <span>ℹ️</span>
+          <p>Sin actividad reciente</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- User Engagement -->
+    <div class="ua-card">
+      <div class="ua-card-title">💪 Engagement de Usuarios</div>
+      <div class="ua-engagement-grid">
+        <div class="ua-engagement-item">
+          <div class="ua-eng-icon ua-eng-green">🌟</div>
+          <div class="ua-eng-content">
+            <span class="ua-eng-value">{{ engagement.champions }}</span>
+            <span class="ua-eng-label">Campeones</span>
+            <span class="ua-eng-hint">&gt;80% puntaje</span>
+          </div>
+        </div>
+        <div class="ua-engagement-item">
+          <div class="ua-eng-icon ua-eng-blue">👤</div>
+          <div class="ua-eng-content">
+            <span class="ua-eng-value">{{ engagement.active }}</span>
+            <span class="ua-eng-label">Activos</span>
+            <span class="ua-eng-hint">60-80% puntaje</span>
+          </div>
+        </div>
+        <div class="ua-engagement-item">
+          <div class="ua-eng-icon ua-eng-amber">⏰</div>
+          <div class="ua-eng-content">
+            <span class="ua-eng-value">{{ engagement.casual }}</span>
+            <span class="ua-eng-label">Casuales</span>
+            <span class="ua-eng-hint">40-60% puntaje</span>
+          </div>
+        </div>
+        <div class="ua-engagement-item">
+          <div class="ua-eng-icon ua-eng-red">⚠️</div>
+          <div class="ua-eng-content">
+            <span class="ua-eng-value">{{ engagement.atRisk }}</span>
+            <span class="ua-eng-label">En Riesgo</span>
+            <span class="ua-eng-hint">&lt;40% puntaje</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
