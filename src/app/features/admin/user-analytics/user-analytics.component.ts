@@ -4,18 +4,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { BadgeModule } from 'primeng/badge';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { AvatarModule } from 'primeng/avatar';
-import { CalendarModule } from 'primeng/calendar';
-import { DropdownModule } from 'primeng/dropdown';
-import { TooltipModule } from 'primeng/tooltip';
-import { DividerModule } from 'primeng/divider';
 
 // Services
 import { UserService } from '../../../core/services/user.service';
@@ -46,18 +35,7 @@ interface UserAnalytics {
   imports: [
     CommonModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
     ChartModule,
-    ProgressBarModule,
-    BadgeModule,
-    TableModule,
-    TagModule,
-    AvatarModule,
-    CalendarModule,
-    DropdownModule,
-    TooltipModule,
-    DividerModule,
     FormsModule
   ],
   templateUrl: './user-analytics.component.html',
@@ -289,5 +267,21 @@ export class UserAnalyticsComponent implements OnInit {
 
   goBack(): void {
     window.history.back();
+  }
+
+  getAvatarGradient(index: number): string {
+    const gradients = [
+      'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',  // Gold
+      'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',  // Silver
+      'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',  // Bronze
+      'linear-gradient(135deg, #10b981 0%, #059669 100%)',  // Green
+      'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',  // Blue
+      'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',  // Purple
+      'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',  // Pink
+      'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',  // Teal
+      'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',  // Orange
+      'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'   // Cyan
+    ];
+    return gradients[index] || gradients[3];
   }
 }

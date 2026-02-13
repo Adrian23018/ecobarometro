@@ -1,220 +1,142 @@
-<!-- src/app/features/admin/user-analytics/user-analytics.component.html -->
-<div class="user-analytics">
-  <!-- Header -->
-  <div class="header-section flex justify-content-between align-items-center">
-    <div class="header-title">
-      <p-button [text]="true" (onClick)="goBack()"
-                pTooltip="Volver" styleClass="back-button">
-        <span class="emoji-icon">⬅️</span>
-      </p-button>
-      <h1>📊 Analíticas de Usuarios</h1>
+<div class="uan-page">
+  <!-- ── HEADER ── -->
+  <div class="uan-header">
+    <div class="uan-header-left">
+      <button class="uan-back-btn" (click)="goBack()">⬅️</button>
+      <div>
+        <h1 class="uan-title">📊 Análisis de Usuarios</h1>
+        <p class="uan-subtitle">Métricas detalladas de tu comunidad</p>
+      </div>
     </div>
-    <div class="header-actions">
-      <p-dropdown [options]="periodOptions" [(ngModel)]="selectedPeriod"
-                  optionLabel="label" (onChange)="onPeriodChange()" />
-      <p-button severity="secondary"
-                [outlined]="true" (onClick)="exportAnalytics()">
-        <span class="emoji-icon">📥</span>
-        <span class="ml-2">Exportar</span>
-      </p-button>
+    <div class="uan-header-actions">
+      <button class="uan-btn uan-btn-outline" (click)="exportAnalytics()">
+        <span>📥</span>
+        <span>Exportar</span>
+      </button>
     </div>
   </div>
 
-  <!-- Métricas Principales -->
-  <div class="grid mb-6">
-    <div class="col-12 md:col-3 mt-2 mb-2">
-      <p-card styleClass="metric-card text-center h-full">
-        <div class="metric-icon mb-3">
-          <span class="emoji-icon-stat">👥</span>
-        </div>
-        <div class="metric-value text-2xl font-bold text-blue-600 mb-1">
-          {{ analytics.totalUsers }}
-        </div>
-        <div class="metric-label text-sm text-gray-600">Total Usuarios</div>
-        <div class="metric-change mt-2">
-          <small class="text-green-600">
-            <span class="emoji-icon">📈</span>
-            +{{ analytics.newUsersThisMonth }} este mes
-          </small>
-        </div>
-      </p-card>
+  <!-- ── METRICS ── -->
+  <div class="uan-metrics" *ngIf="!loading">
+    <div class="uan-metric uan-metric-blue">
+      <span class="uan-metric-icon">👥</span>
+      <div class="uan-metric-content">
+        <span class="uan-metric-value">{{ analytics.totalUsers }}</span>
+        <span class="uan-metric-label">Usuarios Totales</span>
+        <span class="uan-metric-hint">+{{ analytics.newUsersThisMonth }} este mes</span>
+      </div>
     </div>
-
-    <div class="col-12 md:col-3 mt-2 mb-2">
-      <p-card styleClass="metric-card text-center h-full">
-        <div class="metric-icon mb-3">
-          <span class="emoji-icon-stat">✅</span>
-        </div>
-        <div class="metric-value text-2xl font-bold text-green-600 mb-1">
-          {{ analytics.activeUsers }}
-        </div>
-        <div class="metric-label text-sm text-gray-600">Usuarios Activos</div>
-        <div class="metric-change mt-2">
-          <p-progressBar [value]="(analytics.activeUsers / analytics.totalUsers) * 100"
-                         [showValue]="false" styleClass="w-full h-1" />
-        </div>
-      </p-card>
+    <div class="uan-metric uan-metric-green">
+      <span class="uan-metric-icon">✅</span>
+      <div class="uan-metric-content">
+        <span class="uan-metric-value">{{ analytics.activeUsers }}</span>
+        <span class="uan-metric-label">Usuarios Activos</span>
+        <span class="uan-metric-hint">{{ ((analytics.activeUsers / analytics.totalUsers) * 100) | number:'1.0-0' }}% del total</span>
+      </div>
     </div>
-
-    <div class="col-12 md:col-3 mt-2 mb-2">
-      <p-card styleClass="metric-card text-center h-full">
-        <div class="metric-icon mb-3">
-          <span class="emoji-icon-stat">⏱️</span>
-        </div>
-        <div class="metric-value text-2xl font-bold text-orange-600 mb-1">
-          {{ analytics.avgSessionTime }}m
-        </div>
-        <div class="metric-label text-sm text-gray-600">Tiempo Promedio</div>
-        <div class="metric-change mt-2">
-          <small class="text-blue-600">
-            <span class="emoji-icon">ℹ️</span>
-            Sesión promedio
-          </small>
-        </div>
-      </p-card>
+    <div class="uan-metric uan-metric-amber">
+      <span class="uan-metric-icon">⏱️</span>
+      <div class="uan-metric-content">
+        <span class="uan-metric-value">{{ analytics.avgSessionTime }}m</span>
+        <span class="uan-metric-label">Tiempo Promedio</span>
+        <span class="uan-metric-hint">Por sesión</span>
+      </div>
     </div>
-
-    <div class="col-12 md:col-3 mt-2 mb-2">
-      <p-card styleClass="metric-card text-center h-full">
-        <div class="metric-icon mb-3">
-          <span class="emoji-icon-stat">⭐</span>
-        </div>
-        <div class="metric-value text-2xl font-bold text-purple-600 mb-1">
-          {{ analytics.avgScore | number:'1.0-0' }}
-        </div>
-        <div class="metric-label text-sm text-gray-600">Puntuación Promedio</div>
-        <div class="metric-change mt-2">
-          <small class="text-green-600">
-            <span class="emoji-icon">🚀</span>
-            Excelente desempeño
-          </small>
-        </div>
-      </p-card>
+    <div class="uan-metric uan-metric-purple">
+      <span class="uan-metric-icon">⭐</span>
+      <div class="uan-metric-content">
+        <span class="uan-metric-value">{{ analytics.avgScore | number:'1.0-0' }}</span>
+        <span class="uan-metric-label">Puntos Promedio</span>
+        <span class="uan-metric-hint">Por usuario</span>
+      </div>
     </div>
   </div>
 
-  <!-- Gráficos -->
-  <div class="grid mb-6">
-    <!-- Distribución por Niveles -->
-    <div class="col-12 lg:col-6 mt-2 mb-2">
-      <p-card header="Distribución por Niveles" styleClass="h-full">
-        <div class="chart-container" style="height: 300px;">
-          <p-chart type="doughnut" [data]="userLevelChart" [options]="chartOptions" />
-        </div>
-      </p-card>
+  <!-- ── MAIN GRID ── -->
+  <div class="uan-grid">
+    <!-- Level Distribution -->
+    <div class="uan-card">
+      <div class="uan-card-title">🎯 Distribución por Niveles</div>
+      <div class="uan-chart-wrap">
+        <p-chart type="doughnut" [data]="userLevelChart" [options]="chartOptions" height="280"></p-chart>
+      </div>
     </div>
 
-    <!-- Actividad en el Tiempo -->
-    <div class="col-12 lg:col-6 mt-2 mb-2">
-      <p-card header="Actividad Últimos 7 Días" styleClass="h-full">
-        <div class="chart-container" style="height: 300px;">
-          <p-chart type="line" [data]="activityChart" [options]="chartOptions" />
-        </div>
-      </p-card>
+    <!-- Activity Chart -->
+    <div class="uan-card">
+      <div class="uan-card-title">📈 Actividad (Últimos 7 Días)</div>
+      <div class="uan-chart-wrap">
+        <p-chart type="line" [data]="activityChart" [options]="chartOptions" height="280"></p-chart>
+      </div>
     </div>
 
-    <!-- Métricas de Engagement -->
-    <div class="col-12 lg:col-6 mt-2 mb-2">
-      <p-card header="Métricas de Engagement" styleClass="h-full">
-        <div class="engagement-grid">
-          <div class="engagement-item">
-            <div class="engagement-label">DAU (Daily Active Users)</div>
-            <div class="engagement-value text-green-600 font-bold">
-              {{ analytics.engagementMetrics.dailyActiveUsers }}
-            </div>
-          </div>
-          <div class="engagement-item">
-            <div class="engagement-label">WAU (Weekly Active Users)</div>
-            <div class="engagement-value text-blue-600 font-bold">
-              {{ analytics.engagementMetrics.weeklyActiveUsers }}
-            </div>
-          </div>
-          <div class="engagement-item">
-            <div class="engagement-label">MAU (Monthly Active Users)</div>
-            <div class="engagement-value text-purple-600 font-bold">
-              {{ analytics.engagementMetrics.monthlyActiveUsers }}
-            </div>
-          </div>
-          <div class="engagement-item">
-            <div class="engagement-label">Tasa de Retención</div>
-            <div class="engagement-value text-orange-600 font-bold">
-              {{ analytics.engagementMetrics.retentionRate }}%
-            </div>
+    <!-- Engagement Metrics -->
+    <div class="uan-card">
+      <div class="uan-card-title">💪 Métricas de Engagement</div>
+      <div class="uan-engagement-grid">
+        <div class="uan-engagement-item">
+          <div class="uan-eng-icon uan-eng-green">🌟</div>
+          <div class="uan-eng-content">
+            <span class="uan-eng-value">{{ analytics.engagementMetrics.dailyActiveUsers }}</span>
+            <span class="uan-eng-label">DAU</span>
+            <span class="uan-eng-hint">Diarios</span>
           </div>
         </div>
-        <div class="chart-container mt-4" style="height: 200px;">
-          <p-chart type="bar" [data]="engagementChart" [options]="chartOptions" />
+        <div class="uan-engagement-item">
+          <div class="uan-eng-icon uan-eng-blue">👤</div>
+          <div class="uan-eng-content">
+            <span class="uan-eng-value">{{ analytics.engagementMetrics.weeklyActiveUsers }}</span>
+            <span class="uan-eng-label">WAU</span>
+            <span class="uan-eng-hint">Semanales</span>
+          </div>
         </div>
-      </p-card>
+        <div class="uan-engagement-item">
+          <div class="uan-eng-icon uan-eng-purple">📅</div>
+          <div class="uan-eng-content">
+            <span class="uan-eng-value">{{ analytics.engagementMetrics.monthlyActiveUsers }}</span>
+            <span class="uan-eng-label">MAU</span>
+            <span class="uan-eng-hint">Mensuales</span>
+          </div>
+        </div>
+        <div class="uan-engagement-item">
+          <div class="uan-eng-icon uan-eng-amber">🎯</div>
+          <div class="uan-eng-content">
+            <span class="uan-eng-value">{{ analytics.engagementMetrics.retentionRate }}%</span>
+            <span class="uan-eng-label">Retención</span>
+            <span class="uan-eng-hint">Tasa</span>
+          </div>
+        </div>
+      </div>
+      <div class="uan-chart-wrap" style="margin-top: 1rem;">
+        <p-chart type="bar" [data]="engagementChart" [options]="chartOptions" height="200"></p-chart>
+      </div>
     </div>
 
-    <!-- Top Performers -->
-    <div class="col-12 lg:col-6 mt-2 mb-2">
-      <p-card header="Top 10 Usuarios" styleClass="h-full">
-        <div class="top-performers-list">
-          <div *ngFor="let user of analytics.topPerformers; let i = index"
-               class="top-performer-item flex align-items-center justify-content-between p-3 border-round mb-2"
-               [class.gold]="i === 0" [class.silver]="i === 1" [class.bronze]="i === 2">
-            <div class="flex align-items-center gap-3">
-              <div class="ranking-badge">
-                <span class="font-bold">#{{ i + 1 }}</span>
-              </div>
-              <p-avatar [label]="getUserInitials(user)" shape="circle" size="normal" />
-              <div>
-                <div class="font-semibold">{{ user.full_name }}</div>
-                <div class="text-sm text-gray-600">{{ user.username }}</div>
-              </div>
-            </div>
-            <div class="text-right">
-              <div class="font-bold text-blue-600">{{ user.total_points }}</div>
-              <div class="text-sm text-gray-600">Nivel {{ user.level }}</div>
-            </div>
+    <!-- Top 10 -->
+    <div class="uan-card">
+      <div class="uan-card-title">🏆 Top 10 Usuarios</div>
+      <div class="uan-top-list">
+        <div *ngFor="let user of analytics.topPerformers; let i = index"
+             class="uan-top-item"
+             [class.uan-top-gold]="i === 0"
+             [class.uan-top-silver]="i === 1"
+             [class.uan-top-bronze]="i === 2">
+          <div class="uan-top-badge">
+            <span class="uan-top-badge-num">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1) }}</span>
+          </div>
+          <div class="uan-top-avatar" [style.background]="getAvatarGradient(i)">
+            <span>{{ getUserInitials(user) }}</span>
+          </div>
+          <div class="uan-top-identity">
+            <span class="uan-top-name">{{ user.full_name }}</span>
+            <span class="uan-top-handle">{{ user.username }}</span>
+          </div>
+          <div class="uan-top-right">
+            <span class="uan-top-pts">{{ user.total_points }}</span>
+            <span class="uan-top-lv">Nivel {{ user.level }}</span>
           </div>
         </div>
-      </p-card>
+      </div>
     </div>
   </div>
-
-  <!-- Tabla Detallada (opcional) -->
-  <p-card header="Análisis Detallado" *ngIf="false">
-    <p-table [value]="analytics.topPerformers" [paginator]="true" [rows]="10"
-             styleClass="p-datatable-striped" [loading]="loading">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Usuario</th>
-          <th>Nivel</th>
-          <th>Puntos</th>
-          <th>Actividad</th>
-          <th>Registro</th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-user>
-        <tr>
-          <td>
-            <div class="flex align-items-center gap-2">
-              <p-avatar [label]="getUserInitials(user)" shape="circle" size="normal" />
-              <div>
-                <div class="font-medium">{{ user.full_name }}</div>
-                <div class="text-sm text-gray-600">{{ user.username }}</div>
-              </div>
-            </div>
-          </td>
-          <td>
-            <p-badge [value]="user.level"
-                     [style]="{'background-color': getLevelBadgeColor(user.level)}" />
-          </td>
-          <td>
-            <span class="font-semibold">{{ user.total_points }}</span>
-          </td>
-          <td>
-            <p-tag [value]="user.is_active ? 'Activo' : 'Inactivo'"
-                   [severity]="user.is_active ? 'success' : 'danger'" />
-          </td>
-          <td>
-            <span class="text-sm">{{ user.created_at | date:'short' }}</span>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
 </div>

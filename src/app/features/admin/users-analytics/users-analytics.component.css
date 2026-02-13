@@ -256,42 +256,97 @@
 .ua-top-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  max-height: 400px;
+  gap: 0.5rem;
+  max-height: 500px;
   overflow-y: auto;
+  padding: 0.25rem;
 }
-.ua-top-list::-webkit-scrollbar { width: 4px; }
-.ua-top-list::-webkit-scrollbar-track { background: transparent; }
-.ua-top-list::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+.ua-top-list::-webkit-scrollbar { width: 6px; }
+.ua-top-list::-webkit-scrollbar-track { background: #f0ede8; border-radius: 3px; }
+.ua-top-list::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+.ua-top-list::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
 .ua-top-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0;
-  border-bottom: 1px solid #faf9f6;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  background: #faf9f6;
+  border: 1.5px solid #f0ede8;
+  transition: all 0.2s;
 }
-.ua-top-item:last-child { border-bottom: none; }
 
-.ua-top-rank {
-  font-size: 1rem;
-  width: 24px;
-  text-align: center;
+.ua-top-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Top 3 Special Styles */
+.ua-top-gold {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fbbf24;
+}
+
+.ua-top-silver {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-color: #d1d5db;
+}
+
+.ua-top-bronze {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  border-color: #fb923c;
+}
+
+.ua-top-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   flex-shrink: 0;
 }
 
+.ua-top-gold .ua-top-badge {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.ua-top-silver .ua-top-badge {
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+.ua-top-bronze .ua-top-badge {
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+}
+
+.ua-top-badge-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+}
+
+.ua-top-item:not(.ua-top-gold):not(.ua-top-silver):not(.ua-top-bronze) .ua-top-badge-num {
+  color: #374151;
+  font-size: 0.9rem;
+}
+
 .ua-top-avatar {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+  border: 2px solid white;
 }
 
 .ua-top-identity {
@@ -301,36 +356,48 @@
 
 .ua-top-name {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: #1a1a1a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .ua-top-handle {
   display: block;
-  font-size: 0.7rem;
-  color: #9ca3af;
+  font-size: 0.72rem;
+  color: #6b7280;
+  line-height: 1.2;
 }
 
 .ua-top-right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 2px;
   flex-shrink: 0;
 }
 
 .ua-top-pts {
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 800;
   color: #059669;
+  line-height: 1;
 }
 
+.ua-top-gold .ua-top-pts { color: #d97706; }
+.ua-top-silver .ua-top-pts { color: #6b7280; }
+.ua-top-bronze .ua-top-pts { color: #ea580c; }
+
 .ua-top-lv {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: #9ca3af;
+  background: white;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 /* ── CATEGORY STATS ── */

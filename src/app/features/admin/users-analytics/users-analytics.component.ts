@@ -11,7 +11,6 @@ import { MessageService } from 'primeng/api';
 // Services
 import { UserService } from '../../../core/services/user.service';
 import { CategoryService } from '../../../core/services/category.service';
-import { QuestionsService } from '../../../core/services/questions.service';
 import { GameSessionService } from '../../../core/services/game-session.service';
 import { AuthService } from '../../../core/services/auth.service';
 
@@ -113,7 +112,6 @@ export class UserAnalyticsComponent implements OnInit {
   constructor(
     private userService: UserService,
     private categoryService: CategoryService,
-    private questionService: QuestionsService,
     private gameSessionService: GameSessionService,
     private authService: AuthService,
     private messageService: MessageService
@@ -264,7 +262,7 @@ export class UserAnalyticsComponent implements OnInit {
         id: cat.id,
         name: cat.name,
         icon: cat.icon || '📚',
-        totalQuestions: cat.question_count || 0,
+        totalQuestions: cat.questions_count || 0,
         totalSessions: categoryQuestions.length,
         avgScore: avgScore,
         completionRate: completionRate
@@ -472,5 +470,21 @@ export class UserAnalyticsComponent implements OnInit {
       summary: 'Exportado',
       detail: 'Reporte descargado correctamente'
     });
+  }
+
+  getAvatarGradient(index: number): string {
+    const gradients = [
+      'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',  // Gold
+      'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)',  // Silver
+      'linear-gradient(135deg, #fb923c 0%, #f97316 100%)',  // Bronze
+      'linear-gradient(135deg, #10b981 0%, #059669 100%)',  // Green
+      'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',  // Blue
+      'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',  // Purple
+      'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',  // Pink
+      'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)',  // Teal
+      'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',  // Orange
+      'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)'   // Cyan
+    ];
+    return gradients[index] || gradients[3];
   }
 }

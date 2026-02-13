@@ -113,16 +113,24 @@
     <div class="ua-card">
       <div class="ua-card-title">🏆 Top 10 Usuarios</div>
       <div class="ua-top-list">
-        <div *ngFor="let user of topUsers; let i = index" class="ua-top-item">
-          <span class="ua-top-rank">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}</span>
-          <div class="ua-top-avatar">{{ user.full_name ? user.full_name.charAt(0) : '?' }}</div>
+        <div *ngFor="let user of topUsers; let i = index"
+             class="ua-top-item"
+             [class.ua-top-gold]="i === 0"
+             [class.ua-top-silver]="i === 1"
+             [class.ua-top-bronze]="i === 2">
+          <div class="ua-top-badge">
+            <span class="ua-top-badge-num">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1) }}</span>
+          </div>
+          <div class="ua-top-avatar" [style.background]="getAvatarGradient(i)">
+            <span>{{ user.full_name ? user.full_name.charAt(0).toUpperCase() : '?' }}</span>
+          </div>
           <div class="ua-top-identity">
             <span class="ua-top-name">{{ user.full_name }}</span>
-            <span class="ua-top-handle">&#64;{{ user.username }}</span>
+            <span class="ua-top-handle">{{ user.username }}</span>
           </div>
           <div class="ua-top-right">
             <span class="ua-top-pts">{{ user.total_points | number }}</span>
-            <span class="ua-top-lv">Nv {{ user.level }}</span>
+            <span class="ua-top-lv">Nivel {{ user.level }}</span>
           </div>
         </div>
       </div>
