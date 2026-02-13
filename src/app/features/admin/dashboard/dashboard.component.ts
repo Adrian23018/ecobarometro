@@ -23,6 +23,8 @@ import { CategoryService } from '../../../core/services/category.service';
 import { UserService } from '../../../core/services/user.service';
 import { QuestionsService } from '../../../core/services/questions.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { GameSessionService } from '../../../core/services/game-session.service';
+import { forkJoin } from 'rxjs';
 import { Admin } from '../../../core/models/admin';
 
 
@@ -102,7 +104,8 @@ export class DashboardComponent implements OnInit {
     private questionService: QuestionsService,
     private authService: AuthService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private gameSessionService: GameSessionService
   ) {
     this.initializeChartOptions();
   }
@@ -166,44 +169,48 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadRecentActivity(): void {
-    // Datos de ejemplo para actividad reciente
-    this.recentActivity = [
-      {
-        type: 'user_registered',
-        description: 'Nuevo usuario registrado: Ana García',
-        timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
-        icon: '👤',
-        color: '#22c55e'
+    if (!this.currentAdmin) return;
+
+    forkJoin({
+      users: this.userService.getUsersByAdmin(this.currentAdmin.id),
+      sessions: this.gameSessionService.searchSessions({
+        adminId: this.currentAdmin.id,
+        status: 'completed'
+      })
+    }).subscribe({
+      next: ({ users, sessions }) => {
+        const activities: RecentActivity[] = [];
+
+        // Últimos usuarios registrados
+        users.slice(0, 5).forEach(user => {
+          activities.push({
+            type: 'user_registered',
+            description: `${user.full_name || user.username} se unió al EcoBarómetro`,
+            timestamp: new Date(user.created_at),
+            icon: '👤',
+            color: '#22c55e'
+          });
+        });
+
+        // Últimas sesiones completadas
+        sessions.slice(0, 5).forEach((session: any) => {
+          activities.push({
+            type: 'game_completed',
+            description: `Partida completada · ${session.correct_answers ?? 0}/${session.total_questions ?? 0} correctas · ${session.total_points ?? 0} pts`,
+            timestamp: new Date(session.completed_at || session.created_at),
+            icon: '🎮',
+            color: '#3b82f6'
+          });
+        });
+
+        // Ordenar por timestamp desc y tomar los 8 más recientes
+        this.recentActivity = activities
+          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+          .slice(0, 8);
       },
-      {
-        type: 'game_completed',
-        description: 'Carlos López completó el EcoChallenge',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        icon: '✅',
-        color: '#3b82f6'
-      },
-      {
-        type: 'question_created',
-        description: 'Nueva pregunta creada en Energía',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-        icon: '➕',
-        color: '#f59e0b'
-      },
-      {
-        type: 'user_registered',
-        description: 'María Rodríguez se unió al EcoBarómetro',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3), // 3 hours ago
-        icon: '👤',
-        color: '#22c55e'
-      },
-      {
-        type: 'game_completed',
-        description: 'Pedro Sánchez alcanzó nivel 5',
-        timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-        icon: '🎯',
-        color: '#8b5cf6'
-      }
-    ];
+      error: (err) => console.error('Error cargando actividad reciente:', err)
+    });
+
   }
 
   private loadTopUsers(): void {
