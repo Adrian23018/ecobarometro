@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Subject, takeUntil, forkJoin } from 'rxjs';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -73,7 +74,8 @@ interface RisingStar extends LeaderboardEntry {
     OverlayPanelModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastModule
+    ToastModule,
+    IconPipe
   ],
   providers: [MessageService],
   templateUrl: './leaderboard.component.html',

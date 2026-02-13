@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // PrimeNG
@@ -65,7 +66,8 @@ interface DifficultyOption {
     KnobModule,
     FormsModule,
     ReactiveFormsModule,
-    BackButtonComponent
+    BackButtonComponent,
+    IconPipe
   ],
   templateUrl: './game-lobby.component.html',
   styleUrls: ['./game-lobby.component.css']

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule,Location  } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -77,7 +78,8 @@ interface EcoTip {
     RatingModule,
     OverlayPanelModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    IconPipe
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']

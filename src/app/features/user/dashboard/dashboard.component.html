@@ -222,7 +222,7 @@
         <div class="flex align-items-center justify-content-between mb-2">
           <div class="flex align-items-center gap-2">
             <div class="category-icon" [style.background-color]="category.color">
-              <i [class]="category.icon" class="text-white text-sm"></i>
+              <span class="text-sm">{{ category.icon | icon }}</span>
             </div>
             <span class="font-medium">{{ category.name }}</span>
           </div>

@@ -155,7 +155,7 @@
                   <div 
                     class="category-icon"
                     [style.background-color]="category.color">
-                    <i [class]="category.icon" class="text-white"></i>
+                    <span>{{ category.icon | icon }}</span>
                   </div>
                   <div>
                     <h4 class="font-semibold text-gray-800 mb-1">{{ category.name }}</h4>

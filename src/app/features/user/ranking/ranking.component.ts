@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -77,7 +78,8 @@ interface GoalProgress {
     OverlayPanelModule,
     FormsModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    IconPipe
   ],
   templateUrl: './ranking.component.html',
   styleUrls: ['./ranking.component.scss'],

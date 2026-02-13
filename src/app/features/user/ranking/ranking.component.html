@@ -91,7 +91,7 @@
                 <div class="category-card-header">
                   <div class="flex align-items-center gap-3">
                     <div class="category-icon" [style.background-color]="comparison.category.color">
-                      <i [class]="comparison.category.icon" class="text-white"></i>
+                      <span>{{ comparison.category.icon | icon }}</span>
                     </div>
                     <div>
                       <h4 class="m-0">{{ comparison.category.name }}</h4>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -81,7 +82,8 @@ interface CategoryPerformance {
     OverlayPanelModule,
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    IconPipe
   ],
   templateUrl: './users-analytics.component.html',
   styles: [`

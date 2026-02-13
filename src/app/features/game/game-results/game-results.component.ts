@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
 // PrimeNG
 import { CardModule } from 'primeng/card';
@@ -66,7 +67,8 @@ interface PerformanceInsight {
     DialogModule,
     FormsModule,
     ReactiveFormsModule,
-    BackButtonComponent
+    BackButtonComponent,
+    IconPipe
   ],
   templateUrl: './game-results.component.html',
   styleUrls: ['./game-results.component.css'],

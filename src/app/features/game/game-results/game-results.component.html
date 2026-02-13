@@ -108,7 +108,7 @@
                       class="category-icon"
                       [style.background-color]="categoryScore.category.color"
                     >
-                      <i [class]="categoryScore.category.icon" class="text-white"></i>
+                      <span>{{ categoryScore.category.icon | icon }}</span>
                     </div>
                     <div>
                       <h4 class="m-0 font-semibold">{{ categoryScore.category.name }}</h4>

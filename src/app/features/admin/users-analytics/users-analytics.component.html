@@ -255,7 +255,7 @@
                     [style.background-color]="catPerf.category.color"
                     style="width: 3rem; height: 3rem;"
                   >
-                    <i [class]="catPerf.category.icon" class="text-white text-xl"></i>
+                    <span class="text-xl">{{ catPerf.category.icon | icon }}</span>
                   </div>
                   <div>
                     <h4 class="m-0">{{ catPerf.category.name }}</h4>
