@@ -8,17 +8,12 @@ import { takeUntil } from 'rxjs/operators';
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 
 // PrimeNG
-import { TableModule } from 'primeng/table';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { InputNumberModule } from 'primeng/inputnumber';
 
@@ -34,16 +29,11 @@ import { SafePipe } from '../../../shared/pipes/safe.pipe';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TableModule,
-    CardModule,
-    ButtonModule,
     InputTextModule,
     InputTextareaModule,
     DialogModule,
     ToastModule,
     ConfirmDialogModule,
-    SkeletonModule,
-    TagModule,
     DividerModule,
     InputNumberModule,
     DragDropModule,
