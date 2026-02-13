@@ -64,15 +64,15 @@ export class QuestionFormComponent implements OnInit {
 
   // Catálogos
   questionTypes = [
-    { label: 'Opción Múltiple', value: 'multiple_choice', icon: 'pi pi-list' },
-    { label: 'Verdadero/Falso', value: 'true_false', icon: 'pi pi-check-circle' },
-    { label: 'Escala de Valoración', value: 'scale', icon: 'pi pi-sliders-h' }
+    { label: 'Opción Múltiple', value: 'multiple_choice', emoji: '📋' },
+    { label: 'Verdadero/Falso',  value: 'true_false',       emoji: '✅' },
+    { label: 'Escala',           value: 'scale',             emoji: '📊' }
   ];
 
   difficultyLevels = [
-    { label: 'Fácil', value: 1, color: '#22c55e', description: 'Conocimiento básico' },
-    { label: 'Medio', value: 2, color: '#f59e0b', description: 'Conocimiento intermedio' },
-    { label: 'Difícil', value: 3, color: '#ef4444', description: 'Conocimiento avanzado' }
+    { label: 'Fácil',   value: 1, color: '#22c55e', description: 'Básico',       emoji: '🟢' },
+    { label: 'Medio',   value: 2, color: '#f59e0b', description: 'Intermedio',   emoji: '🟡' },
+    { label: 'Difícil', value: 3, color: '#ef4444', description: 'Avanzado',     emoji: '🔴' }
   ];
 
   // Reglas
@@ -81,7 +81,7 @@ export class QuestionFormComponent implements OnInit {
     explanation: { max: 1000 },
     optionText: { min: 1, max: 200 },
     minOptions: 2,
-    maxOptions: 6
+    maxOptions: 5
   };
 
   currentUser: any;
@@ -345,7 +345,6 @@ export class QuestionFormComponent implements OnInit {
     this.initForm();
     this.editQuestion = null;
     this.isEditMode = false;
-    this.activeTab = 0;
   }
 
   closeForm() {
@@ -388,9 +387,7 @@ export class QuestionFormComponent implements OnInit {
   previewQuestion() {
     if (!this.questionForm.valid) {
       this.messageService.add({ severity: 'warn', summary: 'Advertencia', detail: 'Complete todos los campos requeridos para previsualizar' });
-      return;
     }
-    this.activeTab = 2; // ir a "Vista Previa"
   }
 
   get previewData(): any {
