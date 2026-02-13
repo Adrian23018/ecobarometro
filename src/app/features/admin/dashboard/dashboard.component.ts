@@ -3,16 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 // PrimeNG
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
 import { ChartModule } from 'primeng/chart';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { BadgeModule } from 'primeng/badge';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { AvatarModule } from 'primeng/avatar';
-import { SkeletonModule } from 'primeng/skeleton';
-import { DividerModule } from 'primeng/divider';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -54,16 +45,7 @@ interface RecentActivity {
   imports: [
     CommonModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
     ChartModule,
-    ProgressBarModule,
-    BadgeModule,
-    TableModule,
-    TagModule,
-    AvatarModule,
-    SkeletonModule,
-    DividerModule,
     TooltipModule,
     ToastModule,
     ConfirmDialogModule,
@@ -95,7 +77,6 @@ export class DashboardComponent implements OnInit {
   userActivityChart: any;
   categoryChart: any;
   chartOptions: any;
-  doughnutOptions: any;
 
   constructor(
     private adminService: AdminService,
@@ -334,15 +315,6 @@ export class DashboardComponent implements OnInit {
       }
     };
 
-    this.doughnutOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
-    };
   }
 
   shareAdminCode(): void {

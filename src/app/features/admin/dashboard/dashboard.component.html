@@ -1,292 +1,169 @@
-<div class="admin-dashboard">
-  <!-- Header -->
-  <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
+<div class="db-page">
+  <p-toast position="top-right"></p-toast>
+  <p-confirmDialog></p-confirmDialog>
+
+  <!-- ── HEADER ── -->
+  <div class="db-header">
     <div>
-      <h1 class="text-4xl font-bold text-900 mb-2">
-        ¡Hola {{ currentAdmin?.name }}! 👋
-      </h1>
-      <p class="text-600 text-lg">
-        Aquí tienes un resumen de tu EcoBarómetro
-      </p>
+      <h1 class="db-greeting">¡Hola, {{ currentAdmin?.name }}! 👋</h1>
+      <p class="db-subgreeting">Resumen de tu EcoBarómetro</p>
     </div>
-    <div class="flex gap-2 mt-3 lg:mt-0 flex-wrap">
-      <p-button  [routerLink]="['/admin/users']" severity="secondary">
-        <span class="emoji-icon">👥</span>
-        <span class="ml-2" >Ver Usuarios</span>
-      </p-button>
-    </div>
+    <button class="db-code-btn" (click)="shareAdminCode()" title="Copiar código de administrador">
+      <span>🔗</span>
+      <span>{{ currentAdmin?.admin_code || 'Sin código' }}</span>
+    </button>
   </div>
 
-  <!-- Quick Navigation Menu -->
-  <div class="grid mb-4">
-    <div class="col-12">
-      <p-card header="Navegación Rápida" styleClass="quick-nav-card">
-        <div class="quick-nav-list">
-          <div class="quick-nav-item" [routerLink]="['/admin/users']">
-            <span class="quick-nav-icon">👥</span>
-            <span class="quick-nav-text">Usuarios</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/questions']">
-            <span class="quick-nav-icon">❓</span>
-            <span class="quick-nav-text">Preguntas</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/categories']">
-            <span class="quick-nav-icon">🏷️</span>
-            <span class="quick-nav-text">Categorías</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/analytics']">
-            <span class="quick-nav-icon">📊</span>
-            <span class="quick-nav-text">Analíticas</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/achievements']">
-            <span class="quick-nav-icon">🏆</span>
-            <span class="quick-nav-text">Logros</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/videos']">
-            <span class="quick-nav-icon">🎥</span>
-            <span class="quick-nav-text">Videos Educativos</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-          <div class="quick-nav-item" [routerLink]="['/admin/settings']">
-            <span class="quick-nav-icon">⚙️</span>
-            <span class="quick-nav-text">Configuración</span>
-            <span class="quick-nav-arrow">→</span>
-          </div>
-        </div>
-      </p-card>
-    </div>
-  </div>
-
-  <!-- Stats Cards -->
-  <div class="grid" *ngIf="!loading; else loadingStats">
-    <div class="col-12 md:col-6 xl:col-3">
-      <div class="card bg-blue-100 border-none">
-        <div class="flex justify-content-between align-items-start">
-          <div>
-            <span class="block text-500 font-medium mb-2">Usuarios Totales</span>
-            <div class="text-900 font-medium text-xl">{{ stats.totalUsers | number }}</div>
-          </div>
-          <div >
-            <span class="emoji-icon-stat">👥</span>
-          </div>
-        </div>
-        <span class="text-green-500 font-medium">
-          {{ stats.activeUsers }} activos
-        </span>
+  <!-- ── STAT CARDS ── -->
+  <div class="db-stats" *ngIf="!loading; else loadingSkeleton">
+    <div class="db-stat db-stat-blue">
+      <span class="db-se">👥</span>
+      <div class="db-si">
+        <span class="db-sv">{{ stats.totalUsers }}</span>
+        <span class="db-sl">Usuarios</span>
+        <span class="db-sh">{{ stats.activeUsers }} activos</span>
       </div>
     </div>
-
-    <div class="col-12 md:col-6 xl:col-3">
-      <div class="card bg-orange-100 border-none">
-        <div class="flex justify-content-between align-items-start">
-          <div>
-            <span class="block text-500 font-medium mb-2">Preguntas</span>
-            <div class="text-900 font-medium text-xl">{{ stats.totalQuestions | number }}</div>
-          </div>
-          <div >
-            <span class="emoji-icon-stat">❓</span>
-          </div>
-        </div>
-        <span class="text-orange-500 font-medium">
-          {{ stats.totalCategories }} categorías
-        </span>
+    <div class="db-stat db-stat-amber">
+      <span class="db-se">❓</span>
+      <div class="db-si">
+        <span class="db-sv">{{ stats.totalQuestions }}</span>
+        <span class="db-sl">Preguntas</span>
+        <span class="db-sh">{{ stats.totalCategories }} categorías</span>
       </div>
     </div>
-
-    <div class="col-12 md:col-6 xl:col-3">
-      <div class="card bg-cyan-100 border-none">
-        <div class="flex justify-content-between align-items-start">
-          <div>
-            <span class="block text-500 font-medium mb-2">Partidas Jugadas</span>
-            <div class="text-900 font-medium text-xl">{{ stats.totalSessions | number }}</div>
-          </div>
-          <div >
-            <span class="emoji-icon-stat">🎮</span>
-          </div>
-        </div>
-        <span class="text-cyan-500 font-medium">
-          {{ stats.completionRate }}% completadas
-        </span>
+    <div class="db-stat db-stat-cyan">
+      <span class="db-se">🎮</span>
+      <div class="db-si">
+        <span class="db-sv">{{ stats.totalSessions }}</span>
+        <span class="db-sl">Partidas</span>
+        <span class="db-sh">{{ stats.completionRate }}% completadas</span>
       </div>
     </div>
-
-    <div class="col-12 md:col-6 xl:col-3">
-      <div class="card bg-purple-100 border-none">
-        <div class="flex justify-content-between align-items-start">
-          <div>
-            <span class="block text-500 font-medium mb-2">Puntuación Promedio</span>
-            <div class="text-900 font-medium text-xl">{{ stats.avgScore }}%</div>
-          </div>
-          <div >
-            <span class="emoji-icon-stat">⭐</span>
-          </div>
-        </div>
-        <span class="text-purple-500 font-medium">
-          {{ stats.totalPoints | number }} puntos totales
-        </span>
+    <div class="db-stat db-stat-purple">
+      <span class="db-se">⭐</span>
+      <div class="db-si">
+        <span class="db-sv">{{ stats.avgScore }}%</span>
+        <span class="db-sl">Prom.</span>
+        <span class="db-sh">{{ stats.totalPoints | number }} pts</span>
       </div>
     </div>
   </div>
-
-  <!-- Charts Row -->
-  <div class="grid mt-4">
-    <!-- User Activity Chart -->
-    <div class="col-12 xl:col-8 mb-2 mt-2">
-      <p-card header="Actividad de Usuarios (Últimos 7 días)" styleClass="h-full">
-        <p-chart type="line" [data]="userActivityChart" [options]="chartOptions" height="300" />
-      </p-card>
+  <ng-template #loadingSkeleton>
+    <div class="db-stats">
+      <div *ngFor="let i of [1,2,3,4]" class="db-stat db-stat-blue" style="opacity:.4">
+        <span class="db-se">⏳</span>
+        <div class="db-si"><span class="db-sv">—</span><span class="db-sl">Cargando...</span></div>
+      </div>
     </div>
+  </ng-template>
 
-    <!-- Category Performance -->
-    <div class="col-12 xl:col-4 mb-2 mt-2">
-      <p-card header="Rendimiento por Categoría" styleClass="h-full">
-        <p-chart type="doughnut" [data]="categoryChart" [options]="doughnutOptions" height="300" />
-      </p-card>
+  <!-- ── QUICK NAV ── -->
+  <p class="db-section-label">Navegación</p>
+  <div class="db-nav-grid">
+    <div class="db-nav-tile" [routerLink]="['/admin/users']">
+      <span class="db-nav-emoji">👥</span>
+      <span class="db-nav-text">Usuarios</span>
     </div>
-  </div>
-
-  <!-- Recent Activity and Top Users -->
-  <div class="grid mt-4">
-    <!-- Recent Activity -->
-    <div class="col-12 lg:col-6 mb-2 mt-2">
-      <p-card header="Actividad Reciente" styleClass="h-full">
-        <div class="timeline-container">
-          <div class="activity-list" *ngIf="recentActivity.length > 0; else noActivity">
-            <div *ngFor="let activity of recentActivity; trackBy: trackByActivity"
-              class="activity-item">
-              <div class="activity-icon-wrapper">
-                <span class="emoji-icon-activity">{{ activity.icon }}</span>
-              </div>
-              <div class="activity-content">
-                <p class="activity-description">{{ activity.description }}</p>
-                <small class="activity-timestamp">{{ activity.timestamp | date:'short' }}</small>
-              </div>
-            </div>
-          </div>
-          <ng-template #noActivity>
-            <div class="text-center text-500 py-4">
-              <div class="emoji-icon-large mb-3">ℹ️</div>
-              <p>No hay actividad reciente</p>
-            </div>
-          </ng-template>
-        </div>
-      </p-card>
+    <div class="db-nav-tile" [routerLink]="['/admin/questions']">
+      <span class="db-nav-emoji">❓</span>
+      <span class="db-nav-text">Preguntas</span>
     </div>
-
-    <!-- Top Users -->
-    <div class="col-12 lg:col-6 mb-2 mt-2">
-      <p-card header="Top Usuarios" styleClass="h-full">
-        <p-table [value]="topUsers" [paginator]="false" [rows]="5" styleClass="p-datatable-sm">
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Usuario</th>
-              <th>Puntos</th>
-              <th>Nivel</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-user let-i="rowIndex">
-            <tr>
-              <td>
-                <div class="flex align-items-center gap-2">
-                  <p-avatar [image]="user.avatar_url" [label]="user.full_name?.charAt(0) || '?'" size="normal"
-                    shape="circle" />
-                  <div>
-                    <div class="font-medium">{{ user.full_name }}</div>
-                    <small class="text-500">{{ user.username }}</small>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <p-tag [value]="(user.total_points | number) || ''" severity="success" />
-              </td>
-              <td>
-                <p-badge [value]="user.level" severity="info" />
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="3" class="text-center text-500 py-4">
-                No hay usuarios registrados
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-
-        <p-divider />
-
-        <div class="text-center">
-          <p-button [text]="true" [routerLink]="['/admin/users']">
-            <span>Ver todos los usuarios</span>
-            <span class="emoji-icon ml-2">➡️</span>
-          </p-button>
-        </div>
-      </p-card>
+    <div class="db-nav-tile" [routerLink]="['/admin/categories']">
+      <span class="db-nav-emoji">🏷️</span>
+      <span class="db-nav-text">Categorías</span>
+    </div>
+    <div class="db-nav-tile" [routerLink]="['/admin/analytics']">
+      <span class="db-nav-emoji">📊</span>
+      <span class="db-nav-text">Analíticas</span>
+    </div>
+    <div class="db-nav-tile" [routerLink]="['/admin/achievements']">
+      <span class="db-nav-emoji">🏆</span>
+      <span class="db-nav-text">Logros</span>
+    </div>
+    <div class="db-nav-tile" [routerLink]="['/admin/videos']">
+      <span class="db-nav-emoji">🎥</span>
+      <span class="db-nav-text">Videos</span>
+    </div>
+    <div class="db-nav-tile" [routerLink]="['/admin/settings']">
+      <span class="db-nav-emoji">⚙️</span>
+      <span class="db-nav-text">Config</span>
     </div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="grid mt-4">
-    <div class="col-12">
-      <p-card header="Acciones Rápidas">
-        <div class="grid">
-          <div class="col-12 md:col-6 lg:col-3">
-            <p-button [routerLink]="['/admin/categories']" styleClass="w-full"
-              severity="secondary">
-              <span class="emoji-icon">➕</span>
-              <span class="ml-2">Crear Categoría</span>
-            </p-button>
-          </div>
-          <div class="col-12 md:col-6 lg:col-3">
-            <p-button [routerLink]="['/admin/questions']"
-              styleClass="w-full" severity="secondary">
-              <span class="emoji-icon">❓</span>
-              <span class="ml-2">Gestionar Preguntas</span>
-            </p-button>
-          </div>
-          <div class="col-12 md:col-6 lg:col-3">
-            <p-button [routerLink]="['/admin/analytics']"
-              styleClass="w-full" severity="secondary">
-              <span class="emoji-icon">📈</span>
-              <span class="ml-2">Ver Análisis</span>
-            </p-button>
-          </div>
-          <div class="col-12 md:col-6 lg:col-3">
-            <p-button (onClick)="shareAdminCode()" styleClass="w-full"
-              severity="help">
-              <span class="emoji-icon">📤</span>
-              <span class="ml-2">Compartir Código</span>
-            </p-button>
+  <!-- ── MAIN CONTENT ── -->
+  <div class="db-main-row">
+    <!-- Actividad Reciente -->
+    <div class="db-card">
+      <div class="db-card-title">🕐 Actividad Reciente</div>
+      <div class="db-activity-list" *ngIf="recentActivity.length > 0; else noAct">
+        <div *ngFor="let act of recentActivity; trackBy: trackByActivity" class="db-act-item">
+          <div class="db-act-icon">{{ act.icon }}</div>
+          <div class="db-act-body">
+            <p class="db-act-desc">{{ act.description }}</p>
+            <small class="db-act-time">{{ act.timestamp | date:'d/M/yy, h:mm a' }}</small>
           </div>
         </div>
-      </p-card>
+      </div>
+      <ng-template #noAct>
+        <div class="db-empty"><span>ℹ️</span><p>Sin actividad reciente</p></div>
+      </ng-template>
+    </div>
+
+    <!-- Top Usuarios -->
+    <div class="db-card">
+      <div class="db-card-title">🏆 Top Usuarios</div>
+      <div class="db-top-list" *ngIf="topUsers.length > 0; else noUsers">
+        <div *ngFor="let user of topUsers; let i = index" class="db-top-item">
+          <span class="db-top-rank">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}</span>
+          <div class="db-top-avatar">{{ user.full_name ? user.full_name.charAt(0) : '?' }}</div>
+          <div class="db-top-identity">
+            <span class="db-top-name">{{ user.full_name }}</span>
+            <span class="db-top-handle">&#64;{{ user.username }}</span>
+          </div>
+          <div class="db-top-right">
+            <span class="db-top-pts">{{ user.total_points | number }}</span>
+            <span class="db-top-lv">Nv {{ user.level }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noUsers>
+        <div class="db-empty"><span>👥</span><p>Sin usuarios</p></div>
+      </ng-template>
+      <a class="db-see-all" [routerLink]="['/admin/users']">Ver todos →</a>
     </div>
   </div>
+
+  <!-- ── ACCIONES RÁPIDAS ── -->
+  <p class="db-section-label">Acciones Rápidas</p>
+  <div class="db-actions-grid">
+    <div class="db-action-tile" [routerLink]="['/admin/categories']">
+      <span class="db-action-emoji">➕</span>
+      <span class="db-action-text">Crear Categoría</span>
+    </div>
+    <div class="db-action-tile" [routerLink]="['/admin/questions']">
+      <span class="db-action-emoji">❓</span>
+      <span class="db-action-text">Gestionar Preguntas</span>
+    </div>
+    <div class="db-action-tile" [routerLink]="['/admin/analytics']">
+      <span class="db-action-emoji">📈</span>
+      <span class="db-action-text">Ver Análisis</span>
+    </div>
+    <div class="db-action-tile db-action-green" (click)="shareAdminCode()">
+      <span class="db-action-emoji">📤</span>
+      <span class="db-action-text">Compartir Código</span>
+    </div>
+  </div>
+
+  <!-- ── GRÁFICA ── -->
+  <div class="db-card db-chart-card">
+    <div class="db-card-title">📈 Actividad (Últimos 7 días)</div>
+    <div class="db-chart-wrap">
+      <p-chart type="line" [data]="userActivityChart" [options]="chartOptions" height="220"></p-chart>
+    </div>
+  </div>
+
 </div>
 
-<ng-template #loadingStats>
-  <div class="grid">
-    <div class="col-12 md:col-6 xl:col-3" *ngFor="let item of [1,2,3,4]">
-      <div class="card">
-        <p-skeleton height="4rem" />
-      </div>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Floating Logout Button -->
-<button class="logout-fab" (click)="logout()" pTooltip="Cerrar Sesión" tooltipPosition="left">
-  <span class="emoji-icon-logout">🚪</span>
-</button>
-
-<!-- Confirmation Dialog -->
-<p-confirmDialog></p-confirmDialog>
-
-<!-- Toast Notifications -->
-<p-toast position="top-right" />
-<!-- </div> -->
+<!-- Logout FAB -->
+<button class="db-logout-fab" (click)="logout()" title="Cerrar sesión">🚪</button>
