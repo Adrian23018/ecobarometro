@@ -1,333 +1,234 @@
-<!-- Header con botón atrás -->
-<div class="gradient-bg text-white relative overflow-hidden">
-  <!-- Botón Atrás -->
-  <button 
-    class="back-button absolute top-4 left-4 z-20 p-3 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg"
-    (click)="goBack()"
-    pRipple>
-    <i class="fas fa-arrow-left text-lg"></i>
-    <span class="hidden sm:inline">Atrás</span>
+<div class="udb-page">
+  <!-- Header -->
+  <div class="udb-header">
+    <div class="udb-header-top">
+      <button class="udb-back-btn" (click)="goBack()">⬅️</button>
+    </div>
+
+    <div class="udb-welcome">
+      <div class="udb-avatar-section">
+        <div class="udb-avatar">
+          <span class="udb-avatar-text">{{ currentUser?.full_name?.charAt(0) || '?' }}</span>
+          <div class="udb-avatar-badge">🌱</div>
+        </div>
+        <div class="udb-user-info">
+          <h1 class="udb-greeting">¡Hola, {{ currentUser?.full_name || 'Usuario' }}!</h1>
+          <p class="udb-subtitle">Tu espacio ecológico personal</p>
+          <div class="udb-badges">
+            <span class="udb-badge udb-badge-level">Nivel {{ currentUser?.level || 1 }}</span>
+            <span class="udb-badge udb-badge-points">{{ currentUser?.total_points || 0 }} pts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="udb-progress-card">
+        <div class="udb-progress-header">
+          <span class="udb-progress-label">Progreso al Nivel {{ (currentUser?.level || 1) + 1 }}</span>
+          <span class="udb-progress-percentage">{{ levelProgress | number:'1.0-0' }}%</span>
+        </div>
+        <div class="udb-progress-bar-container">
+          <div class="udb-progress-bar" [style.width.%]="levelProgress"></div>
+        </div>
+        <p class="udb-progress-text">{{ pointsToNextLevel }} puntos más para subir de nivel</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="udb-stats-grid">
+    <div class="udb-stat-card">
+      <div class="udb-stat-icon udb-stat-icon-blue">🎮</div>
+      <div class="udb-stat-content">
+        <div class="udb-stat-value">{{ sessionStats.total_sessions }}</div>
+        <div class="udb-stat-label">Partidas Jugadas</div>
+        <small class="udb-stat-detail">{{ sessionStats.completed_sessions }} completadas</small>
+      </div>
+    </div>
+
+    <div class="udb-stat-card">
+      <div class="udb-stat-icon udb-stat-icon-green">📈</div>
+      <div class="udb-stat-content">
+        <div class="udb-stat-value">{{ sessionStats.avg_score | number:'1.0-0' }}%</div>
+        <div class="udb-stat-label">Promedio</div>
+        <small class="udb-stat-detail">Mejor: {{ sessionStats.best_score | number:'1.0-0' }}%</small>
+      </div>
+    </div>
+
+    <div class="udb-stat-card">
+      <div class="udb-stat-icon udb-stat-icon-orange">🏆</div>
+      <div class="udb-stat-content">
+        <div class="udb-stat-value"># {{ rankingStats?.overall_position || 0 }}</div>
+        <div class="udb-stat-label">Ranking</div>
+        <small class="udb-stat-detail">de {{ rankingStats?.total_participants || 0 }} usuarios</small>
+      </div>
+    </div>
+
+    <div class="udb-stat-card">
+      <div class="udb-stat-icon udb-stat-icon-purple">⭐</div>
+      <div class="udb-stat-content">
+        <div class="udb-stat-value">{{ completedAchievements }}</div>
+        <div class="udb-stat-label">Logros</div>
+        <small class="udb-stat-detail">{{ pendingAchievements }} por conseguir</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Section -->
+  <div class="udb-section">
+    <h2 class="udb-section-title">📈 Actividad Reciente</h2>
+    <div class="udb-card">
+      <div class="udb-activity-list" *ngIf="recentActivity.length > 0">
+        <div *ngFor="let activity of recentActivity; let i = index"
+             class="udb-activity-item"
+             [style.animation-delay]="(i * 0.05) + 's'">
+          <div class="udb-activity-icon">
+            <span class="udb-activity-emoji">{{ activity.icon }}</span>
+          </div>
+          <div class="udb-activity-content">
+            <h4 class="udb-activity-title">{{ activity.title }}</h4>
+            <p class="udb-activity-description">{{ activity.description }}</p>
+            <small class="udb-activity-time">{{ activity.timestamp | date:'short' }}</small>
+          </div>
+          <div class="udb-activity-badge" *ngIf="activity.points && activity.points > 0">
+            <span class="udb-points-badge">+{{ activity.points }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="udb-empty-state" *ngIf="recentActivity.length === 0">
+        <div class="udb-empty-icon">⏳</div>
+        <h3 class="udb-empty-title">No hay actividad reciente</h3>
+        <p class="udb-empty-text">¡Juega tu primer EcoChallenge para comenzar!</p>
+        <button class="udb-btn udb-btn-primary" (click)="goToGame()">
+          <span>🎮</span>
+          <span>Comenzar Ahora</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Achievement Progress -->
+  <div class="udb-section" *ngIf="achievementProgress.length > 0">
+    <h2 class="udb-section-title">🏆 Progreso de Logros</h2>
+    <div class="udb-card">
+      <div class="udb-achievement-grid">
+        <div *ngFor="let ach of achievementProgress.slice(0, 6)" class="udb-achievement-card">
+          <div class="udb-achievement-icon"
+               [style.background]="ach.achievement.badge_color"
+               [class.udb-achievement-completed]="ach.is_completed">
+            <span class="udb-achievement-emoji">{{ getAchievementEmoji(ach.achievement.icon) }}</span>
+            <div class="udb-achievement-check" *ngIf="ach.is_completed">✓</div>
+          </div>
+          <h4 class="udb-achievement-name">{{ ach.achievement.name }}</h4>
+          <p class="udb-achievement-desc">{{ ach.achievement.description }}</p>
+          <div class="udb-achievement-progress">
+            <div class="udb-achievement-progress-header">
+              <span class="udb-achievement-progress-text">{{ ach.current_progress }} / {{ ach.achievement.points_required }}</span>
+              <span class="udb-achievement-progress-pct">{{ ach.completion_percentage | number:'1.0-0' }}%</span>
+            </div>
+            <div class="udb-achievement-progress-bar">
+              <div class="udb-achievement-progress-fill" [style.width.%]="ach.completion_percentage"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="udb-section-footer">
+        <button class="udb-btn udb-btn-text" [routerLink]="['/user/achievements']">
+          Ver Todos los Logros →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Performance -->
+  <div class="udb-section" *ngIf="categoryPerformance.length > 0">
+    <h2 class="udb-section-title">📊 Rendimiento por Categoría</h2>
+    <div class="udb-card">
+      <div class="udb-category-list">
+        <div *ngFor="let category of categoryPerformance.slice(0, 4)" class="udb-category-item">
+          <div class="udb-category-icon" [style.background]="category.color">
+            <span>{{ category.icon | icon }}</span>
+          </div>
+          <div class="udb-category-content">
+            <div class="udb-category-header">
+              <span class="udb-category-name">{{ category.name }}</span>
+              <span class="udb-category-score">{{ category.user_best_score || 0 }}%</span>
+            </div>
+            <div class="udb-category-progress-bar">
+              <div class="udb-category-progress-fill"
+                   [style.width.%]="category.user_best_score || 0"
+                   [style.background]="category.color"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="udb-section-footer">
+        <button class="udb-btn udb-btn-text" [routerLink]="['/user/ranking']">
+          Ver Detalles →
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eco Tips -->
+  <div class="udb-section">
+    <h2 class="udb-section-title">💡 Consejos Ecológicos del Día</h2>
+    <div class="udb-card">
+      <div class="udb-tips-carousel">
+        <div *ngFor="let tip of ecoTips.slice(0, 3)" class="udb-tip-card">
+          <div class="udb-tip-header">
+            <div class="udb-tip-icon" [style.background]="tip.color">
+              <span>{{ getTipEmoji(tip.icon) }}</span>
+            </div>
+            <div class="udb-tip-badges">
+              <span class="udb-tip-category">{{ tip.category }}</span>
+              <span class="udb-tip-difficulty" [class]="'udb-difficulty-' + tip.difficulty">
+                {{ getDifficultyLabel(tip.difficulty) }}
+              </span>
+            </div>
+          </div>
+          <h3 class="udb-tip-title">{{ tip.title }}</h3>
+          <p class="udb-tip-description">{{ tip.description }}</p>
+          <div class="udb-tip-rating">
+            <span class="udb-tip-rating-label">Dificultad:</span>
+            <div class="udb-tip-stars">
+              <span *ngFor="let star of [1,2,3]"
+                    class="udb-tip-star"
+                    [class.udb-tip-star-filled]="star <= getDifficultyRating(tip.difficulty)">⭐</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="udb-section">
+    <h2 class="udb-section-title">⚡ Acciones Rápidas</h2>
+    <div class="udb-card">
+      <div class="udb-quick-actions">
+        <div *ngFor="let action of quickActions; let i = index"
+             class="udb-quick-action"
+             (click)="onQuickActionClick(action)"
+             [style.animation-delay]="(i * 0.05) + 's'">
+          <div class="udb-quick-action-icon" [style.background]="action.color">
+            <span class="udb-quick-action-emoji">{{ getActionEmoji(action.label) }}</span>
+          </div>
+          <div class="udb-quick-action-content">
+            <h3 class="udb-quick-action-title">{{ action.label }}</h3>
+            <p class="udb-quick-action-description">{{ action.description }}</p>
+          </div>
+          <div class="udb-quick-action-arrow">→</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Button -->
+  <button class="udb-fab" (click)="goToGame()" title="Jugar EcoChallenge">
+    <span class="udb-fab-icon">🎮</span>
   </button>
-  
-  <!-- Elementos decorativos -->
-  <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -translate-y-16 translate-x-16"></div>
-  <div class="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full translate-y-12 -translate-x-12"></div>
-  
-  <!-- Sección de Bienvenida al Usuario -->
-  <div class="px-6 pt-20 pb-8 relative z-10">
-    <div class="flex items-center gap-4 mb-6">
-      <div class="relative">
-        <p-avatar 
-          [image]="currentUser?.avatar_url" 
-          [label]="currentUser?.full_name?.charAt(0) || '?'" 
-          size="xlarge"
-          shape="circle" 
-          styleClass="user-avatar bounce-in" />
-        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full border-2 border-white pulse-animation"></div>
-      </div>
-      <div class="slide-in">
-        <h1 class="text-2xl font-bold mb-1">
-          ¡Hola {{currentUser?.full_name || 'Adrian User'}}! 
-          <span class="wave-animation inline-block">🌱</span>
-        </h1>
-        <p class="text-blue-100 mb-3">Bienvenido a tu dashboard ecológico</p>
-        <div class="flex gap-3">
-          <p-badge 
-            [value]="'Nivel ' + (currentUser?.level || 1)" 
-            severity="success" 
-            size="large" 
-            styleClass="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium" />
-          <p-tag 
-            [value]="(currentUser?.total_points || 0) + ' puntos'" 
-            severity="info" 
-            styleClass="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium" />
-        </div>
-      </div>
-    </div>
-    
-    <!-- Sección de Progreso -->
-    <div class="glass-effect rounded-2xl p-4 slide-in">
-      <div class="flex justify-between items-center mb-3">
-        <span class="font-medium text-gray-700">Progreso al Nivel {{ (currentUser?.level || 1) + 1 }}</span>
-        <span class="text-purple-600 font-bold">{{ levelProgress | number:'1.0-0' }}%</span>
-      </div>
-      <p-progressBar 
-        [value]="levelProgress" 
-        [showValue]="false" 
-        styleClass="level-bar progress-glow" />
-      <p class="text-gray-600 text-sm mt-2">{{ pointsToNextLevel }} puntos para el siguiente nivel</p>
-    </div>
-  </div>
 </div>
-
-<!-- Grid de Estadísticas -->
-<div class="px-6 -mt-6 relative z-10 mb-6">
-  <div class="grid grid-cols-2 gap-4">
-    <!-- Partidas Jugadas -->
-    <p-card styleClass="stat-card">
-      <div class="stat-content text-center">
-        <div class="stat-icon bg-blue-100">
-          <i class="pi pi-play text-blue-600 text-lg"></i>
-        </div>
-        <div class="stat-value text-2xl font-bold text-gray-800">{{ sessionStats.total_sessions }}</div>
-        <div class="stat-label text-gray-600 text-sm font-medium">Partidas Jugadas</div>
-        <small class="text-gray-500 text-xs">{{ sessionStats.completed_sessions }} completadas</small>
-      </div>
-    </p-card>
-    
-    <!-- Puntuación Promedio -->
-    <p-card styleClass="stat-card">
-      <div class="stat-content text-center">
-        <div class="stat-icon bg-green-100">
-          <i class="pi pi-chart-line text-green-600 text-lg"></i>
-        </div>
-        <div class="stat-value text-2xl font-bold text-gray-800">{{ sessionStats.avg_score | number:'1.0-0' }}%</div>
-        <div class="stat-label text-gray-600 text-sm font-medium">Promedio</div>
-        <small class="text-gray-500 text-xs">Mejor: {{ sessionStats.best_score | number:'1.0-0' }}%</small>
-      </div>
-    </p-card>
-    
-    <!-- Posición Ranking -->
-    <p-card styleClass="stat-card">
-      <div class="stat-content text-center">
-        <div class="stat-icon bg-orange-100">
-          <i class="pi pi-trophy text-orange-600 text-lg"></i>
-        </div>
-        <div class="stat-value text-2xl font-bold text-gray-800"># {{ rankingStats?.overall_position || 0 }}</div>
-        <div class="stat-label text-gray-600 text-sm font-medium">Ranking</div>
-        <small class="text-gray-500 text-xs">de {{ rankingStats?.total_participants || 0 }} usuarios</small>
-      </div>
-    </p-card>
-    
-    <!-- Logros -->
-    <p-card styleClass="stat-card">
-      <div class="stat-content text-center">
-        <div class="stat-icon bg-purple-100">
-          <i class="pi pi-star text-purple-600 text-lg"></i>
-        </div>
-        <div class="stat-value text-2xl font-bold text-gray-800">{{ completedAchievements }}</div>
-        <div class="stat-label text-gray-600 text-sm font-medium">Logros</div>
-        <small class="text-gray-500 text-xs">{{ pendingAchievements }} por conseguir</small>
-      </div>
-    </p-card>
-  </div>
-</div>
-
-<!-- Actividad Reciente -->
-<div class="px-6 mb-6 ">
-  <p-card header="📈 Tu Actividad Reciente" styleClass="activity-card glass-effect p-1">
-
-    <!-- Lista de actividades -->
-    <div class="activity-list" *ngIf="recentActivity.length > 0">
-      <div
-        *ngFor="let activity of recentActivity; let i = index"
-        class="activity-list-item"
-        [class.fade-in]="true"
-        [style.animation-delay]="(i * 0.1) + 's'">
-        <div class="activity-list-icon">
-          <span class="emoji-activity">{{ activity.icon }}</span>
-        </div>
-        <div class="activity-list-content">
-          <h4 class="activity-list-title">{{ activity.title }}</h4>
-          <p class="activity-list-description">{{ activity.description }}</p>
-          <small class="activity-list-time">{{ activity.timestamp | date:'short' }}</small>
-        </div>
-        <div class="activity-list-badge" *ngIf="activity.points && activity.points > 0">
-          <p-badge
-            [value]="'+' + activity.points"
-            severity="success"
-            styleClass="points-badge" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Estado vacío -->
-    <div class="text-center py-8" *ngIf="recentActivity.length === 0">
-      <div class="empty-state-icon">
-        <span class="emoji-large">⏳</span>
-      </div>
-      <h3 class="empty-state-title">No hay actividad reciente</h3>
-      <p class="empty-state-text">¡Juega tu primer EcoChallenge para comenzar!</p>
-      <p-button
-        label="Comenzar Ahora"
-        icon="pi pi-play"
-        (click)="goToGame()"
-        styleClass="p-button-rounded p-button-success mt-3" />
-    </div>
-  </p-card>
-</div>
-
-<!-- Progreso de Logros -->
-<div class="px-6 mb-6">
-  <p-card header="🏆 Progreso de Logros" styleClass="glass-effect p-1">
-    
-    <div class="achievement-carousel" *ngIf="achievementProgress.length > 0">
-      <p-carousel 
-        [value]="achievementProgress.slice(0, 6)" 
-        [numVisible]="1" 
-        [numScroll]="1" 
-        [circular]="true"
-        [autoplayInterval]="4000" 
-        [showIndicators]="false" 
-        [showNavigators]="true">
-        <ng-template pTemplate="item" let-achievement>
-          <div class="achievement-card text-center p-3">
-            <div class="achievement-icon-large mb-3"
-              [style.background-color]="achievement.achievement.badge_color"
-              [class.completed]="achievement.is_completed">
-              <i [class]="achievement.achievement.icon" class="text-white text-2xl"></i>
-              <div class="completion-check" *ngIf="achievement.is_completed">
-                <i class="pi pi-check text-white"></i>
-              </div>
-            </div>
-            <h4 class="font-semibold mb-1">{{ achievement.achievement.name }}</h4>
-            <p class="text-600 text-sm mb-3">{{ achievement.achievement.description }}</p>
-
-            <div class="progress-section">
-              <div class="flex justify-content-between align-items-center mb-2">
-                <span class="text-sm">{{ achievement.current_progress }} / {{ achievement.achievement.points_required }}</span>
-                <span class="text-sm font-medium">{{ achievement.completion_percentage | number:'1.0-0' }}%</span>
-              </div>
-              <p-progressBar 
-                [value]="achievement.completion_percentage" 
-                [showValue]="false"
-                styleClass="h-0.5rem" />
-            </div>
-          </div>
-        </ng-template>
-      </p-carousel>
-    </div>
-
-    <div class="text-center py-6" *ngIf="achievementProgress.length === 0">
-      <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-content-center mx-auto mb-4">
-        <i class="pi pi-star text-yellow-600 text-2xl"></i>
-      </div>
-      <p class="text-gray-600">¡Comienza a jugar para desbloquear logros!</p>
-    </div>
-
-    <div class="text-center mt-3">
-      <p-button 
-        label="Ver Todos los Logros" 
-        [text]="true" 
-        [routerLink]="['/user/achievements']" />
-    </div>
-  </p-card>
-</div>
-
-<!-- Rendimiento por Categoría -->
-<div class="px-6 mb-6" *ngIf="categoryPerformance.length > 0">
-  <p-card header="📊 Rendimiento por Categoría" styleClass="glass-effect p-1">
-    <div class="category-performance">
-      <div *ngFor="let category of categoryPerformance.slice(0, 4)" class="category-item mb-3" style="padding: 2px 11px 2px 13px">
-        <div class="flex align-items-center justify-content-between mb-2">
-          <div class="flex align-items-center gap-2">
-            <div class="category-icon" [style.background-color]="category.color">
-              <span class="text-sm">{{ category.icon | icon }}</span>
-            </div>
-            <span class="font-medium">{{ category.name }}</span>
-          </div>
-          <span class="text-sm font-bold ml-2">{{ category.user_best_score || 0 }}%</span>
-        </div>
-        <p-progressBar 
-          [value]="category.user_best_score || 0" 
-          [showValue]="false" 
-          styleClass="h-0.5rem" />
-      </div>
-    </div>
-
-    <div class="text-center mt-3">
-      <p-button 
-        label="Ver Detalles" 
-        [text]="true" 
-        [routerLink]="['/user/ranking']" />
-    </div>
-  </p-card>
-</div>
-
-<!-- Consejos Ecológicos -->
-<div class="px-6 mb-6">
-  <p-card header="💡 Consejos Ecológicos del Día" styleClass="glass-effect p-1">
-    <p-carousel 
-      [value]="ecoTips" 
-      [numVisible]="1" 
-      [numScroll]="1" 
-      [circular]="true" 
-      [autoplayInterval]="5000"
-      [responsiveOptions]="tipCarouselResponsive">
-      <ng-template pTemplate="item" let-tip>
-        <div class="tip-card rounded-xl p-4 border border-gray-100 m-2">
-          <div class="flex items-start gap-3 mb-3">
-            <div class="tip-icon" [style.background-color]="tip.color">
-              <i [class]="tip.icon" class="text-white"></i>
-            </div>
-            <div class="flex-1">
-              <div class="flex gap-2 mb-2">
-                <p-tag 
-                  [value]="tip.category" 
-                  severity="secondary" 
-                  size="small" />
-                <p-tag 
-                  [value]="getDifficultyLabel(tip.difficulty)" 
-                  [severity]="getDifficultySeverity(tip.difficulty)"
-                  size="small" />
-              </div>
-            </div>
-          </div>
-          <h3 class="font-semibold text-gray-800 mb-2">{{ tip.title }}</h3>
-          <p class="text-gray-600 text-sm mb-3">{{ tip.description }}</p>
-          <div class="flex items-center gap-2">
-            <span class="text-xs text-gray-500">Dificultad:</span>
-            <p-rating 
-              [ngModel]="getDifficultyRating(tip.difficulty)" 
-              [readonly]="true" 
-              [stars]="3" 
-              [cancel]="false"
-              iconOnClass="pi pi-star-fill" 
-              iconOffClass="pi pi-star" />
-          </div>
-        </div>
-      </ng-template>
-    </p-carousel>
-  </p-card>
-</div>
-
-<!-- Acciones Rápidas -->
-<div class="px-6 pb-8">
-  <p-card header="⚡ Acciones Rápidas" styleClass="glass-effect p-1">
-    <div class="quick-actions-list p-1">
-      <div
-        *ngFor="let action of quickActions; let i = index"
-        class="quick-action-item"
-        (click)="onQuickActionClick(action)"
-        [style.animation-delay]="(i * 0.1) + 's'"
-        pRipple>
-
-        <!-- Icono -->
-        <div class="quick-action-icon-wrapper">
-          <div class="quick-action-icon" [style.background-color]="action.color">
-            <span class="emoji-action">{{ getActionEmoji(action.label) }}</span>
-          </div>
-        </div>
-
-        <!-- Contenido -->
-        <div class="quick-action-content">
-          <h3 class="quick-action-title">{{ action.label }}</h3>
-          <p class="quick-action-description">{{ action.description }}</p>
-        </div>
-
-        <!-- Flecha -->
-        <div class="quick-action-arrow">
-          <i class="pi pi-chevron-right"></i>
-        </div>
-      </div>
-    </div>
-  </p-card>
-</div>
-
-<!-- Botón Flotante de Acción -->
-<p-button
-  icon="pi pi-play"
-  (click)="goToGame()"
-  styleClass="floating-btn fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg z-20"
-  pTooltip="Jugar EcoChallenge"
-  tooltipPosition="left" />

@@ -53,7 +53,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     { label: 'Logros',            icon: 'pi pi-star',           route: '/admin/achievements', roles: ['admin'] },
     { label: 'Videos',            icon: 'pi pi-video',          route: '/admin/videos',       roles: ['admin'] },
     { label: 'Mi Perfil',         icon: 'pi pi-user',           route: '/admin/profile',      roles: ['admin'] },
-    { label: 'Configuración',     icon: 'pi pi-cog',            route: '/admin/settings',     roles: ['admin'] },
   ];
 
   constructor(

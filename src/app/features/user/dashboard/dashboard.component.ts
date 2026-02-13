@@ -3,23 +3,7 @@ import { CommonModule,Location  } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { IconPipe } from '../../../shared/pipes/icon.pipe';
 
-// PrimeNG
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { ProgressBarModule } from 'primeng/progressbar';
-import { BadgeModule } from 'primeng/badge';
-import { TagModule } from 'primeng/tag';
-import { AvatarModule } from 'primeng/avatar';
-import { ChartModule } from 'primeng/chart';
-import { KnobModule } from 'primeng/knob';
-import { DividerModule } from 'primeng/divider';
-import { TooltipModule } from 'primeng/tooltip';
-import { RippleModule } from 'primeng/ripple';
-import { SkeletonModule } from 'primeng/skeleton';
-import { CarouselModule } from 'primeng/carousel';
-import { TableModule } from 'primeng/table';
-import { RatingModule } from 'primeng/rating';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
+// Models
 import { User } from '../../../core/models/user';
 import { GameSessionStats } from '../../../core/models/game-session';
 import { AchievementProgress } from '../../../core/models/achievement';
@@ -30,8 +14,6 @@ import { AchievementService } from '../../../core/services/achievement.service';
 import { RankingService } from '../../../core/services/ranking.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { GameSessionService } from '../../../core/services/game-session.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
 // Services
 
 
@@ -61,24 +43,6 @@ interface EcoTip {
   imports: [
     CommonModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
-    ProgressBarModule,
-    BadgeModule,
-    TagModule,
-    AvatarModule,
-    ChartModule,
-    KnobModule,
-    DividerModule,
-    TooltipModule,
-    RippleModule,
-    SkeletonModule,
-    CarouselModule,
-    TableModule,
-    RatingModule,
-    OverlayPanelModule,
-    FormsModule,
-    ReactiveFormsModule,
     IconPipe
   ],
   templateUrl: './dashboard.component.html',
@@ -404,5 +368,37 @@ export class UserDashboardComponent implements OnInit {
       'Mi Perfil': '👤'
     };
     return emojiMap[label] || '⚡';
+  }
+
+  // Método para convertir icono de PrimeNG a emoji para achievements
+  getAchievementEmoji(icon: string): string {
+    const iconMap: { [key: string]: string } = {
+      'pi pi-trophy': '🏆',
+      'pi pi-star': '⭐',
+      'pi pi-bolt': '⚡',
+      'pi pi-play': '🎮',
+      'pi pi-check': '✅',
+      'pi pi-heart': '❤️',
+      'pi pi-fire': '🔥',
+      'pi pi-crown': '👑',
+      'pi pi-diamond': '💎',
+      'pi pi-medal': '🎖️'
+    };
+    return iconMap[icon] || '🏆';
+  }
+
+  // Método para convertir icono de PrimeNG a emoji para tips
+  getTipEmoji(icon: string): string {
+    const iconMap: { [key: string]: string } = {
+      'pi pi-tint': '💧',
+      'pi pi-car': '🚗',
+      'pi pi-refresh': '♻️',
+      'pi pi-sun': '☀️',
+      'pi pi-leaf': '🍃',
+      'pi pi-lightbulb': '💡',
+      'pi pi-tree': '🌳',
+      'pi pi-globe': '🌍'
+    };
+    return iconMap[icon] || '💡';
   }
 }
