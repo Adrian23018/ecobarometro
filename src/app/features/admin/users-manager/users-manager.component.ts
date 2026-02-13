@@ -1,29 +1,15 @@
 // src/app/features/admin/users-manager/users-manager.component.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 // PrimeNG
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TagModule } from 'primeng/tag';
-import { BadgeModule } from 'primeng/badge';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { ChartModule } from 'primeng/chart';
-import { CalendarModule } from 'primeng/calendar';
-import { CheckboxModule } from 'primeng/checkbox';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
 
 // Services and Models
 import { UserService } from '../../../core/services/user.service';
@@ -52,24 +38,10 @@ interface UserFilter {
     CommonModule,
     FormsModule,
     RouterModule,
-    CardModule,
-    ButtonModule,
-    TableModule,
     DialogModule,
-    InputTextModule,
-    DropdownModule,
     ToastModule,
     ConfirmDialogModule,
-    ToolbarModule,
-    TagModule,
-    BadgeModule,
-    ProgressBarModule,
     TooltipModule,
-    ChartModule,
-    CalendarModule,
-    CheckboxModule,
-    AvatarModule,
-    MenuModule
   ],
   templateUrl: './users-manager.component.html',
   styleUrls: ['./users-manager.component.css']
@@ -77,6 +49,7 @@ interface UserFilter {
 export class UsersManagerComponent implements OnInit {
   // Data
   users: UserWithStats[] = [];
+  filteredUsers: UserWithStats[] = [];
   selectedUsers: UserWithStats[] = [];
   selectedUser: UserWithStats | null = null;
 
@@ -85,6 +58,7 @@ export class UsersManagerComponent implements OnInit {
   showUserDialog = false;
   showStatsDialog = false;
   showBulkActionsDialog = false;
+  showFilterPanel = false;
 
   // Filters
   filters: UserFilter = {};
@@ -107,39 +81,15 @@ export class UsersManagerComponent implements OnInit {
   averageLevel = 0;
   totalGamesPlayed = 0;
 
-  // Charts
-  userLevelChart: any;
-  activityChart: any;
-  chartOptions: any;
-
   constructor(
     private userService: UserService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
-  ) {
-    this.setupChartOptions();
-  }
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
-  }
-
-  setupChartOptions() {
-    this.chartOptions = {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    };
   }
 
   loadUsers() {
@@ -168,7 +118,7 @@ export class UsersManagerComponent implements OnInit {
         }));
 
         this.calculateStatistics();
-        this.updateCharts();
+        this.applyFilters();
         this.loading = false;
       },
       error: (error) => {
@@ -190,49 +140,41 @@ export class UsersManagerComponent implements OnInit {
     this.totalGamesPlayed = this.users.reduce((sum, u) => sum + (u.games_played || 0), 0);
   }
 
-  updateCharts() {
-    // User Level Distribution Chart
-    const levelCounts = Array.from({ length: 10 }, (_, i) => {
-      const level = i + 1;
-      return this.users.filter(u => u.level === level).length;
+  applyFilters() {
+    this.filteredUsers = this.users.filter(u => {
+      if (this.filters.level && u.level !== this.filters.level) return false;
+      if (this.filters.status === 'active' && !u.is_active) return false;
+      if (this.filters.status === 'inactive' && u.is_active) return false;
+      if (this.filters.search) {
+        const s = this.filters.search.toLowerCase();
+        return (u.full_name || '').toLowerCase().includes(s)
+            || (u.username || '').toLowerCase().includes(s)
+            || (u.email || '').toLowerCase().includes(s);
+      }
+      return true;
     });
+  }
 
-    this.userLevelChart = {
-      labels: Array.from({ length: 10 }, (_, i) => `Nivel ${i + 1}`),
-      datasets: [{
-        label: 'Usuarios por Nivel',
-        data: levelCounts,
-        backgroundColor: 'rgba(54, 162, 235, 0.8)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
-    };
+  get activeFiltersCount(): number {
+    let n = 0;
+    if (this.filters.level) n++;
+    if (this.filters.status) n++;
+    return n;
+  }
 
-    // Activity Chart (last 7 days)
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (6 - i));
-      return date;
-    });
+  setLevelFilter(val: number | null) {
+    this.filters.level = val ?? undefined;
+    this.applyFilters();
+  }
 
-    const activityData = last7Days.map(date => {
-      return this.users.filter(u => {
-        const lastActivity = u.last_activity;
-        return lastActivity &&
-               lastActivity.toDateString() === date.toDateString();
-      }).length;
-    });
+  setStatusFilter(val: 'active' | 'inactive' | null) {
+    this.filters.status = val ?? undefined;
+    this.applyFilters();
+  }
 
-    this.activityChart = {
-      labels: last7Days.map(date => date.toLocaleDateString('es-ES', { weekday: 'short' })),
-      datasets: [{
-        label: 'Usuarios Activos',
-        data: activityData,
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        tension: 0.4
-      }]
-    };
+  clearFilters() {
+    this.filters = {};
+    this.applyFilters();
   }
 
   viewUserDetails(user: UserWithStats) {
@@ -288,7 +230,7 @@ export class UsersManagerComponent implements OnInit {
             user.achievements_count = 0;
 
             this.calculateStatistics();
-            this.updateCharts();
+            this.applyFilters();
 
             this.messageService.add({
               severity: 'success',
@@ -321,7 +263,7 @@ export class UsersManagerComponent implements OnInit {
           next: () => {
             this.users = this.users.filter(u => u.id !== user.id);
             this.calculateStatistics();
-            this.updateCharts();
+            this.applyFilters();
 
             this.messageService.add({
               severity: 'success',

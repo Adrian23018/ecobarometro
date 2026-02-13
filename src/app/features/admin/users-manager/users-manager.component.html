@@ -1,537 +1,242 @@
 <!-- src/app/features/admin/users-manager/users-manager.component.html -->
-<div class="users-manager p-4">
-  <!-- Header -->
-  <p-card styleClass="mb-4">
-    <p-toolbar>
-      <div class="p-toolbar-group-left">
-        <p-button
-          [routerLink]="['/admin/dashboard']"
-          severity="secondary"
-          [outlined]="true"
-          styleClass="back-button">
-          <span class="emoji-icon">⬅️</span>
-        </p-button>
-        <h2 class="m-0 ml-3">👥 Gestión de Usuarios</h2>
-      </div>
-      <div class="p-toolbar-group-right">
-        <div class="flex gap-2">
-          <p-button
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="showBulkActions()"
-            [disabled]="selectedUsers.length === 0">
-            <span class="emoji-icon">⚙️</span>
-            <span class="ml-2">Acciones Masivas</span>
-          </p-button>
-          <p-button
-            severity="help"
-            [outlined]="true"
-            (onClick)="exportUsers()">
-            <span class="emoji-icon">📥</span>
-            <span class="ml-2">Exportar</span>
-          </p-button>
-        </div>
-      </div>
-    </p-toolbar>
+<div class="um-page">
+  <p-toast></p-toast>
+  <p-confirmDialog></p-confirmDialog>
 
-    <!-- Statistics Cards -->
-    <div class="grid mt-4">
-      <div class="col-12 md:col-3">
-        <div class="bg-blue-50 border-left-4 border-blue-500 p-4 rounded-lg">
-          <div class="flex align-items-center">
-            <div class="text-blue-600 mr-3">
-              <span class="emoji-icon-stat">👥</span>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-blue-700">{{ totalUsers }}</div>
-              <div class="text-blue-600 text-sm">Total Usuarios</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 md:col-3">
-        <div class="bg-green-50 border-left-4 border-green-500 p-4 rounded-lg">
-          <div class="flex align-items-center">
-            <div class="text-green-600 mr-3">
-              <span class="emoji-icon-stat">✅</span>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-green-700">{{ activeUsers }}</div>
-              <div class="text-green-600 text-sm">Usuarios Activos</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 md:col-3">
-        <div class="bg-orange-50 border-left-4 border-orange-500 p-4 rounded-lg">
-          <div class="flex align-items-center">
-            <div class="text-orange-600 mr-3">
-              <span class="emoji-icon-stat">⭐</span>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-orange-700">{{ averageLevel | number:'1.1-1' }}</div>
-              <div class="text-orange-600 text-sm">Nivel Promedio</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 md:col-3">
-        <div class="bg-purple-50 border-left-4 border-purple-500 p-4 rounded-lg">
-          <div class="flex align-items-center">
-            <div class="text-purple-600 mr-3">
-              <span class="emoji-icon-stat">🎮</span>
-            </div>
-            <div>
-              <div class="text-2xl font-bold text-purple-700">{{ totalGamesPlayed }}</div>
-              <div class="text-purple-600 text-sm">Juegos Totales</div>
-            </div>
-          </div>
-        </div>
+  <!-- ── TOP BAR ── -->
+  <div class="um-topbar">
+    <div class="um-topbar-left">
+      <button class="um-back-btn" [routerLink]="['/admin/dashboard']">←</button>
+      <div>
+        <h1 class="um-title">👥 Usuarios</h1>
+        <span class="um-subtitle">{{ filteredUsers.length }} de {{ users.length }} usuarios</span>
       </div>
     </div>
-
-    <!-- Charts -->
-    <div class="grid mt-4">
-      <div class="col-12 md:col-6">
-        <p-card header="Distribución por Nivel">
-          <p-chart
-            type="bar"
-            [data]="userLevelChart"
-            [options]="chartOptions"
-            height="300px"
-            width="320px">
-          </p-chart>
-        </p-card>
+    <div class="um-topbar-right">
+      <!-- Search -->
+      <div class="um-search-wrap">
+        <span class="um-search-icon">🔍</span>
+        <input
+          class="um-search-input"
+          type="text"
+          placeholder="Buscar usuarios..."
+          [(ngModel)]="filters.search"
+          (ngModelChange)="applyFilters()">
+        <button *ngIf="filters.search" class="um-search-clear" (click)="filters.search=''; applyFilters()">✕</button>
       </div>
+      <!-- Filter toggle -->
+      <button class="um-filter-btn" (click)="showFilterPanel = !showFilterPanel">
+        <span>⚙️</span>
+        <span>Filtros</span>
+        <span *ngIf="activeFiltersCount" class="um-filter-badge">{{ activeFiltersCount }}</span>
+      </button>
+      <!-- Export -->
+      <button class="um-export-btn" (click)="exportUsers()">📥 Exportar</button>
+    </div>
+  </div>
 
-      <div class="col-12 md:col-6">
-        <p-card header="Actividad (Última Semana)">
-          <p-chart
-            type="line"
-            [data]="activityChart"
-            [options]="chartOptions"
-            height="300px"
-             width="320px">
-          </p-chart>
-        </p-card>
+  <!-- ── STAT CARDS ── -->
+  <div class="um-stats">
+    <div class="um-stat um-stat-blue">
+      <span class="um-stat-emoji">👥</span>
+      <div class="um-stat-info">
+        <span class="um-stat-val">{{ totalUsers }}</span>
+        <span class="um-stat-lbl">Total</span>
       </div>
     </div>
-  </p-card>
-
-  <!-- Users Table -->
-  <p-card>
-    <!-- Filters -->
-    <div class="filters-container mb-4">
-      <div class="filter-item">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
-        <span class="p-input-icon-left w-full">
-          <span class="emoji-search">🔍</span>
-          <input
-            type="text"
-            pInputText
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Buscar usuarios..."
-            class="w-full search-with-emoji">
-        </span>
-      </div>
-
-      <div class="filter-item">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Nivel</label>
-        <p-dropdown
-          [options]="levelOptions"
-          [(ngModel)]="filters.level"
-          placeholder="Todos"
-          [showClear]="true"
-          class="w-full">
-        </p-dropdown>
-      </div>
-
-      <div class="filter-item">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-        <p-dropdown
-          [options]="statusOptions"
-          [(ngModel)]="filters.status"
-          placeholder="Todos"
-          [showClear]="true"
-          class="w-full">
-        </p-dropdown>
-      </div>
-
-      <div class="filter-item">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Rango de Fechas</label>
-        <p-calendar
-          [(ngModel)]="filters.dateRange"
-          selectionMode="range"
-          [readonlyInput]="true"
-          placeholder="Seleccionar rango"
-          class="w-full">
-        </p-calendar>
+    <div class="um-stat um-stat-green">
+      <span class="um-stat-emoji">✅</span>
+      <div class="um-stat-info">
+        <span class="um-stat-val">{{ activeUsers }}</span>
+        <span class="um-stat-lbl">Activos</span>
       </div>
     </div>
-
-    <!-- Table -->
-    <p-table
-      #dt
-      [value]="users"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="10"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
-      [(selection)]="selectedUsers"
-      [globalFilterFields]="['full_name', 'username', 'email']"
-      styleClass="p-datatable-striped"
-      responsiveLayout="scroll">
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th style="width: 3rem">
-            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-          </th>
-          <th pSortableColumn="full_name">
-            Usuario
-            <p-sortIcon field="full_name"></p-sortIcon>
-          </th>
-          <th pSortableColumn="level">
-            Nivel
-            <p-sortIcon field="level"></p-sortIcon>
-          </th>
-          <th pSortableColumn="total_points">
-            Puntos
-            <p-sortIcon field="total_points"></p-sortIcon>
-          </th>
-          <th>Progreso</th>
-          <th pSortableColumn="last_activity">
-            Última Actividad
-            <p-sortIcon field="last_activity"></p-sortIcon>
-          </th>
-          <th>Estado</th>
-          <th style="width: 8rem">Acciones</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-user>
-        <tr>
-          <td>
-            <p-tableCheckbox [value]="user"></p-tableCheckbox>
-          </td>
-
-          <td>
-            <div class="flex align-items-center gap-3">
-              <p-avatar
-                [label]="getUserInitials(user)"
-                styleClass="mr-2 mx-2"
-                size="large"
-                shape="circle"
-                class="place"
-                [style.background-color]="getLevelColor(user.level)">
-              </p-avatar>
-              <div>
-                <div class="font-medium text-gray-900">{{ user.full_name }}</div>
-                <div class="text-sm text-gray-500">{{ '@' + user.username }}</div>
-                <div class="text-xs text-gray-400">{{ user.email }}</div>
-              </div>
-            </div>
-          </td>
-
-          <td>
-            <div class="flex align-items-center gap-2">
-              <p-badge
-                [value]="user.level"
-                [style.background-color]="getLevelColor(user.level)">
-              </p-badge>
-              <div class="text-sm text-gray-600">
-                {{ user.experience_points }} XP
-              </div>
-            </div>
-          </td>
-
-          <td>
-            <div class="font-medium text-gray-900">
-              {{ user.total_points | number }}
-            </div>
-            <div class="text-sm text-gray-500">
-              {{ user.games_played || 0 }} juegos
-            </div>
-          </td>
-
-          <td>
-            <div class="w-full">
-              <div class="flex justify-between text-sm mb-1">
-                <span>Avg: {{ user.avg_score || 0 }}%</span>
-                <span>{{ user.achievements_count || 0 }} logros</span>
-              </div>
-              <p-progressBar
-                [value]="user.avg_score || 0"
-                [showValue]="false"
-                styleClass="h-2">
-              </p-progressBar>
-            </div>
-          </td>
-
-          <td>
-            <div class="text-sm">
-              <div>{{ formatDate(user.last_activity) }}</div>
-              <p-tag
-                [value]="getActivityStatus(user).label"
-                [severity]="getActivityStatus(user).severity"
-                styleClass="text-xs">
-              </p-tag>
-            </div>
-          </td>
-
-          <td>
-            <p-tag
-              [value]="getStatusLabel(user.is_active)"
-              [severity]="getStatusSeverity(user.is_active)">
-            </p-tag>
-          </td>
-
-          <td>
-            <div class="flex gap-1">
-              <p-button
-                size="small"
-                [text]="true"
-                severity="info"
-                (onClick)="viewUserDetails(user)"
-                pTooltip="Ver detalles">
-                <span class="emoji-icon">👁️</span>
-              </p-button>
-
-              <p-button
-                size="small"
-                [text]="true"
-                severity="help"
-                (onClick)="viewUserStats(user)"
-                pTooltip="Estadísticas">
-                <span class="emoji-icon">📊</span>
-              </p-button>
-
-              <p-button
-                size="small"
-                [text]="true"
-                [severity]="user.is_active ? 'warning' : 'success'"
-                (onClick)="toggleUserStatus(user)"
-                [pTooltip]="user.is_active ? 'Desactivar' : 'Activar'">
-                <span class="emoji-icon">{{ user.is_active ? '🚫' : '✅' }}</span>
-              </p-button>
-
-              <p-button
-                size="small"
-                [text]="true"
-                severity="secondary"
-                (onClick)="resetUserProgress(user)"
-                pTooltip="Reiniciar progreso">
-                <span class="emoji-icon">🔄</span>
-              </p-button>
-
-              <p-button
-                size="small"
-                [text]="true"
-                severity="danger"
-                (onClick)="deleteUser(user)"
-                pTooltip="Eliminar">
-                <span class="emoji-icon">🗑️</span>
-              </p-button>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="8" class="text-center p-4">
-            <div class="text-center">
-              <span class="emoji-icon-large">👥</span>
-              <h4 class="text-gray-500">No hay usuarios registrados</h4>
-              <p class="text-gray-400">Los usuarios aparecerán aquí cuando se registren con tu código de administrador</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </p-card>
-</div>
-
-<!-- User Details Dialog -->
-<p-dialog
-  header="Detalles del Usuario"
-  [(visible)]="showUserDialog"
-  [modal]="true"
-  [style]="{width: '600px'}"
-  [closable]="true">
-
-  <div *ngIf="selectedUser" class="user-details">
-    <!-- User Header -->
-    <div class="flex align-items-center gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
-      <p-avatar
-        [label]="getUserInitials(selectedUser)"
-        size="xlarge"
-        shape="circle"
-        [style.background-color]="getLevelColor(selectedUser.level)">
-      </p-avatar>
-      <div class="flex-1">
-        <h3 class="m-0 text-xl font-bold">{{ selectedUser.full_name }}</h3>
-        <p class="text-gray-600 m-0">{{ '@' + selectedUser.username }}</p>
-        <p class="text-gray-500 m-0 text-sm">{{ selectedUser.email }}</p>
-        <div class="flex gap-2 mt-2">
-          <p-badge
-            [value]="'Nivel ' + selectedUser.level"
-            [style.background-color]="getLevelColor(selectedUser.level)">
-          </p-badge>
-          <p-tag
-            [value]="getStatusLabel(selectedUser.is_active)"
-            [severity]="getStatusSeverity(selectedUser.is_active)">
-          </p-tag>
-        </div>
+    <div class="um-stat um-stat-amber">
+      <span class="um-stat-emoji">⭐</span>
+      <div class="um-stat-info">
+        <span class="um-stat-val">{{ averageLevel | number:'1.1-1' }}</span>
+        <span class="um-stat-lbl">Nivel prom.</span>
       </div>
     </div>
-
-    <!-- User Stats Grid -->
-    <div class="grid">
-      <div class="col-6">
-        <div class="text-center p-3 border-1 surface-border rounded-lg">
-          <div class="text-2xl font-bold text-blue-600">{{ selectedUser.total_points | number }}</div>
-          <div class="text-sm text-gray-600">Puntos Totales</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="text-center p-3 border-1 surface-border rounded-lg">
-          <div class="text-2xl font-bold text-green-600">{{ selectedUser.games_played || 0 }}</div>
-          <div class="text-sm text-gray-600">Juegos Jugados</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="text-center p-3 border-1 surface-border rounded-lg">
-          <div class="text-2xl font-bold text-orange-600">{{ selectedUser.avg_score || 0 }}%</div>
-          <div class="text-sm text-gray-600">Promedio</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="text-center p-3 border-1 surface-border rounded-lg">
-          <div class="text-2xl font-bold text-purple-600">{{ formatTime(selectedUser.time_played) }}</div>
-          <div class="text-sm text-gray-600">Tiempo Jugado</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Additional Info -->
-    <div class="mt-4">
-      <h4>Información Adicional</h4>
-      <div class="grid">
-        <div class="col-12">
-          <label class="font-medium text-gray-700">Categoría Favorita:</label>
-          <span class="ml-2">{{ selectedUser.favorite_category || 'N/A' }}</span>
-        </div>
-        <div class="col-12">
-          <label class="font-medium text-gray-700">Logros Obtenidos:</label>
-          <span class="ml-2">{{ selectedUser.achievements_count || 0 }}</span>
-        </div>
-        <div class="col-12">
-          <label class="font-medium text-gray-700">Miembro desde:</label>
-          <!-- <span class="ml-2">{{ formatDate(new Date(selectedUser.created_at)) }}</span> -->
-        </div>
+    <div class="um-stat um-stat-purple">
+      <span class="um-stat-emoji">🎮</span>
+      <div class="um-stat-info">
+        <span class="um-stat-val">{{ totalGamesPlayed }}</span>
+        <span class="um-stat-lbl">Juegos</span>
       </div>
     </div>
   </div>
 
-  <ng-template pTemplate="footer">
-    <div class="flex gap-2">
-      <p-button
-        severity="secondary"
-        (onClick)="showUserDialog = false">
-        <span class="emoji-icon">❌</span>
-        <span class="ml-2">Cerrar</span>
-      </p-button>
-      <p-button
-        severity="info"
-        (onClick)="viewUserStats(selectedUser!); showUserDialog = false">
-        <span class="emoji-icon">📊</span>
-        <span class="ml-2">Ver Estadísticas</span>
-      </p-button>
+  <!-- ── LOADING ── -->
+  <div *ngIf="loading" class="um-loading">
+    <div class="um-spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <!-- ── USER CARDS GRID ── -->
+  <div *ngIf="!loading" class="um-grid">
+    <!-- Empty state -->
+    <div *ngIf="filteredUsers.length === 0" class="um-empty">
+      <span class="um-empty-emoji">👥</span>
+      <h3>Sin usuarios</h3>
+      <p>Los usuarios aparecerán aquí cuando se registren con tu código de administrador.</p>
     </div>
-  </ng-template>
+
+    <!-- User card -->
+    <div *ngFor="let user of filteredUsers" class="um-card">
+      <!-- Card header: avatar + name -->
+      <div class="um-card-header">
+        <div class="um-avatar" [style.background]="getLevelColor(user.level)">
+          {{ getUserInitials(user) }}
+        </div>
+        <div class="um-card-identity">
+          <span class="um-card-name">{{ user.full_name }}</span>
+          <span class="um-card-handle">&#64;{{ user.username }}</span>
+          <span class="um-card-email">{{ user.email }}</span>
+        </div>
+        <div class="um-card-status-dot" [class.active]="user.is_active" [title]="getStatusLabel(user.is_active)"></div>
+      </div>
+
+      <!-- Card body: stats row -->
+      <div class="um-card-stats">
+        <div class="um-cs">
+          <span class="um-cs-val" [style.color]="getLevelColor(user.level)">{{ user.level }}</span>
+          <span class="um-cs-lbl">Nivel</span>
+        </div>
+        <div class="um-cs">
+          <span class="um-cs-val">{{ user.total_points | number }}</span>
+          <span class="um-cs-lbl">Puntos</span>
+        </div>
+        <div class="um-cs">
+          <span class="um-cs-val">{{ user.games_played || 0 }}</span>
+          <span class="um-cs-lbl">Juegos</span>
+        </div>
+        <div class="um-cs">
+          <span class="um-cs-val">{{ user.experience_points }}</span>
+          <span class="um-cs-lbl">XP</span>
+        </div>
+      </div>
+
+      <!-- Activity tag -->
+      <div class="um-card-activity">
+        <span class="um-activity-tag" [ngClass]="'um-act-' + getActivityStatus(user).severity">
+          {{ getActivityStatus(user).label }}
+        </span>
+        <span class="um-last-seen">{{ formatDate(user.last_activity) }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="um-card-actions">
+        <button class="um-action um-action-info" (click)="viewUserDetails(user)" title="Ver detalles">👁️</button>
+        <button class="um-action um-action-help" (click)="viewUserStats(user)" title="Estadísticas">📊</button>
+        <button class="um-action"
+                [class.um-action-warn]="user.is_active"
+                [class.um-action-success]="!user.is_active"
+                (click)="toggleUserStatus(user)"
+                [title]="user.is_active ? 'Desactivar' : 'Activar'">
+          {{ user.is_active ? '🚫' : '✅' }}
+        </button>
+        <button class="um-action um-action-secondary" (click)="resetUserProgress(user)" title="Reiniciar progreso">🔄</button>
+        <button class="um-action um-action-danger" (click)="deleteUser(user)" title="Eliminar">🗑️</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RIGHT FILTER DRAWER ── -->
+<div class="um-drawer-overlay" [class.open]="showFilterPanel" (click)="showFilterPanel = false"></div>
+<div class="um-drawer" [class.open]="showFilterPanel">
+  <div class="um-drawer-header">
+    <span class="um-drawer-title">⚙️ Filtros</span>
+    <button class="um-drawer-close" (click)="showFilterPanel = false">✕</button>
+  </div>
+
+  <div class="um-drawer-body">
+    <!-- Level pills -->
+    <div class="um-drawer-section">
+      <label class="um-drawer-label">Nivel</label>
+      <div class="um-pill-row">
+        <button class="um-pill" [class.active]="!filters.level" (click)="setLevelFilter(null)">Todos</button>
+        <button *ngFor="let opt of levelOptions" class="um-pill"
+                [class.active]="filters.level === opt.value"
+                (click)="setLevelFilter(opt.value)">
+          {{ opt.value }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Status pills -->
+    <div class="um-drawer-section">
+      <label class="um-drawer-label">Estado</label>
+      <div class="um-pill-row">
+        <button class="um-pill" [class.active]="!filters.status" (click)="setStatusFilter(null)">Todos</button>
+        <button class="um-pill" [class.active]="filters.status === 'active'" (click)="setStatusFilter('active')">✅ Activos</button>
+        <button class="um-pill" [class.active]="filters.status === 'inactive'" (click)="setStatusFilter('inactive')">🚫 Inactivos</button>
+      </div>
+    </div>
+
+    <!-- Clear -->
+    <button class="um-clear-btn" (click)="clearFilters()">Limpiar filtros</button>
+  </div>
+</div>
+
+<!-- ── USER DETAILS DIALOG ── -->
+<p-dialog
+  [(visible)]="showUserDialog"
+  [modal]="true"
+  [style]="{width: '520px', 'border-radius': '16px'}"
+  [closable]="true"
+  [header]="''">
+
+  <div *ngIf="selectedUser" class="ud-wrap">
+    <!-- Header -->
+    <div class="ud-header">
+      <div class="ud-avatar" [style.background]="getLevelColor(selectedUser.level)">
+        {{ getUserInitials(selectedUser) }}
+      </div>
+      <div class="ud-identity">
+        <h3 class="ud-name">{{ selectedUser.full_name }}</h3>
+        <p class="ud-handle">&#64;{{ selectedUser.username }}</p>
+        <p class="ud-email">{{ selectedUser.email }}</p>
+        <div class="ud-badges">
+          <span class="ud-level-badge" [style.background]="getLevelColor(selectedUser.level)">Nv {{ selectedUser.level }}</span>
+          <span class="ud-status-badge" [class.active]="selectedUser.is_active">{{ getStatusLabel(selectedUser.is_active) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="ud-stats">
+      <div class="ud-s"><span class="ud-sv">{{ selectedUser.total_points | number }}</span><span class="ud-sl">Puntos</span></div>
+      <div class="ud-s"><span class="ud-sv">{{ selectedUser.games_played || 0 }}</span><span class="ud-sl">Juegos</span></div>
+      <div class="ud-s"><span class="ud-sv">{{ selectedUser.avg_score || 0 }}%</span><span class="ud-sl">Promedio</span></div>
+      <div class="ud-s"><span class="ud-sv">{{ formatTime(selectedUser.time_played) }}</span><span class="ud-sl">Tiempo</span></div>
+    </div>
+
+    <!-- Extra info -->
+    <div class="ud-info">
+      <div class="ud-info-row"><span>🏆 Logros</span><span>{{ selectedUser.achievements_count || 0 }}</span></div>
+      <div class="ud-info-row"><span>📁 Categoría favorita</span><span>{{ selectedUser.favorite_category || 'N/A' }}</span></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="ud-footer">
+      <button class="ud-btn-secondary" (click)="showUserDialog = false">Cerrar</button>
+      <button class="ud-btn-primary" (click)="viewUserStats(selectedUser!); showUserDialog = false">📊 Estadísticas</button>
+    </div>
+  </div>
 </p-dialog>
 
-<!-- User Stats Dialog -->
+<!-- ── STATS DIALOG ── -->
 <p-dialog
   header="Estadísticas Detalladas"
   [(visible)]="showStatsDialog"
   [modal]="true"
-  [style]="{width: '800px'}"
+  [style]="{width: '480px'}"
   [closable]="true">
-
-  <div *ngIf="selectedUser" class="user-stats">
-    <p class="text-gray-600 mb-4">
-      Estadísticas detalladas de {{ selectedUser.full_name }}
-    </p>
-
-    <!-- Stats implementation would go here -->
-    <div class="text-center p-4 bg-gray-50 rounded-lg">
-      <span class="emoji-icon-large">📊</span>
-      <p class="text-gray-600">Estadísticas detalladas próximamente</p>
-    </div>
+  <div *ngIf="selectedUser" class="text-center p-4">
+    <div style="font-size:3rem">📊</div>
+    <p style="color:#6b7280">Estadísticas detalladas de <strong>{{ selectedUser.full_name }}</strong> próximamente.</p>
+    <button class="ud-btn-secondary" style="margin-top:1rem" (click)="showStatsDialog = false">Cerrar</button>
   </div>
-
-  <ng-template pTemplate="footer">
-    <p-button
-      severity="secondary"
-      (onClick)="showStatsDialog = false">
-      <span class="emoji-icon">❌</span>
-      <span class="ml-2">Cerrar</span>
-    </p-button>
-  </ng-template>
 </p-dialog>
-
-<!-- Bulk Actions Dialog -->
-<p-dialog
-  header="Acciones Masivas"
-  [(visible)]="showBulkActionsDialog"
-  [modal]="true"
-  [style]="{width: '500px'}"
-  [closable]="true">
-
-  <div class="bulk-actions">
-    <p class="text-gray-600 mb-4">
-      Tienes {{ selectedUsers.length }} usuario(s) seleccionado(s)
-    </p>
-
-    <div class="flex flex-column gap-3">
-      <p-button
-        severity="success"
-        [outlined]="true"
-        class="w-full"
-        (onClick)="bulkActivateUsers()">
-        <span class="emoji-icon">✅</span>
-        <span class="ml-2">Activar Seleccionados</span>
-      </p-button>
-
-      <p-button
-        severity="warning"
-        [outlined]="true"
-        class="w-full"
-        (onClick)="bulkDeactivateUsers()">
-        <span class="emoji-icon">🚫</span>
-        <span class="ml-2">Desactivar Seleccionados</span>
-      </p-button>
-    </div>
-  </div>
-
-  <ng-template pTemplate="footer">
-    <p-button
-      severity="secondary"
-      (onClick)="showBulkActionsDialog = false">
-      <span class="emoji-icon">❌</span>
-      <span class="ml-2">Cerrar</span>
-    </p-button>
-  </ng-template>
-</p-dialog>
-
-<!-- Toast for notifications -->
-<p-toast></p-toast>
-
-<!-- Confirmation Dialog -->
-<p-confirmDialog></p-confirmDialog>
