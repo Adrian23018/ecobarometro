@@ -1,176 +1,775 @@
-/* src/app/features/admin/achievements-manager/achievements-manager.component.css */
+/* ==========================================
+   ACHIEVEMENTS MANAGER - MINIMALIST & WARM
+   ========================================== */
 
-/* Container */
-.achievements-manager {
-  max-width: 100%;
-  margin: 0 auto;
+.am-page {
+  background: #faf9f6;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+/* ========== HEADER ========== */
+.am-header {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.am-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.am-back-btn {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+}
+
+.am-back-btn:hover {
+  background: #faf9f6;
+  border-color: #10b981;
+  transform: translateX(-3px);
+}
+
+.am-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.am-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.am-header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.am-btn {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.am-btn-primary {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.am-btn-primary:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+}
+
+.am-btn-secondary {
+  background: white;
+  border-color: #f0ede8;
+  color: #6b7280;
+}
+
+.am-btn-secondary:hover {
+  background: #faf9f6;
+}
+
+.am-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== FILTERS ========== */
+.am-filters {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.am-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.am-filter-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.am-input {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.am-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+}
+
+/* ========== ACHIEVEMENTS GRID ========== */
+.am-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.25rem;
+}
+
+.am-achievement-card {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 14px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.am-achievement-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* ── Card Header ── */
+.am-card-header {
+  display: flex;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f0ede8;
+}
+
+.am-icon-container {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.am-icon-points {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+}
+
+.am-icon-games {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.am-icon-streak {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+}
+
+.am-icon-level {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+}
+
+.am-icon-time {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.am-icon-special {
+  background: linear-gradient(135deg, #e9d5ff 0%, #d8b4fe 100%);
+}
+
+.am-icon-emoji {
+  font-size: 1.75rem;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.am-card-title-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.am-card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.am-card-description {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Card Info ── */
+.am-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.am-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.am-info-label {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.am-info-value {
+  color: #374151;
+  font-weight: 600;
+}
+
+.am-tag {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.am-tag-points {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.am-tag-games {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.am-tag-streak {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.am-tag-level {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+.am-tag-time {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #e5e7eb;
+}
+
+.am-tag-special {
+  background: #e9d5ff;
+  color: #6b21a8;
+  border-color: #d8b4fe;
+}
+
+.am-tag-secondary {
+  background: #f0ede8;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.am-reward {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.am-reward-icon {
+  font-size: 1rem;
+}
+
+.am-reward-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+/* ── Card Footer ── */
+.am-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0ede8;
+}
+
+.am-status {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.am-status-badge {
+  padding: 0.3rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+.am-status-active {
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+
+.am-status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.am-status-hidden {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.am-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.am-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #f0ede8;
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.am-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.am-action-edit:hover {
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.am-action-toggle:hover {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+}
+
+.am-action-delete:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+}
+
+/* ========== EMPTY STATE ========== */
+.am-empty {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 14px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.am-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+
+.am-empty-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 0.5rem 0;
+}
+
+.am-empty-text {
+  font-size: 0.95rem;
+  color: #9ca3af;
+  margin: 0 0 1.5rem 0;
+}
+
+/* ========== LOADING ========== */
+.am-loading {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 14px;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.am-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f0ede8;
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ========== DIALOG ========== */
+:host ::ng-deep .am-dialog .p-dialog {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+:host ::ng-deep .am-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 1.5rem;
+  border-bottom: none;
+}
+
+:host ::ng-deep .am-dialog .p-dialog-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+:host ::ng-deep .am-dialog .p-dialog-header-icon {
+  color: white;
+  width: 2rem;
+  height: 2rem;
+}
+
+:host ::ng-deep .am-dialog .p-dialog-header-icon:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+:host ::ng-deep .am-dialog .p-dialog-content {
+  background: #faf9f6;
   padding: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
-/* Back button */
-.back-button {
-  @apply w-10 h-10 text-gray-600 hover:text-blue-600 hover:bg-blue-50;
+:host ::ng-deep .am-dialog .p-dialog-content::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* Achievement icons */
-.achievement-icon {
-  @apply w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center;
+:host ::ng-deep .am-dialog .p-dialog-content::-webkit-scrollbar-track {
+  background: #f0ede8;
+  border-radius: 10px;
 }
 
-/* Table customization */
-:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  @apply bg-gray-50 font-semibold text-gray-700 border-gray-200;
+:host ::ng-deep .am-dialog .p-dialog-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
-:host ::ng-deep .p-datatable .p-datatable-tbody > tr {
-  @apply transition-colors duration-200;
+:host ::ng-deep .am-dialog .p-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-  @apply bg-gray-50;
+:host ::ng-deep .am-dialog .p-dialog-footer {
+  background: white;
+  padding: 1.25rem 2rem;
+  border-top: 1px solid #f0ede8;
 }
 
-:host ::ng-deep .p-datatable .p-datatable-tbody > tr.p-selectable-row.p-highlight {
-  @apply bg-blue-50;
+.am-form-section {
+  background: white;
+  border: 1px solid #f0ede8;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
-/* Dialog customization */
-.achievement-dialog :host ::ng-deep .p-dialog-header {
-  @apply bg-gray-50 border-b border-gray-200;
+.am-form-section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0ede8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.achievement-dialog :host ::ng-deep .p-dialog-content {
-  @apply pt-6;
+.am-form-section-title::before {
+  content: '●';
+  color: #10b981;
+  font-size: 0.8rem;
 }
 
-/* Form styling */
-.form-field {
-  @apply mb-4;
+.am-form-field {
+  margin-bottom: 1.25rem;
+  flex: 1;
 }
 
-/* Card headers */
-:host ::ng-deep .p-card .p-card-header {
-  @apply bg-gray-50 border-b border-gray-200 font-semibold text-gray-700;
+.am-form-field:last-child {
+  margin-bottom: 0;
 }
 
-/* Tags customization */
-:host ::ng-deep .p-tag {
-  @apply font-medium;
+.am-form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.6rem;
 }
 
-:host ::ng-deep .p-tag.p-tag-success {
-  @apply bg-green-100 text-green-800 border border-green-200;
+.am-form-label::after {
+  content: '';
 }
 
-:host ::ng-deep .p-tag.p-tag-warning {
-  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
+.am-form-input {
+  width: 100%;
 }
 
-:host ::ng-deep .p-tag.p-tag-danger {
-  @apply bg-red-100 text-red-800 border border-red-200;
+:host ::ng-deep .am-dialog .p-inputtext,
+:host ::ng-deep .am-dialog .p-inputtextarea {
+  background: white;
+  border: 2px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 100%;
 }
 
-:host ::ng-deep .p-tag.p-tag-info {
-  @apply bg-blue-100 text-blue-800 border border-blue-200;
+:host ::ng-deep .am-dialog .p-inputtext:focus,
+:host ::ng-deep .am-dialog .p-inputtextarea:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+  outline: none;
 }
 
-:host ::ng-deep .p-tag.p-tag-secondary {
-  @apply bg-gray-100 text-gray-800 border border-gray-200;
+:host ::ng-deep .am-dialog .p-inputtext::placeholder,
+:host ::ng-deep .am-dialog .p-inputtextarea::placeholder {
+  color: #9ca3af;
 }
 
-/* Chips customization */
-:host ::ng-deep .p-chip {
-  @apply bg-gray-100 text-gray-700 border border-gray-200;
+:host ::ng-deep .am-dialog .p-dropdown {
+  background: white;
+  border: 2px solid #f0ede8;
+  border-radius: 10px;
+  transition: all 0.2s;
 }
 
-:host ::ng-deep .p-chip.p-chip-sm {
-  @apply text-xs px-2 py-1;
+:host ::ng-deep .am-dialog .p-dropdown:not(.p-disabled):hover {
+  border-color: #cbd5e1;
 }
 
-/* Button hover effects */
-:host ::ng-deep .p-button:hover {
-  @apply transform -translate-y-0.5;
+:host ::ng-deep .am-dialog .p-dropdown:not(.p-disabled).p-focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+  outline: none;
 }
 
-/* Checkbox customization */
-:host ::ng-deep .p-checkbox .p-checkbox-box {
-  @apply border-gray-300;
+:host ::ng-deep .am-dialog .p-inputnumber-input {
+  background: white;
+  border: 2px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s;
 }
 
-:host ::ng-deep .p-checkbox .p-checkbox-box.p-highlight {
-  @apply bg-blue-500 border-blue-500;
+:host ::ng-deep .am-dialog .p-inputnumber-input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
+  outline: none;
 }
 
-/* Dropdown customization */
-:host ::ng-deep .p-dropdown {
-  @apply border-gray-300;
+.am-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 
-:host ::ng-deep .p-dropdown:not(.p-disabled):hover {
-  @apply border-blue-500;
+.am-form-row-3 {
+  grid-template-columns: repeat(3, 1fr);
 }
 
-:host ::ng-deep .p-dropdown:not(.p-disabled).p-focus {
-  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+.am-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
 }
 
-/* Input styling */
-:host ::ng-deep .p-inputtext {
-  @apply border-gray-300;
+.am-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #faf9f6;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #f0ede8;
+  transition: all 0.2s;
 }
 
-:host ::ng-deep .p-inputtext:hover {
-  @apply border-blue-500;
+.am-checkbox-item:hover {
+  background: white;
+  border-color: #10b981;
 }
 
-:host ::ng-deep .p-inputtext:focus {
-  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+.am-checkbox-label {
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-/* Textarea styling */
-:host ::ng-deep .p-inputtextarea {
-  @apply border-gray-300;
+:host ::ng-deep .am-dialog .p-checkbox {
+  width: 20px;
+  height: 20px;
 }
 
-:host ::ng-deep .p-inputtextarea:hover {
-  @apply border-blue-500;
+:host ::ng-deep .am-dialog .p-checkbox .p-checkbox-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
-:host ::ng-deep .p-inputtextarea:focus {
-  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+:host ::ng-deep .am-dialog .p-checkbox .p-checkbox-box.p-highlight {
+  background: #10b981;
+  border-color: #10b981;
 }
 
-/* Input number styling */
-:host ::ng-deep .p-inputnumber .p-inputtext {
-  @apply border-gray-300;
+:host ::ng-deep .am-dialog .p-checkbox .p-checkbox-box:hover {
+  border-color: #10b981;
 }
 
-:host ::ng-deep .p-inputnumber .p-inputtext:hover {
-  @apply border-blue-500;
+.am-templates {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
 }
 
-:host ::ng-deep .p-inputnumber .p-inputtext:focus {
-  @apply border-blue-500 ring-2 ring-blue-500 ring-opacity-20;
+.am-template-btn {
+  background: white;
+  border: 2px solid #f0ede8;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
 }
 
-/* Empty state */
-.empty-state {
-  @apply text-center py-12;
+.am-template-btn:hover {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16,185,129,0.2);
 }
 
-.empty-state-icon {
-  @apply text-6xl text-gray-300 mb-4;
+.am-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
 }
 
-.empty-state-title {
-  @apply text-xl font-semibold text-gray-500 mb-2;
+/* ========== RESPONSIVE ========== */
+@media (max-width: 1024px) {
+  .am-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
 }
 
-.empty-state-description {
-  @apply text-gray-400;
+@media (max-width: 768px) {
+  .am-page {
+    padding: 1rem;
+  }
+
+  .am-header {
+    padding: 1rem;
+  }
+
+  .am-title {
+    font-size: 1.5rem;
+  }
+
+  .am-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .am-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .am-form-row,
+  .am-form-row-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
-/* Animations */
+@media (max-width: 480px) {
+  .am-header-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .am-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .am-actions {
+    justify-content: flex-end;
+  }
+}
+
+/* ========== ANIMATIONS ========== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -182,83 +781,6 @@
   }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Loading states */
-.loading-skeleton {
-  @apply animate-pulse bg-gray-300 rounded;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .achievements-manager {
-    padding: 1rem;
-  }
-
-  .achievement-icon {
-    @apply w-10 h-10;
-  }
-
-  :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-    @apply text-sm;
-  }
-
-  :host ::ng-deep .p-dialog {
-    @apply w-full m-2;
-  }
-
-  .grid {
-    @apply gap-2;
-  }
-}
-
-/* Hover effects */
-.hover-lift {
-  @apply transition-transform duration-200 hover:-translate-y-1;
-}
-
-.hover-shadow {
-  @apply transition-shadow duration-200 hover:shadow-lg;
-}
-
-/* Focus states */
-.focus-ring:focus {
-  @apply outline-none ring-2 ring-blue-500 ring-opacity-50;
-}
-
-/* Achievement category colors */
-.category-points {
-  @apply bg-yellow-100 text-yellow-800 border border-yellow-200;
-}
-
-.category-games {
-  @apply bg-blue-100 text-blue-800 border border-blue-200;
-}
-
-.category-streak {
-  @apply bg-red-100 text-red-800 border border-red-200;
-}
-
-.category-level {
-  @apply bg-green-100 text-green-800 border border-green-200;
-}
-
-.category-time {
-  @apply bg-gray-100 text-gray-800 border border-gray-200;
-}
-
-.category-special {
-  @apply bg-purple-100 text-purple-800 border border-purple-200;
-}
-
-/* Custom divider */
-:host ::ng-deep .p-divider .p-divider-content {
-  @apply bg-gray-50;
-}
-
-/* Tooltip customization */
-:host ::ng-deep .p-tooltip .p-tooltip-text {
-  @apply bg-gray-800 text-white text-xs;
+.am-page {
+  animation: fadeIn 0.4s ease-out;
 }

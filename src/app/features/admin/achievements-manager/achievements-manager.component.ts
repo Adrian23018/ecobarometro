@@ -5,28 +5,17 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // PrimeNG
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
-import { TagModule } from 'primeng/tag';
-import { BadgeModule } from 'primeng/badge';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToolbarModule } from 'primeng/toolbar';
-import { TooltipModule } from 'primeng/tooltip';
-import { AvatarModule } from 'primeng/avatar';
-import { ChipModule } from 'primeng/chip';
 
 // Services and Models
 import { AuthService } from '../../../core/services/auth.service';
-import { DividerModule } from 'primeng/divider';
 
 interface Achievement {
   id: any;
@@ -65,26 +54,15 @@ interface AchievementTemplate {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    CardModule,
-    ButtonModule,
-    TableModule,
     DialogModule,
     InputTextModule,
     InputTextareaModule,
     InputNumberModule,
     DropdownModule,
     CheckboxModule,
-    TagModule,
-    BadgeModule,
-    ProgressBarModule,
     ToastModule,
     ConfirmDialogModule,
-    ToolbarModule,
-    TooltipModule,
-    AvatarModule,
-    ChipModule,
-    FormsModule,
-    DividerModule
+    FormsModule
   ],
   templateUrl: './achievements-manager.component.html',
   styleUrls: ['./achievements-manager.component.css']
@@ -154,11 +132,11 @@ export class AchievementsManagerComponent implements OnInit {
   ];
 
   // Achievement templates
-  achievementTemplates: AchievementTemplate[] = [
+  achievementTemplates: any[] = [
     {
       title: 'Primer Paso',
       description: 'Completa tu primer juego',
-      icon: 'pi pi-play',
+      icon: '🎮',
       category: 'games',
       type: 'milestone',
       requirements: { target_value: 1, condition: 'reach', metric: 'games_completed' },
@@ -167,7 +145,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Jugador Constante',
       description: 'Completa 10 juegos',
-      icon: 'pi pi-star',
+      icon: '⭐',
       category: 'games',
       type: 'milestone',
       requirements: { target_value: 10, condition: 'reach', metric: 'games_completed' },
@@ -176,7 +154,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Experto Eco',
       description: 'Alcanza 1000 puntos',
-      icon: 'pi pi-trophy',
+      icon: '🏆',
       category: 'points',
       type: 'milestone',
       requirements: { target_value: 1000, condition: 'reach', metric: 'total_points' },
@@ -185,7 +163,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Racha de Fuego',
       description: 'Mantén una racha de 5 respuestas correctas',
-      icon: 'pi pi-bolt',
+      icon: '🔥',
       category: 'streak',
       type: 'streak',
       requirements: { target_value: 5, condition: 'maintain', metric: 'correct_streak' },
@@ -194,7 +172,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Subida de Nivel',
       description: 'Alcanza el nivel 5',
-      icon: 'pi pi-arrow-up',
+      icon: '🚀',
       category: 'level',
       type: 'milestone',
       requirements: { target_value: 5, condition: 'reach', metric: 'level' },
@@ -462,6 +440,40 @@ export class AchievementsManagerComponent implements OnInit {
       'challenge': 'danger'
     };
     return severityMap[type] || 'info';
+  }
+
+  getCategoryEmoji(category: string): string {
+    const emojiMap: { [key: string]: string } = {
+      'points': '⭐',
+      'games': '🎮',
+      'streak': '🔥',
+      'level': '🚀',
+      'time': '⏱️',
+      'special': '🏆'
+    };
+    return emojiMap[category] || '⭐';
+  }
+
+  getCategoryLabel(category: string): string {
+    const labelMap: { [key: string]: string } = {
+      'points': 'Puntos',
+      'games': 'Juegos',
+      'streak': 'Rachas',
+      'level': 'Nivel',
+      'time': 'Tiempo',
+      'special': 'Especial'
+    };
+    return labelMap[category] || category;
+  }
+
+  getTypeLabel(type: string): string {
+    const labelMap: { [key: string]: string } = {
+      'milestone': 'Hito',
+      'streak': 'Racha',
+      'collection': 'Colección',
+      'challenge': 'Desafío'
+    };
+    return labelMap[type] || type;
   }
 
   goBack(): void {
