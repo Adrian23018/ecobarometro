@@ -47,7 +47,7 @@
               <div class="card-header">
                 <div class="header-left">
                   <div class="category-icon-wrapper" [style.background-color]="category.color">
-                    <i [class]="category.icon" class="category-icon-img"></i>
+                    <span class="category-icon-img">{{ getIcon(category.icon) }}</span>
                   </div>
                   <div class="category-info">
                     <h3 class="category-name">{{ category.name }}</h3>
@@ -165,7 +165,7 @@
                     [style.background-color]="category.color"
                     style="width: 2rem; height: 2rem;"
                   >
-                    <i [class]="category.icon" class="text-white text-sm"></i>
+                    <span class="text-sm">{{ getIcon(category.icon) }}</span>
                   </div>
                   <div class="flex-1">
                     <div class="font-medium">{{ category.name }}</div>
@@ -264,13 +264,13 @@
                 >
                   <ng-template let-option pTemplate="item">
                     <div class="icon-dropdown-item">
-                      <i [class]="option.icon"></i>
+                      <span class="dropdown-emoji">{{ option.icon }}</span>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
                   <ng-template let-option pTemplate="selectedItem">
                     <div class="icon-dropdown-selected" *ngIf="option">
-                      <i [class]="option.icon"></i>
+                      <span class="dropdown-emoji">{{ option.icon }}</span>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
@@ -315,7 +315,7 @@
                   class="preview-icon"
                   [style.background-color]="categoryForm.get('color')?.value || '#22c55e'"
                 >
-                  <i [class]="categoryForm.get('icon')?.value || 'pi pi-circle'" class="text-white"></i>
+                  <span class="preview-emoji">{{ categoryForm.get('icon')?.value || '🌍' }}</span>
                 </div>
                 <div class="preview-content">
                   <h4 class="preview-title">{{ categoryForm.get('name')?.value }}</h4>

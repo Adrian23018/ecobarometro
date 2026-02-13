@@ -87,17 +87,35 @@ export class CategoriesManagerComponent implements OnInit {
 
   categoryForm: FormGroup;
 
+  private iconLegacyMap: { [key: string]: string } = {
+    'pi pi-bolt': '⚡',
+    'pi pi-tint': '💧',
+    'pi pi-refresh': '♻️',
+    'pi pi-car': '🚗',
+    'pi pi-home': '🏠',
+    'pi pi-sun': '🌿',
+    'pi pi-cog': '🏭',
+    'pi pi-apple': '🍎',
+    'pi pi-book': '📚',
+    'pi pi-desktop': '💻',
+    'pi pi-circle': '🌍'
+  };
+
+  getIcon(icon: string): string {
+    return this.iconLegacyMap[icon] ?? icon;
+  }
+
   iconOptions: IconOption[] = [
-    { label: 'Energía', value: 'pi pi-bolt', icon: 'pi pi-bolt' },
-    { label: 'Agua', value: 'pi pi-tint', icon: 'pi pi-tint' },
-    { label: 'Reciclaje', value: 'pi pi-refresh', icon: 'pi pi-refresh' },
-    { label: 'Transporte', value: 'pi pi-car', icon: 'pi pi-car' },
-    { label: 'Hogar', value: 'pi pi-home', icon: 'pi pi-home' },
-    { label: 'Naturaleza', value: 'pi pi-sun', icon: 'pi pi-sun' },
-    { label: 'Industria', value: 'pi pi-cog', icon: 'pi pi-cog' },
-    { label: 'Alimentación', value: 'pi pi-apple', icon: 'pi pi-apple' },
-    { label: 'Educación', value: 'pi pi-book', icon: 'pi pi-book' },
-    { label: 'Tecnología', value: 'pi pi-desktop', icon: 'pi pi-desktop' }
+    { label: 'Energía', value: '⚡', icon: '⚡' },
+    { label: 'Agua', value: '💧', icon: '💧' },
+    { label: 'Reciclaje', value: '♻️', icon: '♻️' },
+    { label: 'Transporte', value: '🚗', icon: '🚗' },
+    { label: 'Hogar', value: '🏠', icon: '🏠' },
+    { label: 'Naturaleza', value: '🌿', icon: '🌿' },
+    { label: 'Industria', value: '🏭', icon: '🏭' },
+    { label: 'Alimentación', value: '🍎', icon: '🍎' },
+    { label: 'Educación', value: '📚', icon: '📚' },
+    { label: 'Tecnología', value: '💻', icon: '💻' }
   ];
 
   constructor(
@@ -109,7 +127,7 @@ export class CategoriesManagerComponent implements OnInit {
     this.categoryForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
       description: [''],
-      icon: ['pi pi-circle'],
+      icon: ['🌍'],
       color: ['#22c55e']
     });
   }

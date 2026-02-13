@@ -82,8 +82,8 @@
 }
 
 .category-icon-img {
-  color: white;
   font-size: 1.75rem;
+  line-height: 1;
 }
 
 .category-info {
@@ -427,6 +427,15 @@
   cursor: pointer;
 }
 
+.dropdown-emoji {
+  font-size: 1.25rem;
+  width: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 .icon-dropdown-item i {
   font-size: 1.25rem;
   color: #667eea;
@@ -542,6 +551,11 @@
 
 .preview-icon i {
   font-size: 2rem;
+}
+
+.preview-emoji {
+  font-size: 2rem;
+  line-height: 1;
 }
 
 .preview-content {
