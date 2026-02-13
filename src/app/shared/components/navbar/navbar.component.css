@@ -1,102 +1,342 @@
-/* src/app/shared/components/navbar/navbar.component.css */
+/* ============================================================
+   NAVBAR BAR
+   ============================================================ */
+.navbar-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 2px solid #10b981;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 
-/* Animaciones para el menú hamburguesa */
-.hamburger-line {
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 1rem;
+  gap: 0.75rem;
+}
+
+/* ============================================================
+   HAMBURGUESA
+   ============================================================ */
+.hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.hamburger-btn:hover {
+  background: #f0fdf4;
+}
+
+.bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: #374151;
+  border-radius: 2px;
   transition: all 0.3s ease;
+  transform-origin: center;
 }
 
-/* Efectos hover para los items del menú */
-.menu-item {
-  transition: all 0.2s ease;
+/* Animación X al abrir */
+.hamburger-btn.active .bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger-btn.active .bar:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+.hamburger-btn.active .bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
 }
 
-.menu-item:hover {
+/* ============================================================
+   LOGO
+   ============================================================ */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  flex: 1;
+}
+
+.logo-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.logo-role {
+  font-size: 0.7rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+/* ============================================================
+   USUARIO (derecha)
+   ============================================================ */
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.hidden-mobile {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .hidden-mobile {
+    display: flex;
+  }
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-stats {
+  font-size: 0.7rem;
+  color: #6b7280;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #3b82f6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   AUTH BUTTONS
+   ============================================================ */
+.navbar-auth {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.btn-login {
+  padding: 0.4rem 1rem;
+  background: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-login:hover {
+  background: #f0fdf4;
+}
+
+.btn-register {
+  padding: 0.4rem 1rem;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-register:hover {
+  background: #059669;
+}
+
+/* ============================================================
+   OVERLAY
+   ============================================================ */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+/* ============================================================
+   DRAWER
+   ============================================================ */
+.drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100dvh;
+  width: 55vw;
+  max-width: 320px;
+  background: #ffffff;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+
+  /* Estado cerrado: fuera de la pantalla */
+  transform: translateX(-100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.drawer.drawer-open {
+  transform: translateX(0);
+}
+
+/* Header del drawer */
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+}
+
+.drawer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 700;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.drawer-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.drawer-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.drawer-role {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.drawer-stats {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Navegación */
+.drawer-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #374151;
+  font-weight: 500;
+  text-align: left;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+
+.drawer-item:hover {
+  background: #f0fdf4;
+  color: #10b981;
   transform: translateX(4px);
 }
 
-/* Animación para el dropdown */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.drawer-item-icon {
+  font-size: 1.05rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
-.dropdown-menu {
-  animation: slideDown 0.3s ease;
+/* Footer — Cerrar sesión */
+.drawer-footer {
+  padding: 0.75rem;
+  border-top: 1px solid #e5e7eb;
 }
 
-/* Efectos de hover para botones */
-.nav-button {
-  transition: all 0.3s ease;
+.drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #dc2626;
+  font-weight: 600;
+  transition: background 0.18s;
 }
 
-.nav-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Estilo para el avatar */
-.user-avatar {
-  background: linear-gradient(135deg, #10b981, #3b82f6);
-  transition: all 0.3s ease;
-}
-
-.user-avatar:hover {
-  transform: scale(1.05);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .dropdown-menu {
-    width: 100vw;
-    right: 0;
-    left: 0;
-    margin-top: 0;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-  }
-}
-
-/* Custom scrollbar for menu */
-.menu-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.menu-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
-}
-
-.menu-scroll::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
-}
-
-.menu-scroll::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Glow effect for active menu */
-.menu-glow {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-}
-
-/* Logo pulse animation */
-@keyframes logoPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.logo-pulse:hover {
-  animation: logoPulse 0.6s ease-in-out;
+.drawer-logout:hover {
+  background: #fecdd3;
 }
