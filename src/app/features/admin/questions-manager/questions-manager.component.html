@@ -1,396 +1,312 @@
-<div class="page-wrap question-manager">
-  <p-card>
-    <!-- TOOLBAR -->
-    <p-toolbar styleClass="mb-3">
-      <div class="p-toolbar-group-start">
-        <p-button
-          [routerLink]="['/admin/dashboard']"
-          severity="secondary"
-          [outlined]="true"
-          styleClass="back-button"
-        >
-          <span class="emoji-icon">⬅️</span>
-        </p-button>
-        <h2 class="m-0 ml-3">❓ Gestión de Preguntas</h2>
+<div class="qm-page">
+
+  <!-- ── TOP BAR ── -->
+  <div class="qm-topbar">
+    <button class="qm-back-btn" [routerLink]="['/admin/dashboard']" title="Volver">←</button>
+
+    <div class="qm-title-wrap">
+      <h2 class="qm-title">❓ Preguntas</h2>
+      <span class="qm-count-badge">{{ filteredQuestions.length }}</span>
+    </div>
+
+    <div class="qm-search-wrap">
+      <span class="qm-search-icon">🔍</span>
+      <input
+        type="text"
+        [(ngModel)]="filters.search"
+        (input)="applyFilters()"
+        placeholder="Buscar..."
+        class="qm-search-input">
+    </div>
+
+    <button class="qm-filter-btn" (click)="showFilterPanel = !showFilterPanel">
+      ⚙ Filtros
+      <span class="qm-filter-count" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
+    </button>
+
+    <button class="qm-new-btn" (click)="openQuestionForm()">+ Nueva</button>
+  </div>
+
+  <!-- ── TABS ── -->
+  <div class="qm-tabs">
+    <button class="qm-tab" [class.active]="activeTabIndex === 0" (click)="activeTabIndex = 0">📋 Lista</button>
+    <button class="qm-tab" [class.active]="activeTabIndex === 1" (click)="activeTabIndex = 1">📊 Estadísticas</button>
+  </div>
+
+  <!-- ── LISTA ── -->
+  <div *ngIf="activeTabIndex === 0" class="qm-list">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="qm-state-msg">
+      <span class="qm-spinner-emoji">⏳</span> Cargando preguntas...
+    </div>
+
+    <!-- Empty -->
+    <div *ngIf="!loading && filteredQuestions.length === 0" class="qm-empty">
+      <div class="qm-empty-icon">❓</div>
+      <p class="qm-empty-title">Sin preguntas</p>
+      <p class="qm-empty-sub">Crea tu primera pregunta para comenzar</p>
+      <button class="qm-new-btn" (click)="openQuestionForm()">+ Crear pregunta</button>
+    </div>
+
+    <!-- Cards -->
+    <div *ngFor="let q of filteredQuestions; let i = index" class="qm-card">
+
+      <!-- Accent lateral (color de categoría) -->
+      <div class="qm-card-accent" [style.background]="q.category?.color || '#10b981'"></div>
+
+      <!-- Contenido -->
+      <div class="qm-card-body">
+        <p class="qm-card-text">{{ q.question_text }}</p>
+        <div class="qm-card-meta">
+          <span class="qm-cat-chip" *ngIf="q.category">
+            <span class="qm-cat-dot" [style.background]="q.category.color"></span>
+            {{ q.category.name }}
+          </span>
+          <span class="qm-chip qm-chip-type-{{q.question_type}}">{{ getTypeEmoji(q.question_type) }} {{ getTypeLabel(q.question_type) }}</span>
+          <span class="qm-chip qm-chip-diff-{{q.difficulty_level}}">{{ getDifficultyLabel(q.difficulty_level) }}</span>
+          <span class="qm-chip qm-chip-pts">⭐ {{ q.points }}</span>
+          <span class="qm-opts-label">{{ q.options?.length || 0 }} opciones</span>
+        </div>
       </div>
-      <div class="p-toolbar-group-end">
-          <!-- <p-button
-            label="Importar"
-            icon="pi pi-upload"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="showImportDialog = true"
-          ></p-button> -->
-          <p-button class="style"
-            label="Nueva Pregunta"
-            icon="pi pi-plus"
-            (onClick)="openQuestionForm()"
-            severity="success"
-          ></p-button>
+
+      <!-- Acciones -->
+      <div class="qm-card-actions">
+        <button class="qm-action-btn view" (click)="previewQuestion(q)" title="Ver">👁</button>
+        <button class="qm-action-btn edit" (click)="editQuestion(q)" title="Editar">✏️</button>
+        <button class="qm-action-btn more" (click)="showQuestionMenu($event, q)" title="Más opciones">⋮</button>
       </div>
-    </p-toolbar>
+    </div>
+  </div>
 
-    <!-- TABS -->
-    <p-tabView [(activeIndex)]="activeTabIndex">
-      <!-- LISTA -->
-      <p-tabPanel header="Lista de Preguntas" leftIcon="pi pi-list">
-        <!-- FILTROS -->
-        <div class="filters">
-          <div>
-            <label class="filter-label">Categoría</label>
-            <p-dropdown
-              [options]="categoryOptions"
-              [(ngModel)]="filters.category"
-              placeholder="Todas las categorías"
-              [showClear]="true"
-              (onChange)="applyFilters()"
-              class="w-full"
-            ></p-dropdown>
-          </div>
+  <!-- ── ESTADÍSTICAS ── -->
+  <div *ngIf="activeTabIndex === 1" class="qm-stats">
+    <div class="qm-stats-grid">
+      <div class="qm-stat-card blue">
+        <div class="qm-stat-num">{{ totalQuestions }}</div>
+        <div class="qm-stat-lbl">Total Preguntas</div>
+      </div>
+      <div class="qm-stat-card green">
+        <div class="qm-stat-num">{{ avgCorrectRate }}%</div>
+        <div class="qm-stat-lbl">Tasa de Acierto</div>
+      </div>
+      <div class="qm-stat-card orange">
+        <div class="qm-stat-num">{{ avgResponseTime }}s</div>
+        <div class="qm-stat-lbl">Tiempo Promedio</div>
+      </div>
+      <div class="qm-stat-card purple">
+        <div class="qm-stat-num">{{ totalResponses }}</div>
+        <div class="qm-stat-lbl">Total Respuestas</div>
+      </div>
+    </div>
 
-          <div>
-            <label class="filter-label">Dificultad</label>
-            <p-dropdown
-              [options]="difficultyOptions"
-              [(ngModel)]="filters.difficulty"
-              placeholder="Todas las dificultades"
-              [showClear]="true"
-              (onChange)="applyFilters()"
-              class="w-full"
-            ></p-dropdown>
-          </div>
-
-          <div>
-            <label class="filter-label">Tipo</label>
-            <p-dropdown
-              [options]="typeOptions"
-              [(ngModel)]="filters.type"
-              placeholder="Todos los tipos"
-              [showClear]="true"
-              (onChange)="applyFilters()"
-              class="w-full"
-            ></p-dropdown>
-          </div>
-
-          <div>
-            <label class="filter-label">Búsqueda</label>
-            <span class="p-input-icon-left w-full">
-              <i class="pi pi-search"></i>
-              <input
-                type="text"
-                pInputText
-                [(ngModel)]="filters.search"
-                (input)="applyFilters()"
-                placeholder="Buscar preguntas..."
-                class="w-full"
-              />
-            </span>
-          </div>
+    <div class="qm-charts-grid">
+      <div class="qm-chart-card">
+        <h4 class="qm-chart-title">Por Categoría</h4>
+        <div class="qm-chart-wrap">
+          <p-chart type="doughnut" [data]="questionsByCategoryChart" [options]="chartOptions"></p-chart>
         </div>
-
-        <!-- TABLA/CARDS -->
-        <p-table
-          [value]="filteredQuestions"
-          [loading]="loading"
-          styleClass="p-datatable-striped"
-          [paginator]="true"
-          [rows]="10"
-          [showCurrentPageReport]="false"
-          [rowsPerPageOptions]="[]"
-          [selection]="selectedQuestions"
-          [(selection)]="selectedQuestions"
-          dataKey="id"
-        >
-          <ng-template pTemplate="header">
-            <tr>
-              <th style="width: 3rem"><p-tableHeaderCheckbox /></th>
-              <th>Pregunta</th>
-              <th>Categoría</th>
-              <th>Tipo</th>
-              <th>Dificultad</th>
-              <th>Puntos</th>
-              <th>Estadísticas</th>
-              <th style="width: 10rem">Acciones</th>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="body" let-question>
-            <tr>
-              <td><p-tableCheckbox [value]="question" /></td>
-
-              <td>
-                <div class="maxw-20">
-                  <div class="font-medium mb-1 clamp">
-                    {{ question.question_text }}
-                  </div>
-                  <small class="text-muted">
-                    {{ question.options?.length || 0 }} opciones
-                  </small>
-                </div>
-              </td>
-
-              <td>
-                <div class="card-meta" *ngIf="question.category">
-                  <div
-                    class="dot"
-                    [style.background-color]="question.category.color"
-                  ></div>
-                  <span class="text-sm">{{ question.category.name }}</span>
-                </div>
-              </td>
-
-              <td>
-                <p-tag
-                  [value]="getTypeLabel(question.question_type)"
-                  [severity]="getTypeSeverity(question.question_type)"
-                ></p-tag>
-              </td>
-
-              <td>
-                <p-tag
-                  [value]="getDifficultyLabel(question.difficulty_level)"
-                  [severity]="getDifficultySeverity(question.difficulty_level)"
-                ></p-tag>
-              </td>
-
-              <td><p-badge [value]="question.points" severity="success"></p-badge></td>
-
-              <td>
-                <div class="flex align-items-center gap-2">
-                  <i
-                    class="pi pi-eye text-blue-500 cursor-pointer"
-                    (click)="showQuestionStats(question)"
-                    pTooltip="Ver estadísticas"
-                  ></i>
-                  <span class="text-sm text-muted" *ngIf="question.total_responses !== undefined">
-                    {{ question.total_responses || 0 }} respuestas
-                  </span>
-                </div>
-              </td>
-
-              <!-- ACCIONES EN LA TARJETA -->
-              <td class="actions-cell">
-                <div class="row-actions">
-                  <p-button
-                    label="Ver"
-                    icon="pi pi-eye"
-                    size="small"
-                    severity="info"
-                    (onClick)="previewQuestion(question)"
-                  ></p-button>
-
-                  <p-button
-                    label="Editar"
-                    icon="pi pi-pencil"
-                    size="small"
-                    severity="warning"
-                    (onClick)="editQuestion(question)"
-                  ></p-button>
-
-                  <p-button
-                    icon="pi pi-ellipsis-v"
-                    [text]="true"
-                    (onClick)="showQuestionMenu($event, question)"
-                    pTooltip="Más opciones"
-                  ></p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="8" class="text-center p-4">
-                <div class="text-center">
-                  <i class="pi pi-question-circle text-4xl text-400 mb-3"></i>
-                  <h4 class="text-500">No hay preguntas</h4>
-                  <p class="text-muted">Crea tu primera pregunta para comenzar</p>
-                  <p-button
-                    label="Crear Pregunta"
-                    icon="pi pi-plus"
-                    (onClick)="openQuestionForm()"
-                  ></p-button>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-tabPanel>
-
-      <!-- ESTADÍSTICAS -->
-      <p-tabPanel header="Estadísticas" leftIcon="pi pi-chart-bar">
-        <div class="stats-grid mb-3">
-          <p-card styleClass="text-center">
-            <div class="stat-number text-blue-500">{{ totalQuestions }}</div>
-            <div class="text-muted">Total Preguntas</div>
-          </p-card>
-          <p-card styleClass="text-center">
-            <div class="stat-number text-green-500">{{ avgCorrectRate }}%</div>
-            <div class="text-muted">Tasa de Acierto Promedio</div>
-          </p-card>
-          <p-card styleClass="text-center">
-            <div class="stat-number text-orange-500">{{ avgResponseTime }}s</div>
-            <div class="text-muted">Tiempo Respuesta Promedio</div>
-          </p-card>
-          <p-card styleClass="text-center">
-            <div class="stat-number text-purple-500">{{ totalResponses }}</div>
-            <div class="text-muted">Total Respuestas</div>
-          </p-card>
+      </div>
+      <div class="qm-chart-card">
+        <h4 class="qm-chart-title">Por Dificultad</h4>
+        <div class="qm-chart-wrap">
+          <p-chart type="bar" [data]="questionsByDifficultyChart" [options]="chartOptions"></p-chart>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <div class="grid">
-          <div class="col-12 md:col-6">
-            <p-card header="Preguntas por Categoría">
-              <div class="chart-container">
-                <p-chart
-                  type="doughnut"
-                  [data]="questionsByCategoryChart"
-                  [options]="chartOptions"
-                ></p-chart>
-              </div>
-            </p-card>
-          </div>
-          <div class="col-12 md:col-6">
-            <p-card header="Dificultad de Preguntas">
-              <div class="chart-container">
-                <p-chart
-                  type="bar"
-                  [data]="questionsByDifficultyChart"
-                  [options]="chartOptions"
-                ></p-chart>
-              </div>
-            </p-card>
-          </div>
-        </div>
-      </p-tabPanel>
-    </p-tabView>
-  </p-card>
 </div>
 
-<!-- DIALOGO FORMULARIO -->
+<!-- ── FILTER DRAWER OVERLAY ── -->
+<div
+  class="qm-filter-overlay"
+  [class.visible]="showFilterPanel"
+  (click)="showFilterPanel = false">
+</div>
+
+<!-- ── FILTER DRAWER ── -->
+<div class="qm-filter-drawer" [class.open]="showFilterPanel">
+  <div class="qm-fd-header">
+    <h3 class="qm-fd-title">⚙ Filtros</h3>
+    <button class="qm-fd-close" (click)="showFilterPanel = false">✕</button>
+  </div>
+
+  <div class="qm-fd-body">
+
+    <div class="qm-fd-group">
+      <label class="qm-fd-label">Categoría</label>
+      <p-dropdown
+        [options]="categoryOptions"
+        [(ngModel)]="filters.category"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Todas"
+        [showClear]="true"
+        (onChange)="applyFilters()"
+        styleClass="qm-fd-dropdown">
+      </p-dropdown>
+    </div>
+
+    <div class="qm-fd-group">
+      <label class="qm-fd-label">Dificultad</label>
+      <div class="qm-fd-pills">
+        <button
+          *ngFor="let d of difficultyOptions"
+          type="button"
+          class="qm-fd-pill"
+          [class.active]="filters.difficulty === d.value"
+          (click)="setFilter('difficulty', d.value)">
+          {{ d.label }}
+        </button>
+      </div>
+    </div>
+
+    <div class="qm-fd-group">
+      <label class="qm-fd-label">Tipo</label>
+      <div class="qm-fd-pills">
+        <button
+          *ngFor="let t of typeOptions"
+          type="button"
+          class="qm-fd-pill"
+          [class.active]="filters.type === t.value"
+          (click)="setFilter('type', t.value)">
+          {{ t.label }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="qm-fd-footer">
+    <button class="qm-fd-clear" (click)="clearFilters()">Limpiar filtros</button>
+    <button class="qm-fd-apply" (click)="showFilterPanel = false">Aplicar</button>
+  </div>
+</div>
+
+
+<!-- ── DIALOG FORMULARIO ── -->
 <p-dialog
   [(visible)]="showQuestionForm"
   [modal]="true"
-  [style]="{ width: '95vw', 'max-width': '1400px', height: '90vh' }"
-  [maximizable]="true"
+  [style]="{ width: '95vw', 'max-width': '740px' }"
   [closable]="true"
-  [header]="''"
+  header=""
   styleClass="question-form-dialog"
-  [contentStyle]="{ overflow: 'auto', padding: '0' }"
->
+  [contentStyle]="{ overflow: 'auto', padding: '0' }">
   <app-question-form
     *ngIf="showQuestionForm"
     [editQuestion]="editingQuestion"
     [visible]="showQuestionForm"
     (questionSaved)="onQuestionSaved($event)"
-    (formClosed)="onQuestionFormClosed()"
-  ></app-question-form>
+    (formClosed)="onQuestionFormClosed()">
+  </app-question-form>
 </p-dialog>
 
-<!-- DIALOGO PREVIEW -->
+
+<!-- ── DIALOG PREVIEW ── -->
 <p-dialog
-  header="Vista Previa de Pregunta"
   [(visible)]="showPreviewDialog"
   [modal]="true"
-  [style]="{ width: '600px' }"
->
-  <div *ngIf="selectedQuestion" class="question-preview">
-    <div class="mb-3">
-      <div class="flex justify-content-between align-items-start mb-2">
-        <h3 class="m-0 clamp">{{ selectedQuestion.question_text }}</h3>
-        <div class="flex gap-2">
-          <p-tag
-            [value]="getDifficultyLabel(selectedQuestion.difficulty_level)"
-            [severity]="getDifficultySeverity(selectedQuestion.difficulty_level)"
-          ></p-tag>
-          <p-badge [value]="selectedQuestion.points + ' pts'" severity="success"></p-badge>
-        </div>
-      </div>
+  [style]="{ width: '95vw', 'max-width': '560px' }"
+  header=""
+  styleClass="qm-preview-dialog"
+  [contentStyle]="{ padding: '0' }">
 
-      <div class="card-meta mb-2" *ngIf="selectedQuestion.category">
-        <div
-          class="dot"
-          [style.background-color]="selectedQuestion.category.color"
-        ></div>
-        <span>{{ selectedQuestion.category.name }}</span>
+  <div *ngIf="selectedQuestion" class="qm-preview">
+
+    <!-- Header pregunta -->
+    <div class="qm-pv-header">
+      <div class="qm-pv-chips">
+        <span class="qm-chip qm-chip-diff-{{selectedQuestion.difficulty_level}}">
+          {{ getDifficultyLabel(selectedQuestion.difficulty_level) }}
+        </span>
+        <span class="qm-chip qm-chip-type-{{selectedQuestion.question_type}}">
+          {{ getTypeEmoji(selectedQuestion.question_type) }} {{ getTypeLabel(selectedQuestion.question_type) }}
+        </span>
+        <span class="qm-chip qm-chip-pts">⭐ {{ selectedQuestion.points }} pts</span>
+        <span class="qm-chip qm-chip-time">⏱ {{ selectedQuestion.time_limit }}s</span>
+      </div>
+      <p class="qm-pv-question">{{ selectedQuestion.question_text }}</p>
+      <div class="qm-pv-cat" *ngIf="selectedQuestion.category">
+        <span class="qm-cat-dot" [style.background]="selectedQuestion.category.color"></span>
+        {{ selectedQuestion.category.name }}
       </div>
     </div>
 
-    <div class="options-list">
-      <h4>Opciones:</h4>
-      <div class="grid">
-        <div *ngFor="let option of selectedQuestion.options; let i = index" class="col-12 md:col-6 mb-2">
-          <div
-            class="p-3 border-1 border-round flex align-items-center gap-3"
-            [class.bg-green-50]="option.is_correct"
-            [class.border-green-500]="option.is_correct"
-            [class.surface-50]="!option.is_correct"
-          >
-            <div class="font-bold">{{ String.fromCharCode(65 + i) }}</div>
-            <div class="flex-1">{{ option.option_text }}</div>
-            <div class="flex align-items-center gap-2">
-              <i *ngIf="option.is_correct" class="pi pi-check-circle text-green-500"></i>
-              <p-badge [value]="option.points" severity="info" size="large"></p-badge>
-            </div>
-          </div>
+    <!-- Opciones (multiple_choice) -->
+    <div class="qm-pv-body" *ngIf="selectedQuestion.question_type === 'multiple_choice'">
+      <p class="qm-pv-section-title">Opciones</p>
+      <div class="qm-pv-opts">
+        <div
+          *ngFor="let opt of selectedQuestion.options; let i = index"
+          class="qm-pv-opt"
+          [class.correct]="opt.is_correct">
+          <span class="qm-pv-opt-letter" [class.correct]="opt.is_correct">
+            {{ String.fromCharCode(65 + i) }}
+          </span>
+          <span class="qm-pv-opt-text">{{ opt.option_text }}</span>
+          <span class="qm-pv-correct-ico" *ngIf="opt.is_correct">✅</span>
         </div>
       </div>
+    </div>
+
+    <!-- Verdadero / Falso -->
+    <div class="qm-pv-body" *ngIf="selectedQuestion.question_type === 'true_false'">
+      <p class="qm-pv-section-title">Respuesta correcta</p>
+      <div class="qm-tf-row">
+        <span class="qm-tf-chip" [class.correct]="selectedQuestion.options?.[0]?.is_correct">✓ Verdadero</span>
+        <span class="qm-tf-chip false" [class.correct]="selectedQuestion.options?.[1]?.is_correct">✗ Falso</span>
+      </div>
+    </div>
+
+    <!-- Explicación -->
+    <div class="qm-pv-explanation" *ngIf="selectedQuestion.explanation">
+      <span class="qm-pv-exp-ico">💡</span>
+      <p>{{ selectedQuestion.explanation }}</p>
+    </div>
+
+    <!-- Footer acciones -->
+    <div class="qm-pv-footer">
+      <button class="qm-pv-btn-close" (click)="showPreviewDialog = false">Cerrar</button>
+      <button class="qm-pv-btn-edit" (click)="editQuestion(selectedQuestion!); showPreviewDialog = false">✏️ Editar</button>
     </div>
   </div>
-
-  <ng-template pTemplate="footer">
-    <p-button label="Cerrar" icon="pi pi-times" (onClick)="showPreviewDialog = false" severity="secondary"></p-button>
-    <p-button label="Editar" icon="pi pi-pencil" (onClick)="editQuestion(selectedQuestion!); showPreviewDialog = false"></p-button>
-  </ng-template>
 </p-dialog>
 
-<!-- DIALOGO ESTADÍSTICAS -->
+
+<!-- ── OTROS (stats, import, menu, toast, confirm) ── -->
 <p-dialog
   header="Estadísticas de Pregunta"
   [(visible)]="showStatsDialog"
   [modal]="true"
-  [style]="{ width: '500px' }"
->
-  <div *ngIf="selectedQuestionStats" class="question-stats">
-    <div class="grid">
-      <div class="col-6 text-center">
-        <div class="stat-number text-blue-500">{{ selectedQuestionStats.total_responses }}</div>
-        <div class="text-muted">Total Respuestas</div>
+  [style]="{ width: '95vw', 'max-width': '420px' }">
+  <div *ngIf="selectedQuestionStats" class="qm-stats-mini">
+    <div class="qm-stats-grid-mini">
+      <div class="qm-sstat blue">
+        <div class="qm-sstat-num">{{ selectedQuestionStats.total_responses }}</div>
+        <div class="qm-sstat-lbl">Respuestas</div>
       </div>
-      <div class="col-6 text-center">
-        <div class="stat-number text-green-500">{{ getSuccessRate(selectedQuestionStats) }}%</div>
-        <div class="text-muted">Tasa de Acierto</div>
+      <div class="qm-sstat green">
+        <div class="qm-sstat-num">{{ getSuccessRate(selectedQuestionStats) }}%</div>
+        <div class="qm-sstat-lbl">Acierto</div>
       </div>
-      <div class="col-6 text-center">
-        <div class="stat-number text-orange-500">{{ selectedQuestionStats.avg_time }}s</div>
-        <div class="text-muted">Tiempo Promedio</div>
+      <div class="qm-sstat orange">
+        <div class="qm-sstat-num">{{ selectedQuestionStats.avg_time }}s</div>
+        <div class="qm-sstat-lbl">Tiempo</div>
       </div>
-      <div class="col-6 text-center">
-        <div class="stat-number text-purple-500">{{ selectedQuestionStats.difficulty_rating }}</div>
-        <div class="text-muted">Dificultad Percibida</div>
+      <div class="qm-sstat purple">
+        <div class="qm-sstat-num">{{ selectedQuestionStats.difficulty_rating }}</div>
+        <div class="qm-sstat-lbl">Dificultad</div>
       </div>
     </div>
-
     <p-progressBar [value]="getSuccessRate(selectedQuestionStats)" [showValue]="false" styleClass="mt-3"></p-progressBar>
   </div>
-
   <ng-template pTemplate="footer">
-    <p-button label="Cerrar" icon="pi pi-times" (onClick)="showStatsDialog = false" severity="secondary"></p-button>
+    <button class="qm-pv-btn-close" (click)="showStatsDialog = false">Cerrar</button>
   </ng-template>
 </p-dialog>
 
-<!-- DIALOGO IMPORT -->
-<p-dialog header="Importar Preguntas" [(visible)]="showImportDialog" [modal]="true" [style]="{ width: '500px' }">
-  <div class="text-center p-4">
-    <i class="pi pi-upload text-4xl text-400 mb-3"></i>
-    <p class="text-muted">Funcionalidad de importación próximamente</p>
-  </div>
-  <ng-template pTemplate="footer">
-    <p-button label="Cerrar" icon="pi pi-times" (onClick)="showImportDialog = false" severity="secondary"></p-button>
-  </ng-template>
-</p-dialog>
-
-<!-- MENÚ CONTEXTUAL + TOAST/CONFIRM -->
 <p-menu #questionMenu [model]="menuItems" [popup]="true"></p-menu>
 <p-confirmDialog></p-confirmDialog>
 <p-toast></p-toast>

@@ -99,6 +99,7 @@ export class QuestionManagerComponent implements OnInit {
   showStatsDialog = false;
   showImportDialog = false;
   showQuestionForm = false;
+  showFilterPanel = false;
   editingQuestion: Question | null = null;
 
   // Filtros
@@ -475,5 +476,36 @@ export class QuestionManagerComponent implements OnInit {
   getSuccessRate(stats: QuestionWithStats): number {
     if (!stats?.total_responses) return 0;
     return Math.round((stats.correct_responses / stats.total_responses) * 100);
+  }
+
+  getTypeEmoji(type: string): string {
+    switch (type) {
+      case 'multiple_choice': return '📋';
+      case 'true_false':      return '✅';
+      case 'scale':           return '📊';
+      default:                return '❓';
     }
+  }
+
+  get activeFiltersCount(): number {
+    let count = 0;
+    if (this.filters.category)   count++;
+    if (this.filters.difficulty) count++;
+    if (this.filters.type)       count++;
+    return count;
+  }
+
+  setFilter(field: 'difficulty' | 'type', value: any): void {
+    if (this.filters[field] === value) {
+      this.filters[field] = null;
+    } else {
+      this.filters[field] = value;
+    }
+    this.applyFilters();
+  }
+
+  clearFilters(): void {
+    this.filters = { category: null, difficulty: null, type: null, search: '' };
+    this.applyFilters();
+  }
 }
