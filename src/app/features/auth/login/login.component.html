@@ -1,142 +1,100 @@
 <!-- src/app/features/auth/login/login.component.html -->
-<div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-  
-  <!-- Elementos decorativos de fondo -->
-  <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute -top-10 -left-10 w-40 h-40 bg-green-300 rounded-full opacity-20 animate-bounce"></div>
-    <div class="absolute top-1/4 -right-16 w-60 h-60 bg-blue-300 rounded-full opacity-15 animate-pulse"></div>
-    <div class="absolute bottom-10 left-1/4 w-32 h-32 bg-purple-300 rounded-full opacity-25 animate-wiggle"></div>
-    <div class="absolute top-1/2 left-10 w-20 h-20 bg-yellow-300 rounded-full opacity-30 animate-ping"></div>
-  </div>
+<div class="auth-page">
+  <div class="auth-wrapper">
 
-  <!-- Contenedor principal -->
-  <div class="w-full max-w-md relative z-10">
-    
-    <!-- Header con logo -->
-    <div class="text-center mb-8 animate__animated animate__fadeInDown">
-      <div class="w-20 h-20 mx-auto bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mb-4 shadow-lg">
-        <div style="font-size: 39px;">♻️</div>
-      </div>
-      <h1 class="text-4xl font-bold text-gray-800 mb-2">EcoBarómetro</h1>
-      <p class="text-gray-600">¡Juega y aprende sobre el medio ambiente!</p>
+    <!-- Brand header -->
+    <div class="auth-brand">
+      <div class="auth-logo">🌍</div>
+      <h1 class="auth-name">EcoBarómetro</h1>
+      <p class="auth-tagline">Aprende jugando sobre el medio ambiente</p>
     </div>
 
-    <!-- Card principal -->
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-6 animate__animated animate__fadeInUp">
-      
-      <!-- Tabs para Usuario/Admin -->
-      <p-tabView [(activeIndex)]="activeTab" class="mb-6 uls mt-2">
-        <p-tabPanel header="👤 Usuario" leftIcon="pi pi-user">
-          <div class="text-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-800">Acceso de Jugador</h3>
-            <p class="text-sm text-gray-600">Inicia sesión para jugar EcoBarómetro</p>
-          </div>
-        </p-tabPanel>
-        
-        <p-tabPanel header="👨‍💼 Administrador" leftIcon="pi pi-cog">
-          <div class="text-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-800">Panel de Administración</h3>
-            <p class="text-sm text-gray-600">Gestiona preguntas y usuarios</p>
-          </div>
-        </p-tabPanel>
-      </p-tabView>
+    <!-- Card -->
+    <div class="auth-card">
 
-      <!-- Formulario de login -->
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
-        
+      <!-- Tab toggle -->
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab" [class.auth-tab--active]="activeTab === 0"
+          (click)="activeTab = 0">
+          <span>👤</span> Jugador
+        </button>
+        <button type="button" class="auth-tab" [class.auth-tab--active]="activeTab === 1"
+          (click)="activeTab = 1">
+          <span>⚙️</span> Admin
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
         <!-- Email -->
-        <div class="space-y-2">
-          <label for="email" class="block text-sm font-medium text-gray-700">
-            <i class="pi pi-envelope mr-2"></i>Correo Electrónico
-          </label>
-          <input 
-            id="email"
-            type="email" 
-            pInputText 
+        <div class="auth-field">
+          <label class="auth-label">Correo electrónico</label>
+          <input
+            type="email"
             formControlName="email"
             placeholder="tu@email.com"
-            class="w-full p-3 border rounded-lg transition-all duration-300 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            [class.border-red-500]="isFieldInvalid('email')"
-          />
-          <p-message 
-            *ngIf="isFieldInvalid('email')" 
-            severity="error" 
-            [text]="getFieldError('email')">
-          </p-message>
+            class="auth-input"
+            [class.auth-input--error]="isFieldInvalid('email')">
+          <span *ngIf="isFieldInvalid('email')" class="auth-error">{{ getFieldError('email') }}</span>
         </div>
 
         <!-- Password -->
-        <div class="space-y-2">
-          <label for="password" class="block text-sm font-medium text-gray-700">
-            <i class="pi pi-lock mr-2"></i>Contraseña
-          </label>
-          <p-password
-            id="password"
-            formControlName="password"
-            placeholder="Tu contraseña segura"
-            [toggleMask]="true"
-            [feedback]="false"
-            styleClass="w-full"
-            inputStyleClass="w-full p-3 border rounded-lg"
-            [class.border-red-500]="isFieldInvalid('password')">
-          </p-password>
-          <p-message
-            *ngIf="isFieldInvalid('password')"
-            severity="error"
-            [text]="getFieldError('password')">
-          </p-message>
-        </div>
-
-
-        <!-- Remember me y forgot password -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center">
-            <p-checkbox 
-              formControlName="rememberMe" 
-              binary="true" 
-              inputId="remember">
-            </p-checkbox>
-            <label for="remember" class="ml-2 text-sm text-gray-600">Recordarme</label>
+        <div class="auth-field">
+          <label class="auth-label">Contraseña</label>
+          <div class="auth-pw-wrap">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="••••••••"
+              class="auth-input auth-input--pw"
+              [class.auth-input--error]="isFieldInvalid('password')">
+            <button type="button" class="auth-pw-btn" (click)="showPassword = !showPassword">
+              {{ showPassword ? '🙈' : '👁️' }}
+            </button>
           </div>
-          <a href="#" class="text-sm text-green-600 hover:text-green-500 font-medium">
-            ¿Olvidaste tu contraseña?
-          </a>
+          <span *ngIf="isFieldInvalid('password')" class="auth-error">{{ getFieldError('password') }}</span>
         </div>
 
-        <!-- Botón de login -->
-        <button 
+        <!-- Remember & Forgot -->
+        <div class="auth-row">
+          <label class="auth-check-label">
+            <input type="checkbox" formControlName="rememberMe" class="auth-check">
+            <span>Recordarme</span>
+          </label>
+          <a href="#" class="auth-link-sm">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <!-- Submit -->
+        <button
           type="submit"
-          pButton 
-          [loading]="isLoading"
-          [disabled]="!loginForm.valid"
-          class="w-full eco-button py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300">
-          <i class="pi pi-sign-in mr-2"></i>
+          class="auth-btn-primary"
+          [disabled]="!loginForm.valid || isLoading">
           <span *ngIf="!isLoading">{{ activeTab === 0 ? '🎮 Empezar a Jugar' : '⚙️ Acceder al Panel' }}</span>
-          <span *ngIf="isLoading">Iniciando sesión...</span>
+          <span *ngIf="isLoading" class="auth-loading">
+            <span class="auth-spinner"></span> Iniciando sesión...
+          </span>
         </button>
 
         <!-- Divider -->
-        <p-divider align="center" class="my-6">
-          <span class="text-gray-500 text-sm">¿Primera vez aquí?</span>
-        </p-divider>
+        <div class="auth-divider"><span>¿Primera vez aquí?</span></div>
 
-        <!-- Botón de registro -->
-        <button 
-          type="button"
-          pButton 
-          (click)="navigateToRegister()"
-          class="w-full border-2 border-green-500 text-green-600 hover:bg-green-50 py-3 text-lg font-semibold rounded-lg transition-all duration-300">
-          <i class="pi pi-user-plus mr-2"></i>
+        <!-- Register link -->
+        <button type="button" class="auth-btn-outline" (click)="navigateToRegister()">
           Crear Nueva Cuenta
         </button>
+
       </form>
     </div>
 
-    <!-- Información adicional -->
-    <div class="text-center mt-6 text-gray-600 text-sm animate__animated animate__fadeInUp animate__delay-1s">
-      <p class="mb-2">🌱 Aprende jugando sobre sostenibilidad</p>
-      <p>🏆 Compite con amigos y sube de nivel</p>
+    <!-- Footer info -->
+    <div class="auth-footer">
+      <span>🌱 Sostenibilidad</span>
+      <span class="auth-footer-dot">·</span>
+      <span>🏆 Ranking</span>
+      <span class="auth-footer-dot">·</span>
+      <span>📚 Aprendizaje</span>
     </div>
+
   </div>
 </div>
-

@@ -16,6 +16,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   registerForm!: FormGroup;
   isLoading = false;
   activeTab = 0; // 0 = Usuario, 1 = Admin
+  showPassword = false;
+  showConfirmPassword = false;
   showAdminCodeValidation = false;
   adminCodeValidating = false;
   adminCodeValid = false;

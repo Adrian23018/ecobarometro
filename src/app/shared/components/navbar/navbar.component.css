@@ -155,38 +155,47 @@
    ============================================================ */
 .navbar-auth {
   display: flex;
+  align-items: center;
   gap: 0.5rem;
   margin-left: auto;
 }
 
 .btn-login {
-  padding: 0.4rem 1rem;
+  padding: 0.38rem 0.9rem;
   background: transparent;
-  color: #10b981;
-  border: 1px solid #10b981;
+  color: #374151;
+  border: none;
   border-radius: 8px;
   font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.18s, background 0.18s;
+  font-family: inherit;
 }
 
 .btn-login:hover {
+  color: #10b981;
   background: #f0fdf4;
 }
 
 .btn-register {
-  padding: 0.4rem 1rem;
+  padding: 0.38rem 1rem;
   background: #10b981;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  letter-spacing: 0.01em;
 }
 
 .btn-register:hover {
   background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
 }
 
 /* ============================================================

@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   isLoading = false;
   activeTab = 0; // 0 = Usuario, 1 = Admin
+  showPassword = false;
   private destroy$ = new Subject<void>();
 
   // Mensajes de loading específicos
