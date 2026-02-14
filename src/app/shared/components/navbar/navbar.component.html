@@ -57,9 +57,10 @@
     <button
       *ngFor="let item of availableMenuItems"
       class="drawer-item"
-      (click)="navigateTo(item.route)">
+      [class.loading]="startingGame && item.action === 'startGame'"
+      (click)="navigateTo(item.route, item.action)">
       <i [class]="item.icon + ' drawer-item-icon'"></i>
-      <span>{{ item.label }}</span>
+      <span>{{ startingGame && item.action === 'startGame' ? 'Iniciando...' : item.label }}</span>
     </button>
   </nav>
 

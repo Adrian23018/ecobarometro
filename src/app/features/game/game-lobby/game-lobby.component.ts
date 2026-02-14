@@ -318,4 +318,48 @@ export class GameLobbyComponent implements OnInit {
     const currentValue = this.gameForm.get('timeChallenge')?.value;
     this.gameForm.patchValue({ timeChallenge: !currentValue });
   }
+
+  // Método para iniciar un juego de test rápido sin selección de categorías
+  startQuickTest(): void {
+    if (!this.currentUser) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'No hay usuario logueado'
+      });
+      return;
+    }
+
+    this.startingGame = true;
+
+    const gameRequest: CreateGameSessionRequest = {
+      session_name: 'Test Rápido',
+      categories: [] // Sin filtros, todas las categorías
+    };
+
+    this.gameSessionService.createGameSession(this.currentUser.id, gameRequest).subscribe({
+      next: (session: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: '¡Comenzando Test!',
+          detail: 'Tu juego de prueba ha comenzado',
+          life: 2000
+        });
+
+        // Navigate to game play
+        setTimeout(() => {
+          this.router.navigate(['/game/play', session.id]);
+        }, 1000);
+      },
+      error: (error: any) => {
+        console.error('Error starting quick test:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo iniciar el juego. Intenta de nuevo.'
+        });
+        this.startingGame = false;
+      }
+    });
+  }
 }

@@ -6,6 +6,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 import { MessageService } from 'primeng/api';
+import { GameSessionService } from '../../../core/services/game-session.service';
+import { CreateGameSessionRequest } from '../../../core/models/game-session';
 
 interface NavbarUser {
   id: string;
@@ -20,6 +22,14 @@ interface NavbarUser {
   avatar_url?: string;
 }
 
+interface MenuItem {
+  label: string;
+  icon: string;
+  route: string;
+  roles: string[];
+  action?: string;
+}
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -32,19 +42,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   currentUser: NavbarUser | null = null;
   isMenuOpen = false;
+  startingGame = false;
   private destroy$ = new Subject<void>();
 
   // Menu items for different user types
-  userMenuItems = [
+  userMenuItems: MenuItem[] = [
     { label: 'Dashboard',         icon: 'pi pi-home',      route: '/user/dashboard',     roles: ['user'] },
-    { label: 'Jugar EcoChallenge',icon: 'pi pi-play',      route: '/game/lobby',         roles: ['user'] },
+    { label: 'Jugar EcoChallenge',icon: 'pi pi-play',      route: '/game/lobby',         roles: ['user'], action: 'startGame' },
     { label: 'Ranking Global',    icon: 'pi pi-chart-bar', route: '/game/leaderboard',   roles: ['user'] },
     { label: 'Mi Ranking',        icon: 'pi pi-trophy',    route: '/user/ranking',       roles: ['user'] },
     { label: 'Mis Logros',        icon: 'pi pi-star',      route: '/user/achievements',  roles: ['user'] },
     { label: 'Mi Perfil',         icon: 'pi pi-user',      route: '/user/profile',       roles: ['user'] },
   ];
 
-  adminMenuItems = [
+  adminMenuItems: MenuItem[] = [
     { label: 'Panel Admin',       icon: 'pi pi-desktop',        route: '/admin/dashboard',    roles: ['admin'] },
     { label: 'Categorías',        icon: 'pi pi-tags',           route: '/admin/categories',   roles: ['admin'] },
     { label: 'Preguntas',         icon: 'pi pi-question-circle',route: '/admin/questions',    roles: ['admin'] },
@@ -58,7 +69,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private gameSessionService: GameSessionService
   ) {}
 
   ngOnInit() {
@@ -118,9 +130,53 @@ export class NavbarComponent implements OnInit, OnDestroy {
     });
   }
 
-  navigateTo(route: string) {
+  navigateTo(route: string, action?: string) {
+    if (action === 'startGame') {
+      this.startQuickGame();
+      return;
+    }
     this.router.navigate([route]);
     this.closeMenu();
+  }
+
+  startQuickGame(): void {
+    if (!this.currentUser || this.startingGame) {
+      return;
+    }
+
+    this.startingGame = true;
+    this.closeMenu();
+
+    const gameRequest: CreateGameSessionRequest = {
+      session_name: 'EcoChallenge Rápido',
+      categories: [] // Sin filtros, todas las categorías
+    };
+
+    this.gameSessionService.createGameSession(this.currentUser.id, gameRequest).subscribe({
+      next: (session: any) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: '¡Comenzando!',
+          detail: 'Tu EcoChallenge ha comenzado',
+          life: 2000
+        });
+
+        // Navigate to game play
+        setTimeout(() => {
+          this.router.navigate(['/game/play', session.id]);
+          this.startingGame = false;
+        }, 1000);
+      },
+      error: (error: any) => {
+        console.error('Error starting quick game:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo iniciar el juego. Intenta de nuevo.'
+        });
+        this.startingGame = false;
+      }
+    });
   }
 
   logout() {
