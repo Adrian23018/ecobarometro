@@ -292,6 +292,17 @@ export class UserDashboardComponent implements OnInit {
     return this.achievementProgress.length - this.completedAchievements;
   }
 
+  getSafeIcon(icon: string | null | undefined): string {
+    if (!icon || icon.startsWith('fas ') || icon.startsWith('far ') || icon.startsWith('fab ')) {
+      return 'pi pi-trophy';
+    }
+    return icon;
+  }
+
+  isPiIcon(icon: string | null | undefined): boolean {
+    return !!icon && icon.startsWith('pi ');
+  }
+
    // Método para el botón atrás
   goBack(): void {
     this.location.back();

@@ -117,7 +117,7 @@
           <div class="udb-achievement-icon"
                [style.background]="ach.achievement.badge_color"
                [class.udb-achievement-completed]="ach.is_completed">
-            <i [class]="ach.achievement.icon + ' udb-achievement-emoji'"></i>
+            <i [class]="getSafeIcon(ach.achievement.icon) + ' udb-achievement-emoji'"></i>
             <div class="udb-achievement-check" *ngIf="ach.is_completed">✓</div>
           </div>
           <h4 class="udb-achievement-name">{{ ach.achievement.name }}</h4>
@@ -149,7 +149,8 @@
       <div class="udb-category-list">
         <div *ngFor="let category of categoryPerformance.slice(0, 4)" class="udb-category-item">
           <div class="udb-category-icon" [style.background]="category.color">
-            <i [class]="category.icon"></i>
+            <i *ngIf="isPiIcon(category.icon)" [class]="category.icon"></i>
+            <span *ngIf="!isPiIcon(category.icon)" class="udb-icon-emoji">{{ category.icon || '🌿' }}</span>
           </div>
           <div class="udb-category-content">
             <div class="udb-category-header">
@@ -176,30 +177,19 @@
   <!-- Eco Tips -->
   <div class="udb-section">
     <h2 class="udb-section-title"><i class="pi pi-lightbulb"></i> Consejos Ecológicos del Día</h2>
-    <div class="udb-card">
-      <div class="udb-tips-carousel">
-        <div *ngFor="let tip of ecoTips.slice(0, 3)" class="udb-tip-card">
-          <div class="udb-tip-header">
-            <div class="udb-tip-icon" [style.background]="tip.color">
-              <i [class]="tip.icon"></i>
-            </div>
-            <div class="udb-tip-badges">
-              <span class="udb-tip-category">{{ tip.category }}</span>
-              <span class="udb-tip-difficulty" [class]="'udb-difficulty-' + tip.difficulty">
-                {{ getDifficultyLabel(tip.difficulty) }}
-              </span>
-            </div>
+    <div class="udb-tips-list">
+      <div *ngFor="let tip of ecoTips.slice(0, 3)" class="udb-tip-row" [style.border-left-color]="tip.color">
+        <div class="udb-tip-row-icon" [style.background]="tip.color + '20'" [style.color]="tip.color">
+          <i *ngIf="isPiIcon(tip.icon)" [class]="tip.icon"></i>
+          <span *ngIf="!isPiIcon(tip.icon)">{{ tip.icon || '🌿' }}</span>
+        </div>
+        <div class="udb-tip-row-body">
+          <div class="udb-tip-row-meta">
+            <span class="udb-tip-row-cat" [style.color]="tip.color">{{ tip.category }}</span>
+            <span class="udb-tip-row-diff" [class]="'udb-difficulty-' + tip.difficulty">{{ getDifficultyLabel(tip.difficulty) }}</span>
           </div>
-          <h3 class="udb-tip-title">{{ tip.title }}</h3>
-          <p class="udb-tip-description">{{ tip.description }}</p>
-          <div class="udb-tip-rating">
-            <span class="udb-tip-rating-label">Dificultad:</span>
-            <div class="udb-tip-stars">
-              <span *ngFor="let star of [1,2,3]"
-                    class="udb-tip-star"
-                    [class.udb-tip-star-filled]="star <= getDifficultyRating(tip.difficulty)"><i class="pi pi-star"></i></span>
-            </div>
-          </div>
+          <h4 class="udb-tip-row-title">{{ tip.title }}</h4>
+          <p class="udb-tip-row-desc">{{ tip.description }}</p>
         </div>
       </div>
     </div>

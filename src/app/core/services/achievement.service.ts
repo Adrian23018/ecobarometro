@@ -66,7 +66,7 @@ export class AchievementService {
         id: item.achievement_id,
         name: item.name,
         description: item.description,
-        icon: item.icon || 'fas fa-trophy',
+        icon: item.icon || 'pi pi-trophy',
         badge_color: item.badge_color || '#22c55e',
         achievement_type: item.achievement_type,
         points_required: item.points_required
@@ -85,7 +85,7 @@ export class AchievementService {
           id: item.achievement_id,
           name: item.name,
           description: item.description,
-          icon: item.icon || 'fas fa-trophy',
+          icon: item.icon || 'pi pi-trophy',
           badge_color: item.badge_color || '#22c55e',
           achievement_type: item.achievement_type,
           points_required: item.points_required
@@ -153,7 +153,7 @@ export class AchievementService {
           admin_id: achievement.admin_id,
           name: achievement.name,
           description: achievement.description,
-          icon: achievement.icon || 'fas fa-trophy',
+          icon: achievement.icon || 'pi pi-trophy',
           badge_color: achievement.badge_color || '#22c55e',
           achievement_type: achievement.achievement_type,
           points_required: achievement.points_required,
@@ -418,7 +418,7 @@ export class AchievementService {
         .insert([{ 
           ...achievementData, 
           admin_id: adminId,
-          icon: achievementData.icon || 'fas fa-trophy',
+          icon: achievementData.icon || 'pi pi-trophy',
           badge_color: achievementData.badge_color || '#22c55e'
         }])
         .select()
@@ -486,7 +486,7 @@ export class AchievementService {
           id: 'default-1',
           name: 'Eco Novato',
           description: 'Gana tus primeros 100 puntos',
-          icon: 'fas fa-seedling',
+          icon: 'pi pi-leaf',
           badge_color: '#10b981',
           achievement_type: 'points',
           points_required: 100
@@ -500,7 +500,7 @@ export class AchievementService {
           id: 'default-2',
           name: 'Primera Partida',
           description: 'Completa tu primera partida',
-          icon: 'fas fa-play',
+          icon: 'pi pi-play',
           badge_color: '#3b82f6',
           achievement_type: 'games',
           points_required: 1
@@ -523,7 +523,7 @@ export class AchievementService {
           id: 'default-2',
           name: 'Primera Partida',
           description: 'Completa tu primera partida',
-          icon: 'fas fa-play',
+          icon: 'pi pi-play',
           badge_color: '#3b82f6',
           achievement_type: 'games',
           points_required: 1
