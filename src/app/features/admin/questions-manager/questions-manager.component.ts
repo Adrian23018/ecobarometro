@@ -478,6 +478,15 @@ export class QuestionManagerComponent implements OnInit {
     return Math.round((stats.correct_responses / stats.total_responses) * 100);
   }
 
+  getTypeIcon(type: string): string {
+    switch (type) {
+      case 'multiple_choice': return 'pi pi-list';
+      case 'true_false':      return 'pi pi-check-square';
+      case 'scale':           return 'pi pi-chart-bar';
+      default:                return 'pi pi-question-circle';
+    }
+  }
+
   getTypeEmoji(type: string): string {
     switch (type) {
       case 'multiple_choice': return '📋';
@@ -495,12 +504,18 @@ export class QuestionManagerComponent implements OnInit {
     return count;
   }
 
-  setFilter(field: 'difficulty' | 'type', value: any): void {
-    if (this.filters[field] === value) {
+  setFilter(field: 'difficulty' | 'type' | 'category', value: any): void {
+    // Toggle: si ya está activo, lo desactiva
+    if (this.filters[field] === value && value !== null) {
       this.filters[field] = null;
     } else {
       this.filters[field] = value;
     }
+    this.applyFilters();
+  }
+
+  setFilterAndApply(field: 'difficulty' | 'type' | 'category', value: any): void {
+    this.filters[field] = value;
     this.applyFilters();
   }
 

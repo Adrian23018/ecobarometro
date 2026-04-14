@@ -247,13 +247,19 @@ export class QuestionFormComponent implements OnInit {
     this.isEditMode = true;
 
     this.questionForm.patchValue({
-      question_text: this.editQuestion.question_text,
-      category_id: this.editQuestion.category_id,
-      question_type: this.editQuestion.question_type,
-      difficulty_level: this.editQuestion.difficulty_level,
-      explanation: this.editQuestion.explanation,
-      points: this.editQuestion.points,
-      time_limit: this.editQuestion.time_limit
+      question_text:        this.editQuestion.question_text,
+      category_id:          this.editQuestion.category_id,
+      question_type:        this.editQuestion.question_type,
+      difficulty_level:     this.editQuestion.difficulty_level,
+      explanation:          this.editQuestion.explanation ?? '',
+      points:               this.editQuestion.points,
+      time_limit:           this.editQuestion.time_limit ?? 30,
+      correct_answer:       this.editQuestion.correct_answer ?? '',
+      scale_min:            this.editQuestion.scale_min ?? 1,
+      scale_max:            this.editQuestion.scale_max ?? 5,
+      scale_min_label:      this.editQuestion.scale_min_label ?? '',
+      scale_max_label:      this.editQuestion.scale_max_label ?? '',
+      scale_correct_value:  this.editQuestion.scale_correct_value ?? 3
     });
 
     this.onQuestionTypeChange(this.editQuestion.question_type);
@@ -330,6 +336,9 @@ export class QuestionFormComponent implements OnInit {
       question_type: v.question_type,
       difficulty_level: v.difficulty_level,
       points: v.points,
+      explanation: v.explanation || null,
+      time_limit: v.time_limit || 30,
+      weighted_scoring: this.isWeightedMode,
       options: []
     };
 

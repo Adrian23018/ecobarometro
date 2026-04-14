@@ -28,11 +28,17 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/primeicons/fonts",
+                "output": "fonts"
               }
             ],
             "styles": [
+              "node_modules/primeicons/primeicons.css",
               "node_modules/primeng/resources/themes/lara-light-green/theme.css",
-  "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeng/resources/primeng.min.css",
               "src/styles.scss"
             ],
             "scripts": []
@@ -95,11 +101,17 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/primeicons/fonts",
+                "output": "fonts"
               }
             ],
             "styles": [
+              "node_modules/primeicons/primeicons.css",
               "node_modules/primeng/resources/themes/lara-light-green/theme.css",
-  "node_modules/primeng/resources/primeng.min.css",
+              "node_modules/primeng/resources/primeng.min.css",
               "src/styles.scss"
             ],
             "scripts": []

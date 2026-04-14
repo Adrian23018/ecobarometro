@@ -1,36 +1,55 @@
 <div class="qm-page">
 
-  <!-- ── TOP BAR ── -->
+  <!-- ── FILA 1: navegación + título + acciones ── -->
   <div class="qm-topbar">
-    <button class="qm-back-btn" [routerLink]="['/admin/dashboard']" title="Volver">←</button>
+    <button class="qm-back-btn" [routerLink]="['/admin/dashboard']" title="Volver">
+      <i class="pi pi-arrow-left"></i>
+    </button>
 
     <div class="qm-title-wrap">
-      <h2 class="qm-title">❓ Preguntas</h2>
+      <i class="pi pi-question-circle qm-title-icon"></i>
+      <h2 class="qm-title">Preguntas</h2>
       <span class="qm-count-badge">{{ filteredQuestions.length }}</span>
     </div>
 
+    <div class="qm-topbar-actions">
+      <button class="qm-filter-btn" (click)="showFilterPanel = !showFilterPanel"
+        [class.active]="activeFiltersCount > 0">
+        <i class="pi pi-sliders-h"></i>
+        <span>Filtros</span>
+        <span class="qm-filter-count" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
+      </button>
+      <button class="qm-new-btn" (click)="openQuestionForm()">
+        <i class="pi pi-plus"></i>
+        <span>Nueva</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── FILA 2: buscador full-width ── -->
+  <div class="qm-search-row">
     <div class="qm-search-wrap">
-      <span class="qm-search-icon">🔍</span>
+      <i class="pi pi-search qm-search-icon"></i>
       <input
         type="text"
         [(ngModel)]="filters.search"
         (input)="applyFilters()"
-        placeholder="Buscar..."
+        placeholder="Buscar pregunta..."
         class="qm-search-input">
+      <button *ngIf="filters.search" class="qm-search-clear" (click)="filters.search=''; applyFilters()">
+        <i class="pi pi-times"></i>
+      </button>
     </div>
-
-    <button class="qm-filter-btn" (click)="showFilterPanel = !showFilterPanel">
-      ⚙ Filtros
-      <span class="qm-filter-count" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
-    </button>
-
-    <button class="qm-new-btn" (click)="openQuestionForm()">+ Nueva</button>
   </div>
 
   <!-- ── TABS ── -->
   <div class="qm-tabs">
-    <button class="qm-tab" [class.active]="activeTabIndex === 0" (click)="activeTabIndex = 0">📋 Lista</button>
-    <button class="qm-tab" [class.active]="activeTabIndex === 1" (click)="activeTabIndex = 1">📊 Estadísticas</button>
+    <button class="qm-tab" [class.active]="activeTabIndex === 0" (click)="activeTabIndex = 0">
+      <i class="pi pi-list"></i> Lista
+    </button>
+    <button class="qm-tab" [class.active]="activeTabIndex === 1" (click)="activeTabIndex = 1">
+      <i class="pi pi-chart-bar"></i> Estadísticas
+    </button>
   </div>
 
   <!-- ── LISTA ── -->
@@ -38,15 +57,17 @@
 
     <!-- Loading -->
     <div *ngIf="loading" class="qm-state-msg">
-      <span class="qm-spinner-emoji">⏳</span> Cargando preguntas...
+      <i class="pi pi-spin pi-spinner"></i> Cargando preguntas...
     </div>
 
     <!-- Empty -->
     <div *ngIf="!loading && filteredQuestions.length === 0" class="qm-empty">
-      <div class="qm-empty-icon">❓</div>
+      <div class="qm-empty-icon"><i class="pi pi-inbox"></i></div>
       <p class="qm-empty-title">Sin preguntas</p>
       <p class="qm-empty-sub">Crea tu primera pregunta para comenzar</p>
-      <button class="qm-new-btn" (click)="openQuestionForm()">+ Crear pregunta</button>
+      <button class="qm-new-btn" (click)="openQuestionForm()">
+        <i class="pi pi-plus"></i> Crear pregunta
+      </button>
     </div>
 
     <!-- Cards -->
@@ -63,18 +84,26 @@
             <span class="qm-cat-dot" [style.background]="q.category.color"></span>
             {{ q.category.name }}
           </span>
-          <span class="qm-chip qm-chip-type-{{q.question_type}}">{{ getTypeEmoji(q.question_type) }} {{ getTypeLabel(q.question_type) }}</span>
+          <span class="qm-chip qm-chip-type-{{q.question_type}}">
+            <i [class]="getTypeIcon(q.question_type)"></i> {{ getTypeLabel(q.question_type) }}
+          </span>
           <span class="qm-chip qm-chip-diff-{{q.difficulty_level}}">{{ getDifficultyLabel(q.difficulty_level) }}</span>
-          <span class="qm-chip qm-chip-pts">⭐ {{ q.points }}</span>
+          <span class="qm-chip qm-chip-pts"><i class="pi pi-star"></i> {{ q.points }}</span>
           <span class="qm-opts-label">{{ q.options?.length || 0 }} opciones</span>
         </div>
       </div>
 
       <!-- Acciones -->
       <div class="qm-card-actions">
-        <button class="qm-action-btn view" (click)="previewQuestion(q)" title="Ver">👁</button>
-        <button class="qm-action-btn edit" (click)="editQuestion(q)" title="Editar">✏️</button>
-        <button class="qm-action-btn more" (click)="showQuestionMenu($event, q)" title="Más opciones">⋮</button>
+        <button class="qm-action-btn view" (click)="previewQuestion(q)" title="Ver">
+          <i class="pi pi-eye"></i>
+        </button>
+        <button class="qm-action-btn edit" (click)="editQuestion(q)" title="Editar">
+          <i class="pi pi-pencil"></i>
+        </button>
+        <button class="qm-action-btn more" (click)="showQuestionMenu($event, q)" title="Más opciones">
+          <i class="pi pi-ellipsis-v"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -127,60 +156,147 @@
 
 <!-- ── FILTER DRAWER ── -->
 <div class="qm-filter-drawer" [class.open]="showFilterPanel">
+
+  <!-- Header -->
   <div class="qm-fd-header">
-    <h3 class="qm-fd-title">⚙ Filtros</h3>
-    <button class="qm-fd-close" (click)="showFilterPanel = false">✕</button>
+    <div class="qm-fd-header-left">
+      <i class="pi pi-sliders-h qm-fd-header-icon"></i>
+      <div>
+        <h3 class="qm-fd-title">Filtros</h3>
+        <span class="qm-fd-subtitle" *ngIf="activeFiltersCount > 0">
+          {{ activeFiltersCount }} activo{{ activeFiltersCount > 1 ? 's' : '' }}
+        </span>
+        <span class="qm-fd-subtitle" *ngIf="activeFiltersCount === 0">Sin filtros aplicados</span>
+      </div>
+    </div>
+    <button class="qm-fd-close" (click)="showFilterPanel = false" title="Cerrar">✕</button>
+  </div>
+
+  <!-- Resumen de filtros activos -->
+  <div class="qm-fd-active-chips" *ngIf="activeFiltersCount > 0">
+    <span class="qm-fd-chip" *ngIf="filters.category">
+      📁 {{ filters.category }}
+      <button (click)="setFilterAndApply('category', null)">×</button>
+    </span>
+    <span class="qm-fd-chip diff" *ngIf="filters.difficulty">
+      {{ filters.difficulty === 1 ? '🟢' : filters.difficulty === 2 ? '🟡' : '🔴' }}
+      {{ filters.difficulty === 1 ? 'Fácil' : filters.difficulty === 2 ? 'Medio' : 'Difícil' }}
+      <button (click)="setFilterAndApply('difficulty', null)">×</button>
+    </span>
+    <span class="qm-fd-chip type" *ngIf="filters.type">
+      {{ filters.type === 'multiple_choice' ? '📋' : filters.type === 'true_false' ? '✅' : '📊' }}
+      {{ filters.type === 'multiple_choice' ? 'Múltiple' : filters.type === 'true_false' ? 'V/F' : 'Escala' }}
+      <button (click)="setFilterAndApply('type', null)">×</button>
+    </span>
   </div>
 
   <div class="qm-fd-body">
 
+    <!-- CATEGORÍA -->
     <div class="qm-fd-group">
-      <label class="qm-fd-label">Categoría</label>
+      <label class="qm-fd-label">
+        <span class="qm-fd-label-icon">📁</span> Categoría
+      </label>
       <p-dropdown
         [options]="categoryOptions"
         [(ngModel)]="filters.category"
         optionLabel="label"
         optionValue="value"
-        placeholder="Todas"
+        placeholder="Todas las categorías"
         [showClear]="true"
         (onChange)="applyFilters()"
         styleClass="qm-fd-dropdown">
       </p-dropdown>
     </div>
 
+    <!-- DIFICULTAD -->
     <div class="qm-fd-group">
-      <label class="qm-fd-label">Dificultad</label>
+      <label class="qm-fd-label">
+        <span class="qm-fd-label-icon">🎯</span> Dificultad
+      </label>
       <div class="qm-fd-pills">
         <button
-          *ngFor="let d of difficultyOptions"
           type="button"
-          class="qm-fd-pill"
-          [class.active]="filters.difficulty === d.value"
-          (click)="setFilter('difficulty', d.value)">
-          {{ d.label }}
+          class="qm-fd-pill diff-all"
+          [class.active]="!filters.difficulty"
+          (click)="setFilter('difficulty', null)">
+          Todas
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill diff-easy"
+          [class.active]="filters.difficulty === 1"
+          (click)="setFilter('difficulty', 1)">
+          🟢 Fácil
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill diff-med"
+          [class.active]="filters.difficulty === 2"
+          (click)="setFilter('difficulty', 2)">
+          🟡 Medio
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill diff-hard"
+          [class.active]="filters.difficulty === 3"
+          (click)="setFilter('difficulty', 3)">
+          🔴 Difícil
         </button>
       </div>
     </div>
 
+    <!-- TIPO -->
     <div class="qm-fd-group">
-      <label class="qm-fd-label">Tipo</label>
-      <div class="qm-fd-pills">
+      <label class="qm-fd-label">
+        <span class="qm-fd-label-icon">📋</span> Tipo de pregunta
+      </label>
+      <div class="qm-fd-pills qm-fd-pills--col">
         <button
-          *ngFor="let t of typeOptions"
           type="button"
-          class="qm-fd-pill"
-          [class.active]="filters.type === t.value"
-          (click)="setFilter('type', t.value)">
-          {{ t.label }}
+          class="qm-fd-pill-type"
+          [class.active]="!filters.type"
+          (click)="setFilter('type', null)">
+          <span class="pill-type-icon">🗂️</span>
+          <span class="pill-type-label">Todos los tipos</span>
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill-type"
+          [class.active]="filters.type === 'multiple_choice'"
+          (click)="setFilter('type', 'multiple_choice')">
+          <span class="pill-type-icon">📋</span>
+          <span class="pill-type-label">Opción Múltiple</span>
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill-type"
+          [class.active]="filters.type === 'true_false'"
+          (click)="setFilter('type', 'true_false')">
+          <span class="pill-type-icon">✅</span>
+          <span class="pill-type-label">Verdadero / Falso</span>
+        </button>
+        <button
+          type="button"
+          class="qm-fd-pill-type"
+          [class.active]="filters.type === 'scale'"
+          (click)="setFilter('type', 'scale')">
+          <span class="pill-type-icon">📊</span>
+          <span class="pill-type-label">Escala</span>
         </button>
       </div>
     </div>
 
   </div>
 
+  <!-- Footer -->
   <div class="qm-fd-footer">
-    <button class="qm-fd-clear" (click)="clearFilters()">Limpiar filtros</button>
-    <button class="qm-fd-apply" (click)="showFilterPanel = false">Aplicar</button>
+    <button class="qm-fd-clear" (click)="clearFilters()" [disabled]="activeFiltersCount === 0">
+      🗑 Limpiar
+    </button>
+    <button class="qm-fd-apply" (click)="showFilterPanel = false">
+      ✓ Ver {{ filteredQuestions.length }} resultado{{ filteredQuestions.length !== 1 ? 's' : '' }}
+    </button>
   </div>
 </div>
 

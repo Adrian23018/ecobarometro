@@ -7,22 +7,23 @@ export interface Question {
   question_text: string;
   question_type: 'multiple_choice' | 'true_false' | 'scale';
   points: number;
-  difficulty_level: 1 | 2 | 3; // 1=fácil, 2=medio, 3=difícil
+  difficulty_level: 1 | 2 | 3;
   order_index: number;
   is_active: boolean;
-  explanation?: string; // Explicación de la respuesta
-  time_limit?: number; // Tiempo límite en segundos
-  scale_min?: number; // Para preguntas tipo scale
-  scale_max?: number; // Para preguntas tipo scale
-  scale_min_label?: string; // Etiqueta del valor mínimo
-  scale_max_label?: string; // Etiqueta del valor máximo
-  scale_correct_value?: number; // Valor correcto para scale
-  correct_answer?: boolean; // Para true/false
+  explanation?: string;
+  time_limit?: number;
+  weighted_scoring?: boolean;   // ← modo puntaje por opción
+  scale_min?: number;
+  scale_max?: number;
+  scale_min_label?: string;
+  scale_max_label?: string;
+  scale_correct_value?: number;
+  correct_answer?: boolean;
   created_at: string;
   updated_at: string;
-  category?: Category; // Para populate
-  options?: QuestionOption[]; // Para populate
-  total_responses?: number; // Para estadísticas
+  category?: Category;
+  options?: QuestionOption[];
+  total_responses?: number;
 }
 
 export interface QuestionOption {
@@ -46,6 +47,7 @@ export interface CreateQuestionRequest {
   options?: CreateQuestionOptionRequest[];
   explanation?: string;
   time_limit?: number;
+  weighted_scoring?: boolean;
   scale_min?: number;
   scale_max?: number;
   scale_min_label?: string;
@@ -70,6 +72,15 @@ export interface UpdateQuestionRequest {
   points?: number;
   difficulty_level?: 1 | 2 | 3;
   is_active?: boolean;
+  explanation?: string;
+  time_limit?: number;
+  weighted_scoring?: boolean;
+  scale_min?: number;
+  scale_max?: number;
+  scale_min_label?: string;
+  scale_max_label?: string;
+  scale_correct_value?: number;
+  correct_answer?: boolean;
   options?: UpdateQuestionOptionRequest[];
 }
 

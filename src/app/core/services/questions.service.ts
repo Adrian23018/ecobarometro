@@ -37,7 +37,16 @@ export class QuestionsService {
         question_type: questionData.question_type,
         points: questionData.points,
         difficulty_level: questionData.difficulty_level,
-        order_index: 0
+        order_index: 0,
+        explanation: questionData.explanation ?? null,
+        time_limit: questionData.time_limit ?? 30,
+        weighted_scoring: questionData.weighted_scoring ?? false,
+        scale_min: questionData.scale_config?.min_value ?? questionData.scale_min ?? null,
+        scale_max: questionData.scale_config?.max_value ?? questionData.scale_max ?? null,
+        scale_min_label: questionData.scale_config?.min_label ?? questionData.scale_min_label ?? null,
+        scale_max_label: questionData.scale_config?.max_label ?? questionData.scale_max_label ?? null,
+        scale_correct_value: questionData.scale_config?.correct_value ?? questionData.scale_correct_value ?? null,
+        correct_answer: questionData.correct_answer ?? null
       }])
       .select()
       .single();
@@ -50,7 +59,8 @@ export class QuestionsService {
       option_text: option.option_text,
       is_correct: option.is_correct,
       points: option.points,
-      order_index: option.order_index || index
+      order_index: option.order_index ?? index,
+      explanation: option.explanation ?? null
     }));
 
     const { data: options, error: optionsError } = await this.supabase
@@ -157,7 +167,8 @@ export class QuestionsService {
         option_text: option.option_text,
         is_correct: option.is_correct,
         points: option.points,
-        order_index: option.order_index || index
+        order_index: option.order_index ?? index,
+        explanation: (option as any).explanation ?? null
       }));
 
       const { data: options } = await this.supabase
