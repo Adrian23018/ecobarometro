@@ -9,7 +9,11 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Ocupa todo el espacio disponible en el dialog */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden; /* corta cualquier desbordamiento horizontal */
+  width: 100%;
 }
 
 /* ── HEADER ── */
@@ -58,8 +62,14 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  /* Scroll solo aquí; el dialog ya está contenido */
   overflow-y: auto;
-  max-height: calc(100vh - 200px);
+  overflow-x: hidden;
+  /* Ocupa todo el espacio vertical disponible del wrapper */
+  flex: 1 1 auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* ── SECTION ── */
@@ -280,6 +290,7 @@
   padding: 0.35rem 0.85rem;
   cursor: pointer;
   transition: background 0.15s;
+  white-space: nowrap;
 }
 .qf-add-opt-btn:hover { background: #f0fdf4; }
 .qf-add-opt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -290,60 +301,87 @@
   gap: 0.5rem;
 }
 
+/* Fila de opción: columna → texto arriba, acciones abajo */
 .qf-opt-row {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.75rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem 0.75rem;
   border: 1.5px solid #e5e7eb;
   border-radius: 10px;
   background: #fafafa;
   transition: border-color 0.15s, background 0.15s;
+  width: 100%;
+  box-sizing: border-box;
 }
 .qf-opt-row.is-correct {
   border-color: #10b981;
   background: #f0fdf4;
+}
+.qf-opt-row.has-points {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+/* Línea 1: letra + input de texto */
+.qf-opt-main {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 0;
 }
 
 .qf-opt-letter {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #e5e7eb;
   color: #6b7280;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   flex-shrink: 0;
   transition: background 0.15s, color 0.15s;
 }
-.qf-opt-letter.correct-letter {
-  background: #10b981;
-  color: #fff;
-}
+.qf-opt-letter.correct-letter { background: #10b981; color: #fff; }
+.qf-opt-letter.points-letter  { background: #f59e0b; color: #fff; }
 
 .qf-opt-input {
   flex: 1;
+  min-width: 0;          /* permite que el input se encoja */
   border: none;
   background: transparent;
   font-size: 0.9rem;
   color: #111827;
   outline: none;
-  padding: 0.25rem 0;
+  padding: 0.2rem 0;
+  word-break: break-word;
 }
 .qf-opt-input::placeholder { color: #d1d5db; }
+
+/* Línea 2: pts / correcto / eliminar — alineados a la derecha */
+.qf-opt-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  padding-left: calc(26px + 0.6rem); /* alinea con el texto */
+}
 
 .qf-correct-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: 1.1rem;
-  padding: 0.2rem;
+  padding: 0.2rem 0.4rem;
   border-radius: 6px;
   transition: transform 0.1s;
   line-height: 1;
+  flex-shrink: 0;
 }
 .qf-correct-btn:hover { transform: scale(1.2); }
 
@@ -357,9 +395,117 @@
   opacity: 0.4;
   transition: opacity 0.15s;
   line-height: 1;
+  flex-shrink: 0;
 }
 .qf-del-btn:hover { opacity: 0.9; }
 .qf-del-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+/* ── OPTS HEADER RIGHT ── */
+.qf-opts-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── MODE TOGGLE ── */
+.qf-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  background: #f9fafb;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.qf-mode-toggle:hover {
+  border-color: #f59e0b;
+  color: #d97706;
+  background: #fffbeb;
+}
+.qf-mode-toggle.weighted-active {
+  border-color: #f59e0b;
+  background: #f59e0b;
+  color: #fff;
+}
+.qf-mode-toggle-icon { font-size: 0.9rem; line-height: 1; }
+.qf-mode-toggle-text { font-size: 0.76rem; }
+
+/* ── MODE BANNER ── */
+.qf-mode-banner {
+  padding: 0.55rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #374151;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  line-height: 1.5;
+}
+.qf-mode-banner.weighted-banner {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+
+/* ── OPT ROW: estado has-points (weighted) ── */
+.qf-opt-row.has-points {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+.qf-opt-letter.points-letter {
+  background: #f59e0b;
+  color: #fff;
+}
+
+/* ── POINTS INPUT ── */
+.qf-opt-points-wrap {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1.5px solid #fde68a;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 80px;          /* ancho fijo y suficiente para "999 pts" */
+  transition: border-color 0.15s;
+}
+.qf-opt-points-wrap:focus-within {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+}
+.qf-opt-points-input {
+  width: 0;             /* deja que flex lo expanda */
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 0.35rem 0.4rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #92400e;
+  background: transparent;
+  text-align: right;
+  -moz-appearance: textfield;
+}
+.qf-opt-points-input::-webkit-outer-spin-button,
+.qf-opt-points-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.qf-opt-points-unit {
+  padding: 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #d97706;
+  background: #fef9c3;
+  border-left: 1px solid #fde68a;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
 /* ── TRUE / FALSE ── */
 .qf-tf-pills {

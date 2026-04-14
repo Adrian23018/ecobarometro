@@ -101,15 +101,39 @@
 
     <!-- ── OPCIONES: MULTIPLE CHOICE ── -->
     <div *ngIf="questionForm.get('question_type')?.value === 'multiple_choice'" class="qf-section">
+
+      <!-- Cabecera con toggle de modo -->
       <div class="qf-opts-header">
         <label class="qf-label mb-0">Opciones de respuesta</label>
-        <button
-          type="button"
-          class="qf-add-opt-btn"
-          (click)="addOption()"
-          [disabled]="!canAddOption()">
-          + Agregar opción
-        </button>
+        <div class="qf-opts-header-right">
+          <!-- Toggle modo weighted -->
+          <button
+            type="button"
+            class="qf-mode-toggle"
+            [class.weighted-active]="isWeightedMode"
+            (click)="toggleWeightedMode()"
+            title="Activar puntaje individual por opción">
+            <span class="qf-mode-toggle-icon">{{ isWeightedMode ? '🏆' : '✅' }}</span>
+            <span class="qf-mode-toggle-text">{{ isWeightedMode ? 'Puntaje por opción' : 'Una correcta' }}</span>
+          </button>
+          <button
+            type="button"
+            class="qf-add-opt-btn"
+            (click)="addOption()"
+            [disabled]="!canAddOption()">
+            + Agregar
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner informativo del modo activo -->
+      <div class="qf-mode-banner" [class.weighted-banner]="isWeightedMode">
+        <span *ngIf="!isWeightedMode">
+          ✅ <strong>Modo clásico:</strong> una opción correcta, las demás suman 0 puntos.
+        </span>
+        <span *ngIf="isWeightedMode">
+          🏆 <strong>Modo puntaje:</strong> asigna puntos a cada opción. Ninguna respuesta es "incorrecta", cada una vale lo que indiques.
+        </span>
       </div>
 
       <div formArrayName="options" class="qf-opts-list">
@@ -117,42 +141,66 @@
           *ngFor="let option of optionsArray.controls; let i = index"
           [formGroupName]="i"
           class="qf-opt-row"
-          [class.is-correct]="correctIndexCtrl.value === i">
+          [class.is-correct]="!isWeightedMode && correctIndexCtrl.value === i"
+          [class.has-points]="isWeightedMode && (option.get('option_points')?.value ?? 0) > 0">
 
-          <!-- Letra -->
-          <span class="qf-opt-letter" [class.correct-letter]="correctIndexCtrl.value === i">
-            {{ String.fromCharCode(65 + i) }}
-          </span>
+          <!-- Fila principal: letra + texto -->
+          <div class="qf-opt-main">
+            <span class="qf-opt-letter"
+              [class.correct-letter]="!isWeightedMode && correctIndexCtrl.value === i"
+              [class.points-letter]="isWeightedMode && (option.get('option_points')?.value ?? 0) > 0">
+              {{ String.fromCharCode(65 + i) }}
+            </span>
+            <input
+              type="text"
+              formControlName="option_text"
+              class="qf-opt-input"
+              [placeholder]="'Opción ' + String.fromCharCode(65 + i)">
+          </div>
 
-          <!-- Input -->
-          <input
-            type="text"
-            formControlName="option_text"
-            class="qf-opt-input"
-            [placeholder]="'Opción ' + String.fromCharCode(65 + i)">
+          <!-- Fila de acciones: pts / correcta / eliminar -->
+          <div class="qf-opt-actions">
+            <!-- MODO WEIGHTED: puntos -->
+            <div *ngIf="isWeightedMode" class="qf-opt-points-wrap">
+              <input
+                type="number"
+                formControlName="option_points"
+                class="qf-opt-points-input"
+                placeholder="0">
+              <span class="qf-opt-points-unit">pts</span>
+            </div>
 
-          <!-- Marcar correcta -->
-          <button
-            type="button"
-            class="qf-correct-btn"
-            [class.selected]="correctIndexCtrl.value === i"
-            (click)="correctIndexCtrl.setValue(i)"
-            title="Marcar como correcta">
-            {{ correctIndexCtrl.value === i ? '✅' : '○' }}
-          </button>
+            <!-- MODO CLÁSICO: marcar correcta -->
+            <button
+              *ngIf="!isWeightedMode"
+              type="button"
+              class="qf-correct-btn"
+              [class.selected]="correctIndexCtrl.value === i"
+              (click)="correctIndexCtrl.setValue(i)"
+              title="Marcar como correcta">
+              {{ correctIndexCtrl.value === i ? '✅' : '○' }}
+            </button>
 
-          <!-- Eliminar -->
-          <button
-            type="button"
-            class="qf-del-btn"
-            (click)="removeOption(i)"
-            [disabled]="!canRemoveOption()"
-            title="Eliminar opción">
-            🗑
-          </button>
+            <!-- Eliminar -->
+            <button
+              type="button"
+              class="qf-del-btn"
+              (click)="removeOption(i)"
+              [disabled]="!canRemoveOption()"
+              title="Eliminar">
+              🗑
+            </button>
+          </div>
+
         </div>
       </div>
-      <p class="qf-hint">Haz clic en ○ para marcar la opción correcta. Mín {{ validationRules.minOptions }}, máx {{ validationRules.maxOptions }}.</p>
+
+      <p class="qf-hint" *ngIf="!isWeightedMode">
+        Haz clic en ○ para marcar la opción correcta. Mín {{ validationRules.minOptions }}, máx {{ validationRules.maxOptions }}.
+      </p>
+      <p class="qf-hint" *ngIf="isWeightedMode">
+        Asigna los puntos que quieras a cada opción (0 = sin puntos). Mín {{ validationRules.minOptions }}, máx {{ validationRules.maxOptions }} opciones.
+      </p>
     </div>
 
     <!-- ── OPCIONES: VERDADERO / FALSO ── -->

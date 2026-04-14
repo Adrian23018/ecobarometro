@@ -680,9 +680,30 @@
 .qm-sstat.purple .qm-sstat-num { color: #8b5cf6; }
 .mt-3 { margin-top: 0.75rem; }
 
-/* Dialog form sin padding */
+/* Dialog form sin padding — flex column para que qf-body haga el scroll */
 ::ng-deep .question-form-dialog .p-dialog-header { display: none; }
-::ng-deep .question-form-dialog .p-dialog-content { padding: 0 !important; }
+::ng-deep .question-form-dialog .p-dialog {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  max-height: calc(100dvh - 140px) !important;
+}
+::ng-deep .question-form-dialog .p-dialog-content {
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+::ng-deep .question-form-dialog app-question-form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 480px) {

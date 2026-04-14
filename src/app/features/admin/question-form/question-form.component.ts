@@ -86,6 +86,9 @@ export class QuestionFormComponent implements OnInit {
 
   currentUser: any;
 
+  /** Modo puntaje: cada opción tiene su propio valor en puntos */
+  isWeightedMode = false;
+
   constructor(
     private fb: FormBuilder,
     private questionsService: QuestionsService,
@@ -176,9 +179,32 @@ export class QuestionFormComponent implements OnInit {
     const g = this.fb.group({
       option_text: ['', [Validators.required, Validators.minLength(this.validationRules.optionText.min), Validators.maxLength(this.validationRules.optionText.max)]],
       is_correct: [false],
-      explanation: ['']
+      explanation: [''],
+      option_points: [0, [Validators.min(0), Validators.max(9999)]]
     });
     this.optionsArray.push(g);
+  }
+
+  toggleWeightedMode() {
+    this.isWeightedMode = !this.isWeightedMode;
+    const maxPts = this.questionForm.get('points')?.value ?? 10;
+
+    if (this.isWeightedMode) {
+      // Al activar: la opción correcta actual recibe todos los puntos, las demás 0
+      const correctIdx = this.questionForm.get('correct_index')?.value ?? 0;
+      this.optionsArray.controls.forEach((c, i) => {
+        c.get('option_points')?.setValue(i === correctIdx ? maxPts : 0);
+      });
+    } else {
+      // Al desactivar: la opción con más puntos pasa a ser la correcta
+      let bestIdx = 0;
+      let bestPts = -1;
+      this.optionsArray.controls.forEach((c, i) => {
+        const pts = c.get('option_points')?.value ?? 0;
+        if (pts > bestPts) { bestPts = pts; bestIdx = i; }
+      });
+      this.questionForm.get('correct_index')?.setValue(bestIdx);
+    }
   }
 
   removeOption(index: number) {
@@ -235,15 +261,24 @@ export class QuestionFormComponent implements OnInit {
     if (this.editQuestion.question_type === 'multiple_choice' && this.editQuestion.options) {
       const arr = this.optionsArray;
       arr.clear();
+
+      // Detectar modo weighted: la pregunta tiene weighted_scoring=true
+      // o tiene múltiples opciones con puntos distintos entre sí
+      this.isWeightedMode = !!this.editQuestion.weighted_scoring;
+
       this.editQuestion.options.forEach((o: any) => {
         arr.push(this.fb.group({
           option_text: [o.option_text, [Validators.required]],
           is_correct: [o.is_correct],
-          explanation: [o.explanation || '']
+          explanation: [o.explanation || ''],
+          option_points: [o.points ?? 0, [Validators.min(0), Validators.max(9999)]]
         }));
       });
-      const idx = this.editQuestion.options.findIndex((o: any) => !!o.is_correct);
-      this.questionForm.get('correct_index')?.setValue(Math.max(0, idx));
+
+      if (!this.isWeightedMode) {
+        const idx = this.editQuestion.options.findIndex((o: any) => !!o.is_correct);
+        this.questionForm.get('correct_index')?.setValue(Math.max(0, idx));
+      }
     }
   }
 
@@ -253,9 +288,17 @@ export class QuestionFormComponent implements OnInit {
 
     switch (v.question_type) {
       case 'multiple_choice':
-        if (!v.options?.some((o: any) => o.is_correct)) {
-          this.messageService.add({ severity: 'error', summary: 'Error de Validación', detail: 'Debe seleccionar al menos una opción correcta' });
-          return false;
+        if (this.isWeightedMode) {
+          const hasAnyPoints = v.options?.some((o: any) => (o.option_points ?? 0) > 0);
+          if (!hasAnyPoints) {
+            this.messageService.add({ severity: 'error', summary: 'Error de Validación', detail: 'Al menos una opción debe tener puntos mayores a 0' });
+            return false;
+          }
+        } else {
+          if (!v.options?.some((o: any) => o.is_correct)) {
+            this.messageService.add({ severity: 'error', summary: 'Error de Validación', detail: 'Debe seleccionar al menos una opción correcta' });
+            return false;
+          }
         }
         break;
       case 'scale':
@@ -292,13 +335,25 @@ export class QuestionFormComponent implements OnInit {
 
     switch (v.question_type) {
       case 'multiple_choice':
-        payload.options = v.options.map((opt: any, i: number) => ({
-          option_text: opt.option_text,
-          is_correct: opt.is_correct,
-          points: opt.is_correct ? v.points : 0,
-          explanation: opt.explanation || null,
-          order_index: i
-        }));
+        if (this.isWeightedMode) {
+          payload.options = v.options.map((opt: any, i: number) => ({
+            option_text: opt.option_text,
+            is_correct: (opt.option_points ?? 0) > 0,
+            points: opt.option_points ?? 0,
+            explanation: opt.explanation || null,
+            order_index: i
+          }));
+          payload.weighted_scoring = true;
+        } else {
+          payload.options = v.options.map((opt: any, i: number) => ({
+            option_text: opt.option_text,
+            is_correct: opt.is_correct,
+            points: opt.is_correct ? v.points : 0,
+            explanation: opt.explanation || null,
+            order_index: i
+          }));
+          payload.weighted_scoring = false;
+        }
         break;
 
       case 'true_false':

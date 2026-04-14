@@ -189,11 +189,11 @@
 <p-dialog
   [(visible)]="showQuestionForm"
   [modal]="true"
-  [style]="{ width: '95vw', 'max-width': '740px' }"
+  [style]="{ width: '95vw', 'max-width': '740px', 'margin': '0', 'max-height': '100dvh' }"
   [closable]="true"
   header=""
   styleClass="question-form-dialog"
-  [contentStyle]="{ overflow: 'auto', padding: '0' }">
+  [contentStyle]="{ overflow: 'hidden', padding: '0', 'max-height': 'calc(100dvh - 60px - 70px)', 'display': 'flex', 'flex-direction': 'column' }">
   <app-question-form
     *ngIf="showQuestionForm"
     [editQuestion]="editingQuestion"
