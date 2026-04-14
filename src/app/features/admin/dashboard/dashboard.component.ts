@@ -344,6 +344,17 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  shareViaWhatsApp(): void {
+    const code = this.currentAdmin?.admin_code;
+    if (!code) {
+      this.messageService.add({ severity: 'warn', summary: 'Sin código', detail: 'No hay código de administrador disponible', life: 3000 });
+      return;
+    }
+    const mensaje = `¡Hola! Te invito a unirte a *EcoBarómetro*.\n\nUsa este código para registrarte: *${code}*\n\n¡Aprende sobre medio ambiente jugando!`;
+    const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+  }
+
   trackByActivity(index: number, activity: RecentActivity): string {
     return `${activity.type}-${activity.timestamp.getTime()}`;
   }
