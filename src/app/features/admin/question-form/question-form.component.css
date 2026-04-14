@@ -276,8 +276,9 @@
 /* ── OPTIONS LIST ── */
 .qf-opts-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;   /* label arriba, botones abajo */
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .qf-add-opt-btn {
@@ -405,6 +406,14 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+/* ── OPTS HEADER BTNS (fila de botones bajo el label) ── */
+.qf-opts-header-btns {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 /* ── MODE TOGGLE ── */
