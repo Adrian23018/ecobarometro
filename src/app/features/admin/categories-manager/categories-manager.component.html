@@ -9,10 +9,10 @@
               [outlined]="true"
               styleClass="back-button"
             >
-              <span class="emoji-icon">⬅️</span>
+              <i class="pi pi-arrow-left"></i>
               <!-- <span class="ml-2">Atrás</span> -->
             </p-button>
-            <h2 class="m-0 ml-3">🗂️ Gestión de Categorías</h2>
+            <h2 class="m-0 ml-3"><i class="pi pi-folder-open"></i> Gestión de Categorías</h2>
           </div>
           <div class="p-toolbar-group-end">
             <p-button class="style"
@@ -47,7 +47,7 @@
               <div class="card-header">
                 <div class="header-left">
                   <div class="category-icon-wrapper" [style.background-color]="category.color">
-                    <span class="category-icon-img">{{ getIcon(category.icon) }}</span>
+                    <i [class]="category.icon + ' category-icon-img'"></i>
                   </div>
                   <div class="category-info">
                     <h3 class="category-name">{{ category.name }}</h3>
@@ -165,7 +165,7 @@
                     [style.background-color]="category.color"
                     style="width: 2rem; height: 2rem;"
                   >
-                    <span class="text-sm">{{ getIcon(category.icon) }}</span>
+                    <i [class]="category.icon" style="font-size:0.875rem"></i>
                   </div>
                   <div class="flex-1">
                     <div class="font-medium">{{ category.name }}</div>
@@ -264,13 +264,13 @@
                 >
                   <ng-template let-option pTemplate="item">
                     <div class="icon-dropdown-item">
-                      <span class="dropdown-emoji">{{ option.icon }}</span>
+                      <i [class]="option.icon + ' dropdown-emoji'"></i>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
                   <ng-template let-option pTemplate="selectedItem">
                     <div class="icon-dropdown-selected" *ngIf="option">
-                      <span class="dropdown-emoji">{{ option.icon }}</span>
+                      <i [class]="option.icon + ' dropdown-emoji'"></i>
                       <span>{{ option.label }}</span>
                     </div>
                   </ng-template>
@@ -315,7 +315,7 @@
                   class="preview-icon"
                   [style.background-color]="categoryForm.get('color')?.value || '#22c55e'"
                 >
-                  <span class="preview-emoji">{{ categoryForm.get('icon')?.value || '🌍' }}</span>
+                  <span class="preview-emoji">{{ categoryForm.get('icon')?.value || '' }}<ng-container *ngIf="!categoryForm.get('icon')?.value"><i class="pi pi-globe"></i></ng-container></span>
                 </div>
                 <div class="preview-content">
                   <h4 class="preview-title">{{ categoryForm.get('name')?.value }}</h4>

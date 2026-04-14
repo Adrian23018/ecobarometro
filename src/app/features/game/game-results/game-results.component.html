@@ -11,7 +11,7 @@
           <!-- Celebration Animation -->
           <div class="celebration-container mb-4">
             <div class="celebration-emoji">
-              {{ getCelebrationEmoji() }}
+              <i [class]="getCelebrationIcon()"></i>
             </div>
             <div class="floating-particles">
               <div class="particle" *ngFor="let particle of particles"></div>
@@ -96,7 +96,12 @@
       <!-- Category Performance -->
       <div class="grid mb-4">
         <div class="col-12 lg:col-8">
-          <p-card header="📊 Rendimiento por Categoría" styleClass="h-full">
+          <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+                <i class="pi pi-chart-bar"></i> Rendimiento por Categoría
+              </div>
+            </ng-template>
             <div class="category-performance">
               <div 
                 *ngFor="let categoryScore of sessionSummary.category_scores"
@@ -108,7 +113,7 @@
                       class="category-icon"
                       [style.background-color]="categoryScore.category.color"
                     >
-                      <span>{{ categoryScore.category.icon | icon }}</span>
+                      <i [class]="categoryScore.category.icon"></i>
                     </div>
                     <div>
                       <h4 class="m-0 font-semibold">{{ categoryScore.category.name }}</h4>
@@ -141,7 +146,12 @@
 
         <!-- Performance Chart -->
         <div class="col-12 lg:col-4">
-          <p-card header="🎯 Distribución de Puntos" styleClass="h-full">
+          <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+                <i class="pi pi-flag"></i> Distribución de Puntos
+              </div>
+            </ng-template>
             <p-chart 
               type="doughnut" 
               [data]="categoryChart" 
@@ -155,7 +165,12 @@
       <!-- Achievements Section -->
       <div class="grid mb-4" *ngIf="sessionSummary.achievements_earned.length > 0">
         <div class="col-12">
-          <p-card header="🏆 ¡Nuevos Logros Desbloqueados!">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+                <i class="pi pi-trophy"></i> ¡Nuevos Logros Desbloqueados!
+              </div>
+            </ng-template>
             <div class="achievements-grid">
               <div 
                 *ngFor="let achievement of sessionSummary.achievements_earned"
@@ -184,7 +199,12 @@
       <!-- Performance Insights -->
       <div class="grid mb-4">
         <div class="col-12">
-          <p-card header="💡 Análisis de tu Rendimiento">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+                <i class="pi pi-lightbulb"></i> Análisis de tu Rendimiento
+              </div>
+            </ng-template>
             <div class="insights-timeline">
               <p-timeline 
                 [value]="performanceInsights" 
@@ -212,7 +232,12 @@
       <!-- Detalle de Preguntas Contestadas -->
       <div class="grid mb-4" *ngIf="sessionSummary.responses && sessionSummary.responses.length > 0">
         <div class="col-12">
-          <p-card header="📝 Detalle de tus Respuestas">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+                <i class="pi pi-file-edit"></i> Detalle de tus Respuestas
+              </div>
+            </ng-template>
             <div class="questions-review">
               <div
                 *ngFor="let response of sessionSummary.responses; let i = index"
@@ -278,26 +303,30 @@
       <!-- Action Buttons -->
       <div class="action-buttons text-center">
         <div class="flex flex-wrap justify-content-center gap-3">
-          <p-button 
-            label="🔄 Jugar de Nuevo"
+          <p-button
+            label="Jugar de Nuevo"
+            icon="pi pi-refresh"
             size="large"
             (onClick)="playAgain()"
             styleClass="play-again-btn"
           />
-          <p-button 
-            label="📊 Ver Ranking"
+          <p-button
+            label="Ver Ranking"
+            icon="pi pi-chart-bar"
             severity="secondary"
             [outlined]="true"
             [routerLink]="['/game/leaderboard']"
           />
-          <p-button 
-            label="📈 Mi Dashboard"
+          <p-button
+            label="Mi Dashboard"
+            icon="pi pi-chart-line"
             severity="secondary"
             [outlined]="true"
             [routerLink]="['/user/dashboard']"
           />
-          <p-button 
-            label="📋 Historial"
+          <p-button
+            label="Historial"
+            icon="pi pi-list"
             severity="secondary"
             [outlined]="true"
             [routerLink]="['/game/history']"
@@ -307,7 +336,12 @@
 
       <!-- Share Results -->
       <div class="share-section mt-4">
-        <p-card header="📱 Compartir Resultados">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="flex align-items-center gap-2 p-3 font-bold text-900">
+              <i class="pi pi-mobile"></i> Compartir Resultados
+            </div>
+          </ng-template>
           <div class="text-center">
             <p class="text-600 mb-3">
               ¡Comparte tu progreso en sostenibilidad con tus amigos!

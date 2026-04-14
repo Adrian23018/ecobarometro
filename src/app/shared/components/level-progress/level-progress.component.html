@@ -16,7 +16,7 @@
         
         <div *ngIf="showLevelName">
           <div class="level-name">{{ getLevelInfo().name }}</div>
-          <div class="level-icon">{{ getLevelInfo().icon }}</div>
+          <div class="level-icon"><i [class]="getLevelInfo().icon"></i></div>
         </div>
       </div>
       
@@ -85,7 +85,7 @@
       </div>
       
       <!-- Icono de nivel -->
-      <div class="compact-icon">{{ getLevelInfo().icon }}</div>
+      <div class="compact-icon"><i [class]="getLevelInfo().icon"></i></div>
     </div>
   </div>
 
@@ -129,7 +129,7 @@
         <div class="circular-level-badge" [style.background-color]="getLevelInfo().color">
           {{ currentLevel }}
         </div>
-        <div class="circular-icon">{{ getLevelInfo().icon }}</div>
+        <div class="circular-icon"><i [class]="getLevelInfo().icon"></i></div>
         <div *ngIf="showDetails" class="circular-exp">
           {{ progressPercentage.toFixed(0) }}%
         </div>
@@ -156,7 +156,7 @@
               <div class="card-level-subtitle">Nivel {{ currentLevel }}</div>
             </div>
           </div>
-          <div class="card-icon">{{ getLevelInfo().icon }}</div>
+          <div class="card-icon"><i [class]="getLevelInfo().icon"></i></div>
         </div>
       </div>
       
@@ -187,23 +187,23 @@
         <!-- Estadísticas adicionales -->
         <div *ngIf="showDetails" class="card-stats">
           <div class="stat-item">
-            <div class="stat-icon">🎯</div>
+            <div class="stat-icon"><i class="pi pi-flag"></i></div>
             <div class="stat-content">
               <div class="stat-value">{{ getExpToNextLevel() | number }}</div>
               <div class="stat-label">EXP restante</div>
             </div>
           </div>
-          
+
           <div class="stat-item">
-            <div class="stat-icon">🎮</div>
+            <div class="stat-icon"><i class="pi pi-play"></i></div>
             <div class="stat-content">
               <div class="stat-value">~{{ getEstimatedGamesToNext() }}</div>
               <div class="stat-label">Juegos aprox.</div>
             </div>
           </div>
-          
+
           <div class="stat-item" *ngIf="totalExp">
-            <div class="stat-icon">⭐</div>
+            <div class="stat-icon"><i class="pi pi-star"></i></div>
             <div class="stat-content">
               <div class="stat-value">{{ totalExp | number }}</div>
               <div class="stat-label">EXP Total</div>
@@ -216,7 +216,7 @@
           <div class="flex items-center space-x-2">
             <span class="text-sm text-gray-600">Siguiente:</span>
             <div class="next-level-info">
-              <span class="next-level-icon">{{ getNextLevelInfo().icon }}</span>
+              <i [class]="getNextLevelInfo().icon + ' next-level-icon'"></i>
               <span class="next-level-name">{{ getNextLevelInfo().name }}</span>
             </div>
           </div>
@@ -237,7 +237,7 @@
       [style.top]="(10 + Math.random() * 80) + '%'"
       [style.left]="(10 + Math.random() * 80) + '%'"
       [style.animation-delay]="(i * 0.1) + 's'">
-      ✨
+      <i class="pi pi-star"></i>
     </div>
   </div>
 </div>

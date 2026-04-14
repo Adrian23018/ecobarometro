@@ -4,16 +4,16 @@
   <!-- ── HEADER ── -->
   <div class="ua-header">
     <div>
-      <h1 class="ua-title">📊 Análisis de Usuarios</h1>
+      <h1 class="ua-title"><i class="pi pi-chart-bar"></i> Análisis de Usuarios</h1>
       <p class="ua-subtitle">Estadísticas en tiempo real de tu EcoBarómetro</p>
     </div>
     <div class="ua-header-actions">
       <button class="ua-btn ua-btn-outline" [routerLink]="['/admin/users']">
-        <span>👥</span>
+        <i class="pi pi-users"></i>
         <span>Ver Usuarios</span>
       </button>
       <button class="ua-btn ua-btn-primary" (click)="exportReport()">
-        <span>📥</span>
+        <i class="pi pi-download"></i>
         <span>Exportar</span>
       </button>
     </div>
@@ -38,7 +38,7 @@
   <!-- ── KEY METRICS ── -->
   <div class="ua-metrics" *ngIf="!loading; else loadingSkeleton">
     <div class="ua-metric ua-metric-blue">
-      <span class="ua-metric-icon">👥</span>
+      <span class="ua-metric-icon"><i class="pi pi-users"></i></span>
       <div class="ua-metric-content">
         <span class="ua-metric-value">{{ metrics.totalUsers }}</span>
         <span class="ua-metric-label">Usuarios Totales</span>
@@ -46,7 +46,7 @@
       </div>
     </div>
     <div class="ua-metric ua-metric-green">
-      <span class="ua-metric-icon">🎮</span>
+      <span class="ua-metric-icon"><i class="pi pi-play"></i></span>
       <div class="ua-metric-content">
         <span class="ua-metric-value">{{ metrics.totalSessions }}</span>
         <span class="ua-metric-label">Partidas Jugadas</span>
@@ -54,7 +54,7 @@
       </div>
     </div>
     <div class="ua-metric ua-metric-amber">
-      <span class="ua-metric-icon">⭐</span>
+      <span class="ua-metric-icon"><i class="pi pi-star"></i></span>
       <div class="ua-metric-content">
         <span class="ua-metric-value">{{ metrics.avgScore }}%</span>
         <span class="ua-metric-label">Puntuación Media</span>
@@ -62,7 +62,7 @@
       </div>
     </div>
     <div class="ua-metric ua-metric-purple">
-      <span class="ua-metric-icon">⏱️</span>
+      <span class="ua-metric-icon"><i class="pi pi-clock"></i></span>
       <div class="ua-metric-content">
         <span class="ua-metric-value">{{ metrics.avgSessionDuration }}m</span>
         <span class="ua-metric-label">Duración Media</span>
@@ -73,7 +73,7 @@
   <ng-template #loadingSkeleton>
     <div class="ua-metrics">
       <div *ngFor="let i of [1,2,3,4]" class="ua-metric ua-metric-blue" style="opacity:.4">
-        <span class="ua-metric-icon">⏳</span>
+        <span class="ua-metric-icon"><i class="pi pi-spin pi-spinner"></i></span>
         <div class="ua-metric-content">
           <span class="ua-metric-value">—</span>
           <span class="ua-metric-label">Cargando...</span>
@@ -86,7 +86,7 @@
   <div class="ua-grid">
     <!-- User Activity Chart -->
     <div class="ua-card ua-card-wide">
-      <div class="ua-card-title">📈 Actividad de Usuarios (Últimos 30 días)</div>
+      <div class="ua-card-title"><i class="pi pi-chart-line"></i> Actividad de Usuarios (Últimos 30 días)</div>
       <div class="ua-chart-wrap">
         <p-chart type="line" [data]="userActivityChart" [options]="lineChartOptions" height="280"></p-chart>
       </div>
@@ -94,7 +94,7 @@
 
     <!-- User Distribution -->
     <div class="ua-card">
-      <div class="ua-card-title">🎯 Distribución por Nivel</div>
+      <div class="ua-card-title"><i class="pi pi-flag"></i> Distribución por Nivel</div>
       <div class="ua-level-list">
         <div *ngFor="let item of levelDistribution" class="ua-level-item">
           <div class="ua-level-info">
@@ -111,7 +111,7 @@
 
     <!-- Top Performers -->
     <div class="ua-card">
-      <div class="ua-card-title">🏆 Top 10 Usuarios</div>
+      <div class="ua-card-title"><i class="pi pi-trophy"></i> Top 10 Usuarios</div>
       <div class="ua-top-list">
         <div *ngFor="let user of topUsers; let i = index"
              class="ua-top-item"
@@ -119,7 +119,10 @@
              [class.ua-top-silver]="i === 1"
              [class.ua-top-bronze]="i === 2">
           <div class="ua-top-badge">
-            <span class="ua-top-badge-num">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1) }}</span>
+            <ng-container *ngIf="i === 0"><i class="pi pi-trophy" style="color:#fbbf24"></i></ng-container>
+            <ng-container *ngIf="i === 1"><i class="pi pi-trophy" style="color:#9ca3af"></i></ng-container>
+            <ng-container *ngIf="i === 2"><i class="pi pi-trophy" style="color:#b45309"></i></ng-container>
+            <ng-container *ngIf="i > 2"><span class="ua-top-badge-num">#{{ i + 1 }}</span></ng-container>
           </div>
           <div class="ua-top-avatar" [style.background]="getAvatarGradient(i)">
             <span>{{ user.full_name ? user.full_name.charAt(0).toUpperCase() : '?' }}</span>
@@ -138,11 +141,11 @@
 
     <!-- Category Performance -->
     <div class="ua-card ua-card-wide">
-      <div class="ua-card-title">📊 Rendimiento por Categoría</div>
+      <div class="ua-card-title"><i class="pi pi-chart-bar"></i> Rendimiento por Categoría</div>
       <div class="ua-category-grid" *ngIf="categoryStats.length > 0; else noCategories">
         <div *ngFor="let cat of categoryStats" class="ua-category-item">
           <div class="ua-cat-header">
-            <span class="ua-cat-emoji">{{ cat.icon }}</span>
+            <i [class]="cat.icon + ' ua-cat-emoji'"></i>
             <div class="ua-cat-info">
               <span class="ua-cat-name">{{ cat.name }}</span>
               <span class="ua-cat-count">{{ cat.totalQuestions }} preguntas</span>
@@ -166,7 +169,7 @@
       </div>
       <ng-template #noCategories>
         <div class="ua-empty">
-          <span>🏷️</span>
+          <i class="pi pi-tag"></i>
           <p>Sin categorías disponibles</p>
         </div>
       </ng-template>
@@ -174,10 +177,10 @@
 
     <!-- Recent Activity -->
     <div class="ua-card">
-      <div class="ua-card-title">🕐 Actividad Reciente</div>
+      <div class="ua-card-title"><i class="pi pi-clock"></i> Actividad Reciente</div>
       <div class="ua-activity-list" *ngIf="recentActivity.length > 0; else noActivity">
         <div *ngFor="let act of recentActivity" class="ua-activity-item">
-          <div class="ua-activity-icon">{{ act.icon }}</div>
+          <div class="ua-activity-icon"><i [class]="act.icon"></i></div>
           <div class="ua-activity-body">
             <p class="ua-activity-desc">{{ act.description }}</p>
             <small class="ua-activity-time">{{ act.timestamp | date:'d/M/yy, h:mm a' }}</small>
@@ -194,10 +197,10 @@
 
     <!-- User Engagement -->
     <div class="ua-card">
-      <div class="ua-card-title">💪 Engagement de Usuarios</div>
+      <div class="ua-card-title"><i class="pi pi-bolt"></i> Engagement de Usuarios</div>
       <div class="ua-engagement-grid">
         <div class="ua-engagement-item">
-          <div class="ua-eng-icon ua-eng-green">🌟</div>
+          <div class="ua-eng-icon ua-eng-green"><i class="pi pi-star"></i></div>
           <div class="ua-eng-content">
             <span class="ua-eng-value">{{ engagement.champions }}</span>
             <span class="ua-eng-label">Campeones</span>
@@ -205,7 +208,7 @@
           </div>
         </div>
         <div class="ua-engagement-item">
-          <div class="ua-eng-icon ua-eng-blue">👤</div>
+          <div class="ua-eng-icon ua-eng-blue"><i class="pi pi-user"></i></div>
           <div class="ua-eng-content">
             <span class="ua-eng-value">{{ engagement.active }}</span>
             <span class="ua-eng-label">Activos</span>
@@ -213,7 +216,7 @@
           </div>
         </div>
         <div class="ua-engagement-item">
-          <div class="ua-eng-icon ua-eng-amber">⏰</div>
+          <div class="ua-eng-icon ua-eng-amber"><i class="pi pi-clock"></i></div>
           <div class="ua-eng-content">
             <span class="ua-eng-value">{{ engagement.casual }}</span>
             <span class="ua-eng-label">Casuales</span>
@@ -221,7 +224,7 @@
           </div>
         </div>
         <div class="ua-engagement-item">
-          <div class="ua-eng-icon ua-eng-red">⚠️</div>
+          <div class="ua-eng-icon ua-eng-red"><i class="pi pi-exclamation-triangle"></i></div>
           <div class="ua-eng-content">
             <span class="ua-eng-value">{{ engagement.atRisk }}</span>
             <span class="ua-eng-label">En Riesgo</span>

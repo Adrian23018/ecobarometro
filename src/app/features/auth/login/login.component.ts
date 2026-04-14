@@ -261,7 +261,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.isLoading) {
       return this.currentLoadingMessage;
     }
-    return this.isUserLogin ? '🎮 Empezar a Jugar' : '⚙️ Acceder al Panel';
+    return this.isUserLogin ? 'Empezar a Jugar' : 'Acceder al Panel';
   }
 
   get formTitle() {

@@ -7,7 +7,7 @@
   [draggable]="false"
   [style]="{ width: '90vw', maxWidth: '900px' }"
   [breakpoints]="{ '960px': '95vw', '640px': '98vw' }"
-  header="🎓 Ayuda Educativa"
+  header="Ayuda Educativa"
   styleClass="video-help-dialog">
 
   <!-- Video Player Section -->
@@ -45,12 +45,12 @@
 
       <div class="mt-3">
         <p *ngIf="watchProgress < 50" class="text-sm text-gray-500 flex items-center gap-2">
-          <span>⏱️</span>
+          <i class="pi pi-clock"></i>
           <span>Debes ver al menos el 50% del video para desbloquear el mini-juego</span>
         </p>
         <p *ngIf="watchProgress >= 50 && !miniGameEnabled"
            class="text-sm text-green-600 font-semibold flex items-center gap-2 animate-bounce">
-          <span>🎉</span>
+          <i class="pi pi-star"></i>
           <span>¡Mini-juego desbloqueado! Completa el desafío para ganar recompensas</span>
         </p>
       </div>
@@ -61,7 +61,7 @@
   <div *ngIf="miniGameEnabled && !miniGameCompleted" class="mini-game-section">
     <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border-2 border-blue-200">
       <h4 class="text-lg font-bold mb-3 flex items-center gap-2 text-gray-800">
-        <span class="text-2xl">🎯</span>
+        <i class="pi pi-flag"></i>
         <span>Ordena los pasos correctamente</span>
       </h4>
 
@@ -98,7 +98,7 @@
                 {{ step.step_text }}
               </div>
               <div *ngIf="step.hint" class="text-sm text-gray-500 mt-2 flex items-start gap-1">
-                <span>💡</span>
+                <i class="pi pi-lightbulb"></i>
                 <span>{{ step.hint }}</span>
               </div>
             </div>
@@ -119,8 +119,8 @@
 
             <!-- Correct/Incorrect Indicator -->
             <div *ngIf="attemptedSubmit" class="flex-shrink-0">
-              <span *ngIf="isStepInCorrectPosition(i)" class="text-2xl">✅</span>
-              <span *ngIf="!isStepInCorrectPosition(i)" class="text-2xl">❌</span>
+              <i *ngIf="isStepInCorrectPosition(i)" class="pi pi-check text-green-500 text-xl"></i>
+              <i *ngIf="!isStepInCorrectPosition(i)" class="pi pi-times text-red-500 text-xl"></i>
             </div>
           </div>
         </div>
@@ -147,19 +147,19 @@
 
   <!-- Success Message -->
   <div *ngIf="miniGameCompleted" class="success-section text-center py-8 px-4">
-    <div class="text-6xl mb-4 animate-bounce">🎉</div>
+    <div class="text-6xl mb-4 animate-bounce"><i class="pi pi-star" style="font-size:3rem;color:#f59e0b"></i></div>
     <h3 class="text-3xl font-bold text-green-600 mb-3">¡Felicitaciones!</h3>
     <p class="text-lg text-gray-700 mb-6">Has completado el desafío correctamente</p>
 
     <!-- Rewards Display -->
     <div class="rewards-grid grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
       <div class="reward-card p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border-2 border-blue-300 transform hover:scale-105 transition-transform">
-        <div class="text-4xl mb-3">⏱️</div>
+        <div class="text-4xl mb-3"><i class="pi pi-clock" style="font-size:2rem;color:#3b82f6"></i></div>
         <div class="text-3xl font-bold text-blue-600">+30s</div>
         <div class="text-sm text-gray-600 font-semibold mt-1">Tiempo extra</div>
       </div>
       <div class="reward-card p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border-2 border-green-300 transform hover:scale-105 transition-transform">
-        <div class="text-4xl mb-3">💎</div>
+        <div class="text-4xl mb-3"><i class="pi pi-star" style="font-size:2rem;color:#10b981"></i></div>
         <div class="text-3xl font-bold text-green-600">+10</div>
         <div class="text-sm text-gray-600 font-semibold mt-1">Puntos bonus</div>
       </div>
@@ -167,7 +167,7 @@
 
     <div class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 mb-6">
       <p class="text-sm text-gray-700">
-        <span class="font-bold">📊 Estadísticas:</span>
+        <span class="font-bold"><i class="pi pi-chart-bar"></i> Estadísticas:</span>
         Completado en <span class="font-bold text-blue-600">{{ attempts }}</span> intento{{ attempts !== 1 ? 's' : '' }}
       </p>
     </div>

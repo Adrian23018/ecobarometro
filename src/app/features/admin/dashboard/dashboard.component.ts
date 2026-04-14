@@ -168,7 +168,7 @@ export class DashboardComponent implements OnInit {
             type: 'user_registered',
             description: `${user.full_name || user.username} se unió al EcoBarómetro`,
             timestamp: new Date(user.created_at),
-            icon: '👤',
+            icon: 'pi pi-user',
             color: '#22c55e'
           });
         });
@@ -179,7 +179,7 @@ export class DashboardComponent implements OnInit {
             type: 'game_completed',
             description: `Partida completada · ${session.correct_answers ?? 0}/${session.total_questions ?? 0} correctas · ${session.total_points ?? 0} pts`,
             timestamp: new Date(session.completed_at || session.created_at),
-            icon: '🎮',
+            icon: 'pi pi-play',
             color: '#3b82f6'
           });
         });

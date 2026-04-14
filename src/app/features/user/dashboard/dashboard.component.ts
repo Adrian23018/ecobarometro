@@ -359,46 +359,18 @@ export class UserDashboardComponent implements OnInit {
     }
   }
 
-  // Método para obtener emoji según la acción
-  getActionEmoji(label: string): string {
-    const emojiMap: { [key: string]: string } = {
-      'Jugar EcoChallenge': '🎮',
-      'Ver Ranking': '🏆',
-      'Mis Logros': '⭐',
-      'Mi Perfil': '👤'
+  // Método para obtener PrimeIcon según la acción
+  getActionIcon(label: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Jugar EcoChallenge': 'pi pi-play',
+      'Ver Ranking': 'pi pi-trophy',
+      'Mis Logros': 'pi pi-star',
+      'Mi Perfil': 'pi pi-user'
     };
-    return emojiMap[label] || '⚡';
+    return iconMap[label] || 'pi pi-bolt';
   }
 
-  // Método para convertir icono de PrimeNG a emoji para achievements
-  getAchievementEmoji(icon: string): string {
-    const iconMap: { [key: string]: string } = {
-      'pi pi-trophy': '🏆',
-      'pi pi-star': '⭐',
-      'pi pi-bolt': '⚡',
-      'pi pi-play': '🎮',
-      'pi pi-check': '✅',
-      'pi pi-heart': '❤️',
-      'pi pi-fire': '🔥',
-      'pi pi-crown': '👑',
-      'pi pi-diamond': '💎',
-      'pi pi-medal': '🎖️'
-    };
-    return iconMap[icon] || '🏆';
-  }
-
-  // Método para convertir icono de PrimeNG a emoji para tips
-  getTipEmoji(icon: string): string {
-    const iconMap: { [key: string]: string } = {
-      'pi pi-tint': '💧',
-      'pi pi-car': '🚗',
-      'pi pi-refresh': '♻️',
-      'pi pi-sun': '☀️',
-      'pi pi-leaf': '🍃',
-      'pi pi-lightbulb': '💡',
-      'pi pi-tree': '🌳',
-      'pi pi-globe': '🌍'
-    };
-    return iconMap[icon] || '💡';
-  }
+  // Legacy: kept for backward compatibility, returns PrimeIcon class
+  getAchievementEmoji(icon: string): string { return icon || 'pi pi-trophy'; }
+  getTipEmoji(icon: string): string { return icon || 'pi pi-lightbulb'; }
 }

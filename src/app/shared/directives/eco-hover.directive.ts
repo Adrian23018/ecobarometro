@@ -160,7 +160,7 @@ export class EcoHoverDirective implements OnDestroy {
     this.renderer.setStyle(leaf, 'height', '12px');
     this.renderer.setStyle(leaf, 'pointer-events', 'none');
     this.renderer.setStyle(leaf, 'z-index', '10');
-    this.renderer.setProperty(leaf, 'innerHTML', '🍃');
+    this.renderer.setProperty(leaf, 'innerHTML', '<i class="pi pi-leaf" style="color:#22c55e;font-size:12px"></i>');
     this.renderer.setStyle(leaf, 'animation', `leafFloat ${1 + intensity}s ease-in-out infinite`);
     
     // Asegurar posición relativa en el elemento padre

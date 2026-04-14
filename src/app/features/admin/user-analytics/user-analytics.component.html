@@ -2,15 +2,15 @@
   <!-- ── HEADER ── -->
   <div class="uan-header">
     <div class="uan-header-left">
-      <button class="uan-back-btn" (click)="goBack()">⬅️</button>
+      <button class="uan-back-btn" (click)="goBack()"><i class="pi pi-arrow-left"></i></button>
       <div>
-        <h1 class="uan-title">📊 Análisis de Usuarios</h1>
+        <h1 class="uan-title"><i class="pi pi-chart-bar"></i> Análisis de Usuarios</h1>
         <p class="uan-subtitle">Métricas detalladas de tu comunidad</p>
       </div>
     </div>
     <div class="uan-header-actions">
       <button class="uan-btn uan-btn-outline" (click)="exportAnalytics()">
-        <span>📥</span>
+        <i class="pi pi-download"></i>
         <span>Exportar</span>
       </button>
     </div>
@@ -19,7 +19,7 @@
   <!-- ── METRICS ── -->
   <div class="uan-metrics" *ngIf="!loading">
     <div class="uan-metric uan-metric-blue">
-      <span class="uan-metric-icon">👥</span>
+      <span class="uan-metric-icon"><i class="pi pi-users"></i></span>
       <div class="uan-metric-content">
         <span class="uan-metric-value">{{ analytics.totalUsers }}</span>
         <span class="uan-metric-label">Usuarios Totales</span>
@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="uan-metric uan-metric-green">
-      <span class="uan-metric-icon">✅</span>
+      <span class="uan-metric-icon"><i class="pi pi-check-circle"></i></span>
       <div class="uan-metric-content">
         <span class="uan-metric-value">{{ analytics.activeUsers }}</span>
         <span class="uan-metric-label">Usuarios Activos</span>
@@ -35,7 +35,7 @@
       </div>
     </div>
     <div class="uan-metric uan-metric-amber">
-      <span class="uan-metric-icon">⏱️</span>
+      <span class="uan-metric-icon"><i class="pi pi-clock"></i></span>
       <div class="uan-metric-content">
         <span class="uan-metric-value">{{ analytics.avgSessionTime }}m</span>
         <span class="uan-metric-label">Tiempo Promedio</span>
@@ -43,7 +43,7 @@
       </div>
     </div>
     <div class="uan-metric uan-metric-purple">
-      <span class="uan-metric-icon">⭐</span>
+      <span class="uan-metric-icon"><i class="pi pi-star"></i></span>
       <div class="uan-metric-content">
         <span class="uan-metric-value">{{ analytics.avgScore | number:'1.0-0' }}</span>
         <span class="uan-metric-label">Puntos Promedio</span>
@@ -56,7 +56,7 @@
   <div class="uan-grid">
     <!-- Level Distribution -->
     <div class="uan-card">
-      <div class="uan-card-title">🎯 Distribución por Niveles</div>
+      <div class="uan-card-title"><i class="pi pi-chart-pie"></i> Distribución por Niveles</div>
       <div class="uan-chart-wrap">
         <p-chart type="doughnut" [data]="userLevelChart" [options]="chartOptions" height="280"></p-chart>
       </div>
@@ -64,7 +64,7 @@
 
     <!-- Activity Chart -->
     <div class="uan-card">
-      <div class="uan-card-title">📈 Actividad (Últimos 7 Días)</div>
+      <div class="uan-card-title"><i class="pi pi-chart-line"></i> Actividad (Últimos 7 Días)</div>
       <div class="uan-chart-wrap">
         <p-chart type="line" [data]="activityChart" [options]="chartOptions" height="280"></p-chart>
       </div>
@@ -72,10 +72,10 @@
 
     <!-- Engagement Metrics -->
     <div class="uan-card">
-      <div class="uan-card-title">💪 Métricas de Engagement</div>
+      <div class="uan-card-title"><i class="pi pi-bolt"></i> Métricas de Engagement</div>
       <div class="uan-engagement-grid">
         <div class="uan-engagement-item">
-          <div class="uan-eng-icon uan-eng-green">🌟</div>
+          <div class="uan-eng-icon uan-eng-green"><i class="pi pi-star"></i></div>
           <div class="uan-eng-content">
             <span class="uan-eng-value">{{ analytics.engagementMetrics.dailyActiveUsers }}</span>
             <span class="uan-eng-label">DAU</span>
@@ -83,7 +83,7 @@
           </div>
         </div>
         <div class="uan-engagement-item">
-          <div class="uan-eng-icon uan-eng-blue">👤</div>
+          <div class="uan-eng-icon uan-eng-blue"><i class="pi pi-user"></i></div>
           <div class="uan-eng-content">
             <span class="uan-eng-value">{{ analytics.engagementMetrics.weeklyActiveUsers }}</span>
             <span class="uan-eng-label">WAU</span>
@@ -91,7 +91,7 @@
           </div>
         </div>
         <div class="uan-engagement-item">
-          <div class="uan-eng-icon uan-eng-purple">📅</div>
+          <div class="uan-eng-icon uan-eng-purple"><i class="pi pi-calendar"></i></div>
           <div class="uan-eng-content">
             <span class="uan-eng-value">{{ analytics.engagementMetrics.monthlyActiveUsers }}</span>
             <span class="uan-eng-label">MAU</span>
@@ -99,7 +99,7 @@
           </div>
         </div>
         <div class="uan-engagement-item">
-          <div class="uan-eng-icon uan-eng-amber">🎯</div>
+          <div class="uan-eng-icon uan-eng-amber"><i class="pi pi-flag"></i></div>
           <div class="uan-eng-content">
             <span class="uan-eng-value">{{ analytics.engagementMetrics.retentionRate }}%</span>
             <span class="uan-eng-label">Retención</span>
@@ -114,7 +114,7 @@
 
     <!-- Top 10 -->
     <div class="uan-card">
-      <div class="uan-card-title">🏆 Top 10 Usuarios</div>
+      <div class="uan-card-title"><i class="pi pi-trophy"></i> Top 10 Usuarios</div>
       <div class="uan-top-list">
         <div *ngFor="let user of analytics.topPerformers; let i = index"
              class="uan-top-item"
@@ -122,7 +122,10 @@
              [class.uan-top-silver]="i === 1"
              [class.uan-top-bronze]="i === 2">
           <div class="uan-top-badge">
-            <span class="uan-top-badge-num">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1) }}</span>
+            <ng-container *ngIf="i === 0"><i class="pi pi-trophy" style="color:#fbbf24"></i></ng-container>
+            <ng-container *ngIf="i === 1"><i class="pi pi-trophy" style="color:#9ca3af"></i></ng-container>
+            <ng-container *ngIf="i === 2"><i class="pi pi-trophy" style="color:#b45309"></i></ng-container>
+            <span *ngIf="i > 2" class="uan-top-badge-num">#{{ i + 1 }}</span>
           </div>
           <div class="uan-top-avatar" [style.background]="getAvatarGradient(i)">
             <span>{{ getUserInitials(user) }}</span>

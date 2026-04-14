@@ -487,14 +487,7 @@ export class QuestionManagerComponent implements OnInit {
     }
   }
 
-  getTypeEmoji(type: string): string {
-    switch (type) {
-      case 'multiple_choice': return '📋';
-      case 'true_false':      return '✅';
-      case 'scale':           return '📊';
-      default:                return '❓';
-    }
-  }
+  getTypeEmoji(type: string): string { return this.getTypeIcon(type); }
 
   get activeFiltersCount(): number {
     let count = 0;

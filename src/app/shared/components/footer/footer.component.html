@@ -62,7 +62,7 @@
           <h4 class="text-white font-semibold mb-4">¿Por qué EcoBarómetro?</h4>
           <div class="space-y-3">
             <div *ngFor="let feature of ecoFeatures" class="flex items-start space-x-3">
-              <span class="text-lg">{{ feature.icon }}</span>
+              <i [class]="feature.icon + ' text-lg'"></i>
               <div>
                 <div class="text-white text-sm font-medium">{{ feature.title }}</div>
                 <div class="text-gray-400 text-xs">{{ feature.description }}</div>
@@ -120,7 +120,7 @@
           <div *ngIf="showAppInfo" class="flex items-center space-x-4 text-sm text-gray-400">
             <span>Versión {{ appVersion }}</span>
             <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
-            <span>Hecho con 💚 para el planeta</span>
+            <span>Hecho con <i class="pi pi-heart" style="color:#10b981"></i> para el planeta</span>
             <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
             <button 
               (click)="scrollToTop()"
@@ -347,7 +347,7 @@
             <span>v{{ appVersion }}</span>
             <span class="flex items-center space-x-1">
               <span>Hecho con</span>
-              <span class="text-red-400 animate-pulse">💚</span>
+              <i class="pi pi-heart animate-pulse" style="color:#10b981"></i>
               <span>para el planeta</span>
             </span>
             <button 

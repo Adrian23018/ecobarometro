@@ -119,16 +119,16 @@ export class AchievementsManagerComponent implements OnInit {
   ];
 
   iconOptions = [
-    { label: '🏆 Trofeo', value: 'pi pi-trophy' },
-    { label: '⭐ Estrella', value: 'pi pi-star' },
-    { label: '🎯 Diana', value: 'pi pi-bullseye' },
-    { label: '🔥 Fuego', value: 'pi pi-bolt' },
-    { label: '💎 Diamante', value: 'pi pi-diamond' },
-    { label: '🎖️ Medalla', value: 'pi pi-medal' },
-    { label: '🚀 Cohete', value: 'pi pi-send' },
-    { label: '💪 Fuerza', value: 'pi pi-heart' },
-    { label: '🧠 Cerebro', value: 'pi pi-brain' },
-    { label: '⚡ Rayo', value: 'pi pi-flash' }
+    { label: 'Trofeo', value: 'pi pi-trophy' },
+    { label: 'Estrella', value: 'pi pi-star' },
+    { label: 'Objetivo', value: 'pi pi-flag' },
+    { label: 'Rayo', value: 'pi pi-bolt' },
+    { label: 'Diamante', value: 'pi pi-diamond' },
+    { label: 'Medalla', value: 'pi pi-medal' },
+    { label: 'Enviar', value: 'pi pi-send' },
+    { label: 'Corazón', value: 'pi pi-heart' },
+    { label: 'Libro', value: 'pi pi-book' },
+    { label: 'Flash', value: 'pi pi-flash' }
   ];
 
   // Achievement templates
@@ -136,7 +136,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Primer Paso',
       description: 'Completa tu primer juego',
-      icon: '🎮',
+      icon: 'pi pi-play',
       category: 'games',
       type: 'milestone',
       requirements: { target_value: 1, condition: 'reach', metric: 'games_completed' },
@@ -145,7 +145,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Jugador Constante',
       description: 'Completa 10 juegos',
-      icon: '⭐',
+      icon: 'pi pi-star',
       category: 'games',
       type: 'milestone',
       requirements: { target_value: 10, condition: 'reach', metric: 'games_completed' },
@@ -154,7 +154,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Experto Eco',
       description: 'Alcanza 1000 puntos',
-      icon: '🏆',
+      icon: 'pi pi-trophy',
       category: 'points',
       type: 'milestone',
       requirements: { target_value: 1000, condition: 'reach', metric: 'total_points' },
@@ -163,7 +163,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Racha de Fuego',
       description: 'Mantén una racha de 5 respuestas correctas',
-      icon: '🔥',
+      icon: 'pi pi-bolt',
       category: 'streak',
       type: 'streak',
       requirements: { target_value: 5, condition: 'maintain', metric: 'correct_streak' },
@@ -172,7 +172,7 @@ export class AchievementsManagerComponent implements OnInit {
     {
       title: 'Subida de Nivel',
       description: 'Alcanza el nivel 5',
-      icon: '🚀',
+      icon: 'pi pi-chart-line',
       category: 'level',
       type: 'milestone',
       requirements: { target_value: 5, condition: 'reach', metric: 'level' },
@@ -442,17 +442,7 @@ export class AchievementsManagerComponent implements OnInit {
     return severityMap[type] || 'info';
   }
 
-  getCategoryEmoji(category: string): string {
-    const emojiMap: { [key: string]: string } = {
-      'points': '⭐',
-      'games': '🎮',
-      'streak': '🔥',
-      'level': '🚀',
-      'time': '⏱️',
-      'special': '🏆'
-    };
-    return emojiMap[category] || '⭐';
-  }
+  getCategoryEmoji(category: string): string { return this.getCategoryIcon(category); }
 
   getCategoryLabel(category: string): string {
     const labelMap: { [key: string]: string } = {

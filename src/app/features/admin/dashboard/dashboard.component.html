@@ -5,11 +5,11 @@
   <!-- ── HEADER ── -->
   <div class="db-header">
     <div>
-      <h1 class="db-greeting">¡Hola, {{ currentAdmin?.name }}! 👋</h1>
+      <h1 class="db-greeting">¡Hola, {{ currentAdmin?.name }}!</h1>
       <p class="db-subgreeting">Resumen de tu EcoBarómetro</p>
     </div>
     <button class="db-code-btn" (click)="shareAdminCode()" title="Copiar código de administrador">
-      <span>🔗</span>
+      <i class="pi pi-link"></i>
       <span>{{ currentAdmin?.admin_code || 'Sin código' }}</span>
     </button>
   </div>
@@ -17,7 +17,7 @@
   <!-- ── STAT CARDS ── -->
   <div class="db-stats" *ngIf="!loading; else loadingSkeleton">
     <div class="db-stat db-stat-blue">
-      <span class="db-se">👥</span>
+      <span class="db-se"><i class="pi pi-users"></i></span>
       <div class="db-si">
         <span class="db-sv">{{ stats.totalUsers }}</span>
         <span class="db-sl">Usuarios</span>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="db-stat db-stat-amber">
-      <span class="db-se">❓</span>
+      <span class="db-se"><i class="pi pi-question-circle"></i></span>
       <div class="db-si">
         <span class="db-sv">{{ stats.totalQuestions }}</span>
         <span class="db-sl">Preguntas</span>
@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="db-stat db-stat-cyan">
-      <span class="db-se">🎮</span>
+      <span class="db-se"><i class="pi pi-play"></i></span>
       <div class="db-si">
         <span class="db-sv">{{ stats.totalSessions }}</span>
         <span class="db-sl">Partidas</span>
@@ -41,7 +41,7 @@
       </div>
     </div>
     <div class="db-stat db-stat-purple">
-      <span class="db-se">⭐</span>
+      <span class="db-se"><i class="pi pi-star"></i></span>
       <div class="db-si">
         <span class="db-sv">{{ stats.avgScore }}%</span>
         <span class="db-sl">Prom.</span>
@@ -52,7 +52,7 @@
   <ng-template #loadingSkeleton>
     <div class="db-stats">
       <div *ngFor="let i of [1,2,3,4]" class="db-stat db-stat-blue" style="opacity:.4">
-        <span class="db-se">⏳</span>
+        <span class="db-se"><i class="pi pi-spin pi-spinner"></i></span>
         <div class="db-si"><span class="db-sv">—</span><span class="db-sl">Cargando...</span></div>
       </div>
     </div>
@@ -62,31 +62,31 @@
   <p class="db-section-label">Navegación</p>
   <div class="db-nav-grid">
     <div class="db-nav-tile" [routerLink]="['/admin/users']">
-      <span class="db-nav-emoji">👥</span>
+      <span class="db-nav-emoji"><i class="pi pi-users"></i></span>
       <span class="db-nav-text">Usuarios</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/questions']">
-      <span class="db-nav-emoji">❓</span>
+      <span class="db-nav-emoji"><i class="pi pi-question-circle"></i></span>
       <span class="db-nav-text">Preguntas</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/categories']">
-      <span class="db-nav-emoji">🏷️</span>
+      <span class="db-nav-emoji"><i class="pi pi-tag"></i></span>
       <span class="db-nav-text">Categorías</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/analytics']">
-      <span class="db-nav-emoji">📊</span>
+      <span class="db-nav-emoji"><i class="pi pi-chart-bar"></i></span>
       <span class="db-nav-text">Analíticas</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/achievements']">
-      <span class="db-nav-emoji">🏆</span>
+      <span class="db-nav-emoji"><i class="pi pi-trophy"></i></span>
       <span class="db-nav-text">Logros</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/videos']">
-      <span class="db-nav-emoji">🎥</span>
+      <span class="db-nav-emoji"><i class="pi pi-video"></i></span>
       <span class="db-nav-text">Videos</span>
     </div>
     <div class="db-nav-tile" [routerLink]="['/admin/settings']">
-      <span class="db-nav-emoji">⚙️</span>
+      <span class="db-nav-emoji"><i class="pi pi-cog"></i></span>
       <span class="db-nav-text">Config</span>
     </div>
   </div>
@@ -95,10 +95,10 @@
   <div class="db-main-row">
     <!-- Actividad Reciente -->
     <div class="db-card">
-      <div class="db-card-title">🕐 Actividad Reciente</div>
+      <div class="db-card-title"><i class="pi pi-clock"></i> Actividad Reciente</div>
       <div class="db-activity-list" *ngIf="recentActivity.length > 0; else noAct">
         <div *ngFor="let act of recentActivity; trackBy: trackByActivity" class="db-act-item">
-          <div class="db-act-icon">{{ act.icon }}</div>
+          <div class="db-act-icon"><i [class]="act.icon"></i></div>
           <div class="db-act-body">
             <p class="db-act-desc">{{ act.description }}</p>
             <small class="db-act-time">{{ act.timestamp | date:'d/M/yy, h:mm a' }}</small>
@@ -106,16 +106,21 @@
         </div>
       </div>
       <ng-template #noAct>
-        <div class="db-empty"><span>ℹ️</span><p>Sin actividad reciente</p></div>
+        <div class="db-empty"><i class="pi pi-info-circle"></i><p>Sin actividad reciente</p></div>
       </ng-template>
     </div>
 
     <!-- Top Usuarios -->
     <div class="db-card">
-      <div class="db-card-title">🏆 Top Usuarios</div>
+      <div class="db-card-title"><i class="pi pi-trophy"></i> Top Usuarios</div>
       <div class="db-top-list" *ngIf="topUsers.length > 0; else noUsers">
         <div *ngFor="let user of topUsers; let i = index" class="db-top-item">
-          <span class="db-top-rank">{{ i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) }}</span>
+          <span class="db-top-rank">
+            <ng-container *ngIf="i === 0"><i class="pi pi-trophy" style="color:#fbbf24"></i></ng-container>
+            <ng-container *ngIf="i === 1"><i class="pi pi-trophy" style="color:#9ca3af"></i></ng-container>
+            <ng-container *ngIf="i === 2"><i class="pi pi-trophy" style="color:#b45309"></i></ng-container>
+            <ng-container *ngIf="i > 2">{{ i + 1 }}</ng-container>
+          </span>
           <div class="db-top-avatar">{{ user.full_name ? user.full_name.charAt(0) : '?' }}</div>
           <div class="db-top-identity">
             <span class="db-top-name">{{ user.full_name }}</span>
@@ -128,7 +133,7 @@
         </div>
       </div>
       <ng-template #noUsers>
-        <div class="db-empty"><span>👥</span><p>Sin usuarios</p></div>
+        <div class="db-empty"><i class="pi pi-users"></i><p>Sin usuarios</p></div>
       </ng-template>
       <a class="db-see-all" [routerLink]="['/admin/users']">Ver todos →</a>
     </div>
@@ -138,26 +143,26 @@
   <p class="db-section-label">Acciones Rápidas</p>
   <div class="db-actions-grid">
     <div class="db-action-tile" [routerLink]="['/admin/categories']">
-      <span class="db-action-emoji">➕</span>
+      <span class="db-action-emoji"><i class="pi pi-plus"></i></span>
       <span class="db-action-text">Crear Categoría</span>
     </div>
     <div class="db-action-tile" [routerLink]="['/admin/questions']">
-      <span class="db-action-emoji">❓</span>
+      <span class="db-action-emoji"><i class="pi pi-question-circle"></i></span>
       <span class="db-action-text">Gestionar Preguntas</span>
     </div>
     <div class="db-action-tile" [routerLink]="['/admin/analytics']">
-      <span class="db-action-emoji">📈</span>
+      <span class="db-action-emoji"><i class="pi pi-chart-line"></i></span>
       <span class="db-action-text">Ver Análisis</span>
     </div>
     <div class="db-action-tile db-action-green" (click)="shareAdminCode()">
-      <span class="db-action-emoji">📤</span>
+      <span class="db-action-emoji"><i class="pi pi-upload"></i></span>
       <span class="db-action-text">Compartir Código</span>
     </div>
   </div>
 
   <!-- ── GRÁFICA ── -->
   <div class="db-card db-chart-card">
-    <div class="db-card-title">📈 Actividad (Últimos 7 días)</div>
+    <div class="db-card-title"><i class="pi pi-chart-line"></i> Actividad (Últimos 7 días)</div>
     <div class="db-chart-wrap">
       <p-chart type="line" [data]="userActivityChart" [options]="chartOptions" height="220"></p-chart>
     </div>
@@ -166,4 +171,4 @@
 </div>
 
 <!-- Logout FAB -->
-<button class="db-logout-fab" (click)="logout()" title="Cerrar sesión">🚪</button>
+<button class="db-logout-fab" (click)="logout()" title="Cerrar sesión"><i class="pi pi-sign-out"></i></button>

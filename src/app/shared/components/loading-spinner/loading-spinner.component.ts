@@ -84,14 +84,14 @@ export class LoadingSpinnerComponent {
 
   getRandomEcoMessage(): string {
   const messages = [
-    '🌱 Cargando conocimiento verde...',
-    '🌍 Preparando el planeta...',
-    '♻️ Reciclando datos...',
-    '🌿 Cultivando sabiduría...',
-    '💚 Conectando con la naturaleza...',
-    '🌳 Creciendo sosteniblemente...',
-    '🦋 Transformando el mundo...',
-    '☀️ Energizando con renovables...'
+    'Cargando conocimiento verde...',
+    'Preparando el planeta...',
+    'Reciclando datos...',
+    'Cultivando sabiduría...',
+    'Conectando con la naturaleza...',
+    'Creciendo sosteniblemente...',
+    'Transformando el mundo...',
+    'Energizando con renovables...'
   ];
   
   return messages[Math.floor(Math.random() * messages.length)];

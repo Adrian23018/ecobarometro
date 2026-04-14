@@ -3,7 +3,7 @@
   <div class="header-section">
     <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
       <div>
-        <h1 class="text-4xl font-bold text-900 mb-2">🏆 Ranking EcoBarómetro</h1>
+        <h1 class="text-4xl font-bold text-900 mb-2"><i class="pi pi-trophy"></i> Ranking EcoBarómetro</h1>
         <p class="text-600 text-lg">Descubre quiénes son los eco-campeones</p>
       </div>
     </div>
@@ -67,7 +67,7 @@
               <ng-template pTemplate="selectedItem" let-category>
                 <div class="flex align-items-center gap-2" *ngIf="category">
                   <div class="category-icon-sm" [style.background-color]="category.color">
-                    <span>{{ category.icon | icon }}</span>
+                    <i [class]="category.icon"></i>
                   </div>
                   <span>{{ category.name }}</span>
                 </div>
@@ -75,7 +75,7 @@
               <ng-template pTemplate="item" let-category>
                 <div class="flex align-items-center gap-2">
                   <div class="category-icon-sm" [style.background-color]="category.color">
-                    <span>{{ category.icon | icon }}</span>
+                    <i [class]="category.icon"></i>
                   </div>
                   <span>{{ category.name }}</span>
                 </div>
@@ -107,7 +107,7 @@
 
   <!-- Podium -->
   <div class="podium-section" *ngIf="topUsers.length >= 3">
-    <p-card header="🥇 Podio de Campeones" styleClass="podium-card">
+    <p-card header="Podio de Campeones" styleClass="podium-card">
       <div class="podium-container">
         <!-- Second Place -->
         <div class="podium-position second" *ngIf="topUsers[1]">
@@ -130,7 +130,7 @@
         <!-- First Place -->
         <div class="podium-position first" *ngIf="topUsers[0]">
           <div class="podium-user">
-            <div class="crown">👑</div>
+            <div class="crown"><i class="pi pi-star-fill" style="color:#fbbf24"></i></div>
             <p-avatar [image]="topUsers[0].avatar_url"
               [label]="getInitial(topUsers[0].full_name)" size="xlarge" shape="circle"
               styleClass="podium-avatar first-place" />
@@ -169,7 +169,7 @@
 
   <!-- My Stats Card -->
   <div class="my-stats-section" *ngIf="currentUser && userStats">
-    <p-card header="📊 Mi Posición Actual" styleClass="my-stats-card">
+    <p-card header="Mi Posición Actual" styleClass="my-stats-card">
       <div class="grid">
         <div class="col-12 md:col-3 text-center">
           <div class="stat-item">
@@ -215,7 +215,7 @@
   <!-- Tabs -->
   <p-tabView [(activeIndex)]="activeTabIndex">
     <!-- General Ranking -->
-    <p-tabPanel header="🌍 Ranking General" leftIcon="pi pi-globe">
+    <p-tabPanel header="Ranking General" leftIcon="pi pi-globe">
       <div *ngIf="!loading; else loadingTemplate">
         <!-- Vista Desktop: Tabla -->
         <div class="hidden lg:block">
@@ -403,7 +403,7 @@
     </p-tabPanel>
 
     <!-- Category Rankings -->
-    <p-tabPanel header="📊 Por Categoría" leftIcon="pi pi-chart-bar">
+    <p-tabPanel header="Por Categoría" leftIcon="pi pi-chart-bar">
       <div *ngIf="!loading; else loadingTemplate">
         <div class="grid">
           <div class="col-12 md:col-6"
@@ -412,7 +412,7 @@
               <ng-template pTemplate="header">
                 <div class="flex align-items-center gap-3 p-3">
                   <div class="category-icon" [style.background-color]="categoryRanking.category.color">
-                    <span>{{ categoryRanking.category.icon | icon }}</span>
+                    <i [class]="categoryRanking.category.icon"></i>
                   </div>
                   <div>
                     <h4 class="m-0">{{ categoryRanking.category.name }}</h4>
@@ -450,12 +450,12 @@
     </p-tabPanel>
 
     <!-- Top Performers -->
-    <p-tabPanel header="⭐ Destacados" leftIcon="pi pi-star">
+    <p-tabPanel header="Destacados" leftIcon="pi pi-star">
       <div *ngIf="!loading; else loadingTemplate">
         <div class="grid">
           <!-- This Week's Champions -->
           <div class="col-12 lg:col-6">
-            <p-card header="🔥 Campeones de la Semana" styleClass="champions-card">
+            <p-card header="Campeones de la Semana" styleClass="champions-card">
               <div class="champions-list">
                 <div *ngFor="let champion of weeklyChampions; let i = index" class="champion-item">
                   <div class="flex align-items-center gap-3">
@@ -479,7 +479,7 @@
 
           <!-- Rising Stars -->
           <div class="col-12 lg:col-6">
-            <p-card header="📈 Estrellas Emergentes" styleClass="rising-stars-card">
+            <p-card header="Estrellas Emergentes" styleClass="rising-stars-card">
               <div class="rising-stars-list">
                 <div *ngFor="let star of risingStars; let i = index" class="rising-star-item">
                   <div class="flex align-items-center gap-3">

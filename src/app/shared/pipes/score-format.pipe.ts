@@ -23,7 +23,7 @@ export class ScoreFormatPipe implements PipeTransform {
         return `${score.toFixed(1)}%`;
       
       case 'currency':
-        return `${sign}${score.toLocaleString('es-ES')} 🪙`;
+        return `${sign}${score.toLocaleString('es-ES')} pts`;
       
       case 'standard':
       default:

@@ -175,16 +175,16 @@
   <!-- Resumen de filtros activos -->
   <div class="qm-fd-active-chips" *ngIf="activeFiltersCount > 0">
     <span class="qm-fd-chip" *ngIf="filters.category">
-      📁 {{ filters.category }}
+      <i class="pi pi-folder"></i> {{ filters.category }}
       <button (click)="setFilterAndApply('category', null)">×</button>
     </span>
     <span class="qm-fd-chip diff" *ngIf="filters.difficulty">
-      {{ filters.difficulty === 1 ? '🟢' : filters.difficulty === 2 ? '🟡' : '🔴' }}
+      <i [class]="filters.difficulty === 1 ? 'pi pi-circle-fill diff-easy' : filters.difficulty === 2 ? 'pi pi-circle-fill diff-med' : 'pi pi-circle-fill diff-hard'"></i>
       {{ filters.difficulty === 1 ? 'Fácil' : filters.difficulty === 2 ? 'Medio' : 'Difícil' }}
       <button (click)="setFilterAndApply('difficulty', null)">×</button>
     </span>
     <span class="qm-fd-chip type" *ngIf="filters.type">
-      {{ filters.type === 'multiple_choice' ? '📋' : filters.type === 'true_false' ? '✅' : '📊' }}
+      <i [class]="filters.type === 'multiple_choice' ? 'pi pi-list' : filters.type === 'true_false' ? 'pi pi-check-square' : 'pi pi-chart-bar'"></i>
       {{ filters.type === 'multiple_choice' ? 'Múltiple' : filters.type === 'true_false' ? 'V/F' : 'Escala' }}
       <button (click)="setFilterAndApply('type', null)">×</button>
     </span>
@@ -195,7 +195,7 @@
     <!-- CATEGORÍA -->
     <div class="qm-fd-group">
       <label class="qm-fd-label">
-        <span class="qm-fd-label-icon">📁</span> Categoría
+        <i class="pi pi-folder qm-fd-label-icon"></i> Categoría
       </label>
       <p-dropdown
         [options]="categoryOptions"
@@ -212,7 +212,7 @@
     <!-- DIFICULTAD -->
     <div class="qm-fd-group">
       <label class="qm-fd-label">
-        <span class="qm-fd-label-icon">🎯</span> Dificultad
+        <i class="pi pi-sliders-h qm-fd-label-icon"></i> Dificultad
       </label>
       <div class="qm-fd-pills">
         <button
@@ -227,21 +227,21 @@
           class="qm-fd-pill diff-easy"
           [class.active]="filters.difficulty === 1"
           (click)="setFilter('difficulty', 1)">
-          🟢 Fácil
+          <span class="diff-dot diff-dot-easy"></span> Fácil
         </button>
         <button
           type="button"
           class="qm-fd-pill diff-med"
           [class.active]="filters.difficulty === 2"
           (click)="setFilter('difficulty', 2)">
-          🟡 Medio
+          <span class="diff-dot diff-dot-med"></span> Medio
         </button>
         <button
           type="button"
           class="qm-fd-pill diff-hard"
           [class.active]="filters.difficulty === 3"
           (click)="setFilter('difficulty', 3)">
-          🔴 Difícil
+          <span class="diff-dot diff-dot-hard"></span> Difícil
         </button>
       </div>
     </div>
@@ -249,7 +249,7 @@
     <!-- TIPO -->
     <div class="qm-fd-group">
       <label class="qm-fd-label">
-        <span class="qm-fd-label-icon">📋</span> Tipo de pregunta
+        <i class="pi pi-list qm-fd-label-icon"></i> Tipo de pregunta
       </label>
       <div class="qm-fd-pills qm-fd-pills--col">
         <button
@@ -257,7 +257,7 @@
           class="qm-fd-pill-type"
           [class.active]="!filters.type"
           (click)="setFilter('type', null)">
-          <span class="pill-type-icon">🗂️</span>
+          <i class="pi pi-th-large pill-type-icon"></i>
           <span class="pill-type-label">Todos los tipos</span>
         </button>
         <button
@@ -265,7 +265,7 @@
           class="qm-fd-pill-type"
           [class.active]="filters.type === 'multiple_choice'"
           (click)="setFilter('type', 'multiple_choice')">
-          <span class="pill-type-icon">📋</span>
+          <i class="pi pi-list pill-type-icon"></i>
           <span class="pill-type-label">Opción Múltiple</span>
         </button>
         <button
@@ -273,7 +273,7 @@
           class="qm-fd-pill-type"
           [class.active]="filters.type === 'true_false'"
           (click)="setFilter('type', 'true_false')">
-          <span class="pill-type-icon">✅</span>
+          <i class="pi pi-check-square pill-type-icon"></i>
           <span class="pill-type-label">Verdadero / Falso</span>
         </button>
         <button
@@ -281,7 +281,7 @@
           class="qm-fd-pill-type"
           [class.active]="filters.type === 'scale'"
           (click)="setFilter('type', 'scale')">
-          <span class="pill-type-icon">📊</span>
+          <i class="pi pi-chart-bar pill-type-icon"></i>
           <span class="pill-type-label">Escala</span>
         </button>
       </div>
@@ -292,10 +292,10 @@
   <!-- Footer -->
   <div class="qm-fd-footer">
     <button class="qm-fd-clear" (click)="clearFilters()" [disabled]="activeFiltersCount === 0">
-      🗑 Limpiar
+      <i class="pi pi-trash"></i> Limpiar
     </button>
     <button class="qm-fd-apply" (click)="showFilterPanel = false">
-      ✓ Ver {{ filteredQuestions.length }} resultado{{ filteredQuestions.length !== 1 ? 's' : '' }}
+      <i class="pi pi-check"></i> Ver {{ filteredQuestions.length }} resultado{{ filteredQuestions.length !== 1 ? 's' : '' }}
     </button>
   </div>
 </div>
@@ -338,10 +338,10 @@
           {{ getDifficultyLabel(selectedQuestion.difficulty_level) }}
         </span>
         <span class="qm-chip qm-chip-type-{{selectedQuestion.question_type}}">
-          {{ getTypeEmoji(selectedQuestion.question_type) }} {{ getTypeLabel(selectedQuestion.question_type) }}
+          <i [class]="getTypeIcon(selectedQuestion.question_type)"></i> {{ getTypeLabel(selectedQuestion.question_type) }}
         </span>
-        <span class="qm-chip qm-chip-pts">⭐ {{ selectedQuestion.points }} pts</span>
-        <span class="qm-chip qm-chip-time">⏱ {{ selectedQuestion.time_limit }}s</span>
+        <span class="qm-chip qm-chip-pts"><i class="pi pi-star"></i> {{ selectedQuestion.points }} pts</span>
+        <span class="qm-chip qm-chip-time"><i class="pi pi-clock"></i> {{ selectedQuestion.time_limit }}s</span>
       </div>
       <p class="qm-pv-question">{{ selectedQuestion.question_text }}</p>
       <div class="qm-pv-cat" *ngIf="selectedQuestion.category">
@@ -362,7 +362,7 @@
             {{ String.fromCharCode(65 + i) }}
           </span>
           <span class="qm-pv-opt-text">{{ opt.option_text }}</span>
-          <span class="qm-pv-correct-ico" *ngIf="opt.is_correct">✅</span>
+          <i class="pi pi-check qm-pv-correct-ico" *ngIf="opt.is_correct"></i>
         </div>
       </div>
     </div>
@@ -378,14 +378,14 @@
 
     <!-- Explicación -->
     <div class="qm-pv-explanation" *ngIf="selectedQuestion.explanation">
-      <span class="qm-pv-exp-ico">💡</span>
+      <i class="pi pi-lightbulb qm-pv-exp-ico"></i>
       <p>{{ selectedQuestion.explanation }}</p>
     </div>
 
     <!-- Footer acciones -->
     <div class="qm-pv-footer">
       <button class="qm-pv-btn-close" (click)="showPreviewDialog = false">Cerrar</button>
-      <button class="qm-pv-btn-edit" (click)="editQuestion(selectedQuestion!); showPreviewDialog = false">✏️ Editar</button>
+      <button class="qm-pv-btn-edit" (click)="editQuestion(selectedQuestion!); showPreviewDialog = false"><i class="pi pi-pencil"></i> Editar</button>
     </div>
   </div>
 </p-dialog>

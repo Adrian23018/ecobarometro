@@ -4,7 +4,7 @@
 
     <!-- Brand header -->
     <div class="auth-brand">
-      <div class="auth-logo">🌍</div>
+      <div class="auth-logo"><i class="pi pi-globe"></i></div>
       <h1 class="auth-name">EcoBarómetro</h1>
       <p class="auth-tagline">Crea tu cuenta y comienza tu aventura ecológica</p>
     </div>
@@ -16,11 +16,11 @@
       <div class="auth-tabs">
         <button type="button" class="auth-tab" [class.auth-tab--active]="activeTab === 0"
           (click)="onTabChange({index: 0})">
-          <span>🎮</span> Jugador
+          <i class="pi pi-play"></i> Jugador
         </button>
         <button type="button" class="auth-tab" [class.auth-tab--active]="activeTab === 1"
           (click)="onTabChange({index: 1})">
-          <span>⚙️</span> Admin
+          <i class="pi pi-cog"></i> Admin
         </button>
       </div>
 
@@ -62,7 +62,7 @@
               class="auth-input auth-input--username"
               [class.auth-input--error]="isFieldInvalid('username')">
             <button type="button" class="auth-gen-btn" (click)="generateRandomUsername()" title="Generar nombre aleatorio">
-              🔀
+              <i class="pi pi-refresh"></i>
             </button>
           </div>
           <span *ngIf="isFieldInvalid('username')" class="auth-error">{{ getFieldError('username') }}</span>
@@ -79,10 +79,10 @@
               class="auth-input"
               [class.auth-input--error]="isFieldInvalid('adminCode')"
               [class.auth-input--valid]="adminCodeValid">
-            <span *ngIf="adminCodeValidating" class="auth-code-status auth-code-status--loading">⏳</span>
-            <span *ngIf="adminCodeValid && !adminCodeValidating" class="auth-code-status auth-code-status--ok">✅</span>
+            <span *ngIf="adminCodeValidating" class="auth-code-status auth-code-status--loading"><i class="pi pi-spin pi-spinner"></i></span>
+            <span *ngIf="adminCodeValid && !adminCodeValidating" class="auth-code-status auth-code-status--ok"><i class="pi pi-check"></i></span>
             <span *ngIf="!adminCodeValid && !adminCodeValidating && registerForm.get('adminCode')?.value?.length >= 4"
-              class="auth-code-status auth-code-status--err">❌</span>
+              class="auth-code-status auth-code-status--err"><i class="pi pi-times"></i></span>
           </div>
           <span *ngIf="isFieldInvalid('adminCode')" class="auth-error">{{ getFieldError('adminCode') }}</span>
         </div>
@@ -110,7 +110,7 @@
               class="auth-input auth-input--pw"
               [class.auth-input--error]="isFieldInvalid('password')">
             <button type="button" class="auth-pw-btn" (click)="showPassword = !showPassword">
-              {{ showPassword ? '🙈' : '👁️' }}
+              <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
             </button>
           </div>
           <span *ngIf="isFieldInvalid('password')" class="auth-error">{{ getFieldError('password') }}</span>
@@ -136,7 +136,7 @@
               class="auth-input auth-input--pw"
               [class.auth-input--error]="isFieldInvalid('confirmPassword')">
             <button type="button" class="auth-pw-btn" (click)="showConfirmPassword = !showConfirmPassword">
-              {{ showConfirmPassword ? '🙈' : '👁️' }}
+              <i [class]="showConfirmPassword ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
             </button>
           </div>
           <span *ngIf="isFieldInvalid('confirmPassword')" class="auth-error">{{ getFieldError('confirmPassword') }}</span>
@@ -159,7 +159,10 @@
           type="submit"
           class="auth-btn-primary"
           [disabled]="!canSubmit">
-          <span *ngIf="!isLoading">{{ activeTab === 0 ? '🎮 Crear Cuenta de Jugador' : '⚙️ Crear Cuenta de Admin' }}</span>
+          <span *ngIf="!isLoading">
+            <i [class]="activeTab === 0 ? 'pi pi-play' : 'pi pi-cog'"></i>
+            {{ activeTab === 0 ? 'Crear Cuenta de Jugador' : 'Crear Cuenta de Admin' }}
+          </span>
           <span *ngIf="isLoading" class="auth-loading">
             <span class="auth-spinner"></span> Creando cuenta...
           </span>

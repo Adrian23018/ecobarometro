@@ -7,15 +7,15 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class LevelNamePipe implements PipeTransform {
 
   private readonly levelNames = [
-    { min: 1, max: 5, name: 'Explorador Eco', icon: '🌱', color: '#22c55e' },
-    { min: 6, max: 10, name: 'Guardián Verde', icon: '🌿', color: '#16a34a' },
-    { min: 11, max: 15, name: 'Protector Natural', icon: '🌳', color: '#15803d' },
-    { min: 16, max: 25, name: 'Eco Guerrero', icon: '🦎', color: '#166534' },
-    { min: 26, max: 35, name: 'Maestro Ambiental', icon: '🦅', color: '#14532d' },
-    { min: 36, max: 50, name: 'Sabio de la Tierra', icon: '🌍', color: '#052e16' },
-    { min: 51, max: 75, name: 'Campeón Ecológico', icon: '🏆', color: '#fbbf24' },
-    { min: 76, max: 100, name: 'Leyenda Verde', icon: '👑', color: '#f59e0b' },
-    { min: 101, max: 999, name: 'Dios de la Naturaleza', icon: '⚡', color: '#d97706' }
+    { min: 1, max: 5, name: 'Explorador Eco', icon: 'pi pi-leaf', color: '#22c55e' },
+    { min: 6, max: 10, name: 'Guardián Verde', icon: 'pi pi-leaf', color: '#16a34a' },
+    { min: 11, max: 15, name: 'Protector Natural', icon: 'pi pi-globe', color: '#15803d' },
+    { min: 16, max: 25, name: 'Eco Guerrero', icon: 'pi pi-shield', color: '#166534' },
+    { min: 26, max: 35, name: 'Maestro Ambiental', icon: 'pi pi-star', color: '#14532d' },
+    { min: 36, max: 50, name: 'Sabio de la Tierra', icon: 'pi pi-globe', color: '#052e16' },
+    { min: 51, max: 75, name: 'Campeón Ecológico', icon: 'pi pi-trophy', color: '#fbbf24' },
+    { min: 76, max: 100, name: 'Leyenda Verde', icon: 'pi pi-crown', color: '#f59e0b' },
+    { min: 101, max: 999, name: 'Dios de la Naturaleza', icon: 'pi pi-bolt', color: '#d97706' }
   ];
 
   transform(

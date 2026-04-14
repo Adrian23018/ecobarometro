@@ -261,7 +261,7 @@ export class UserAnalyticsComponent implements OnInit {
       return {
         id: cat.id,
         name: cat.name,
-        icon: cat.icon || '📚',
+        icon: cat.icon || 'pi pi-book',
         totalQuestions: cat.questions_count || 0,
         totalSessions: categoryQuestions.length,
         avgScore: avgScore,
@@ -283,7 +283,7 @@ export class UserAnalyticsComponent implements OnInit {
           type: 'user_registered',
           description: `${user.full_name || user.username} se unió al EcoBarómetro`,
           timestamp: new Date(user.created_at),
-          icon: '👤'
+          icon: 'pi pi-user'
         });
       });
 
@@ -297,7 +297,7 @@ export class UserAnalyticsComponent implements OnInit {
           type: 'game_completed',
           description: `Partida completada · ${session.correct_answers ?? 0}/${session.total_questions ?? 0} correctas · ${session.total_points ?? 0} pts`,
           timestamp: new Date(session.completed_at || session.created_at),
-          icon: '🎮'
+          icon: 'pi pi-play'
         });
       });
 

@@ -196,15 +196,17 @@ export class GameResultComponent implements OnInit {
     };
   }
 
-  getCelebrationEmoji(): string {
-    if (!this.sessionSummary) return '🎉';
-    
+  getCelebrationEmoji(): string { return this.getCelebrationIcon(); }
+
+  getCelebrationIcon(): string {
+    if (!this.sessionSummary) return 'pi pi-star';
+
     const percentage = this.sessionSummary.session.completion_percentage;
-    if (percentage >= 90) return '🏆';
-    if (percentage >= 80) return '🎉';
-    if (percentage >= 70) return '👏';
-    if (percentage >= 60) return '👍';
-    return '💪';
+    if (percentage >= 90) return 'pi pi-trophy';
+    if (percentage >= 80) return 'pi pi-star';
+    if (percentage >= 70) return 'pi pi-thumbs-up';
+    if (percentage >= 60) return 'pi pi-check';
+    return 'pi pi-bolt';
   }
 
   getPerformanceTitle(): string {

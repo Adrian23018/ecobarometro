@@ -54,7 +54,7 @@ export interface CreateAdminRequest {
       <div class="register-container">
         <!-- Header -->
         <div class="text-center mb-4">
-          <div class="text-6xl mb-3">🌱</div>
+          <div class="text-6xl mb-3"><i class="pi pi-leaf" style="color:#22c55e"></i></div>
           <h1 class="text-4xl font-bold text-900 mb-2">EcoBarómetro</h1>
           <p class="text-600 text-lg">Crea tu cuenta de administrador</p>
         </div>

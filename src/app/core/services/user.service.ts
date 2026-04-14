@@ -622,7 +622,7 @@ export class UserService {
         sessions.forEach(session => {
           activities.push({
             type: 'game_completed',
-            icon: '🎮',
+            icon: 'pi pi-play',
             title: 'Partida completada',
             description: `Completaste "${session.session_name}" con ${session.correct_answers}/${session.total_questions} respuestas correctas`,
             points: session.total_points,
@@ -643,7 +643,7 @@ export class UserService {
         achievements.forEach(achievement => {
           activities.push({
             type: 'achievement',
-            icon: achievement.achievements?.icon || '🏆',
+            icon: achievement.achievements?.icon || 'pi pi-trophy',
             title: 'Logro desbloqueado',
             description: `Desbloqueaste "${achievement.achievements?.name}"`,
             points: 0,

@@ -3,13 +3,13 @@
   <div class="ranking-header">
     <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
       <div>
-        <h1 class="text-4xl font-bold text-900 mb-2">📊 Mi Ranking</h1>
+        <h1 class="text-4xl font-bold text-900 mb-2"><i class="pi pi-chart-bar"></i> Mi Ranking</h1>
         <p class="text-600 text-lg">Descubre tu posición y progreso en el EcoBarómetro</p>
       </div>
       <div class="header-actions">
-        <p-button label="🏆 Ver Ranking Global" [routerLink]="['/game/leaderboard']" severity="secondary"
+        <p-button label="Ver Ranking Global" icon="pi pi-trophy" [routerLink]="['/game/leaderboard']" severity="secondary"
           [outlined]="true" />
-        <p-button label="🎮 Mejorar mi Posición" [routerLink]="['/game/lobby']" styleClass="improve-btn" />
+        <p-button label="Mejorar mi Posición" icon="pi pi-play" [routerLink]="['/game/lobby']" styleClass="improve-btn" />
       </div>
     </div>
 
@@ -91,7 +91,7 @@
                 <div class="category-card-header">
                   <div class="flex align-items-center gap-3">
                     <div class="category-icon" [style.background-color]="comparison.category.color">
-                      <span>{{ comparison.category.icon | icon }}</span>
+                      <i [class]="comparison.category.icon"></i>
                     </div>
                     <div>
                       <h4 class="m-0">{{ comparison.category.name }}</h4>
@@ -154,7 +154,7 @@
     <p-tabPanel header="Mis Objetivos" leftIcon="pi pi-flag">
       <div class="progress-goals">
         <div class="goals-intro mb-4">
-          <h3>🎯 Objetivos de Progreso</h3>
+          <h3><i class="pi pi-flag"></i> Objetivos de Progreso</h3>
           <p class="text-600">Establece y sigue tu progreso hacia metas específicas</p>
         </div>
 
@@ -244,7 +244,7 @@
               <p-divider />
 
               <div class="performance-tips">
-                <h5>💡 Consejos para Mejorar</h5>
+                <h5><i class="pi pi-lightbulb"></i> Consejos para Mejorar</h5>
                 <ul class="tips-list">
                   <li>Practica más en categorías con menor puntuación</li>
                   <li>Mantén una racha diaria de participación</li>
@@ -270,7 +270,7 @@
     <p-tabPanel header="Impacto de Logros" leftIcon="pi pi-star">
       <div class="achievements-impact">
         <div class="impact-overview mb-4">
-          <h3>🏆 Cómo los Logros Afectan tu Ranking</h3>
+          <h3><i class="pi pi-trophy"></i> Cómo los Logros Afectan tu Ranking</h3>
           <p class="text-600">Descubre cómo cada logro contribuye a tu posición general</p>
         </div>
 

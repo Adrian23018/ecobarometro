@@ -64,15 +64,15 @@ export class QuestionFormComponent implements OnInit {
 
   // Catálogos
   questionTypes = [
-    { label: 'Opción Múltiple', value: 'multiple_choice', emoji: '📋' },
-    { label: 'Verdadero/Falso',  value: 'true_false',       emoji: '✅' },
-    { label: 'Escala',           value: 'scale',             emoji: '📊' }
+    { label: 'Opción Múltiple', value: 'multiple_choice', icon: 'pi pi-list' },
+    { label: 'Verdadero/Falso',  value: 'true_false',      icon: 'pi pi-check-square' },
+    { label: 'Escala',           value: 'scale',            icon: 'pi pi-chart-bar' }
   ];
 
   difficultyLevels = [
-    { label: 'Fácil',   value: 1, color: '#22c55e', description: 'Básico',       emoji: '🟢' },
-    { label: 'Medio',   value: 2, color: '#f59e0b', description: 'Intermedio',   emoji: '🟡' },
-    { label: 'Difícil', value: 3, color: '#ef4444', description: 'Avanzado',     emoji: '🔴' }
+    { label: 'Fácil',   value: 1, color: '#22c55e', description: 'Básico',       icon: 'pi pi-circle-fill diff-dot-easy' },
+    { label: 'Medio',   value: 2, color: '#f59e0b', description: 'Intermedio',   icon: 'pi pi-circle-fill diff-dot-med' },
+    { label: 'Difícil', value: 3, color: '#ef4444', description: 'Avanzado',     icon: 'pi pi-circle-fill diff-dot-hard' }
   ];
 
   // Reglas

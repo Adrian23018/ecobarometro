@@ -5,11 +5,11 @@
   <!-- ── HEADER ── -->
   <div class="vd-header">
     <div>
-      <h1 class="vd-title">🎥 Gestión de Videos</h1>
+      <h1 class="vd-title"><i class="pi pi-video"></i> Gestión de Videos</h1>
       <p class="vd-subtitle">Administra los videos educativos para tus usuarios</p>
     </div>
     <button class="vd-btn vd-btn-primary" (click)="openCreateDialog()">
-      <span>➕</span>
+      <i class="pi pi-plus"></i>
       <span>Crear Video</span>
     </button>
   </div>
@@ -17,7 +17,7 @@
   <!-- ── STATS ── -->
   <div class="vd-stats" *ngIf="!isLoading">
     <div class="vd-stat vd-stat-purple">
-      <span class="vd-stat-icon">📹</span>
+      <span class="vd-stat-icon"><i class="pi pi-video"></i></span>
       <div class="vd-stat-content">
         <span class="vd-stat-value">{{ totalVideos }}</span>
         <span class="vd-stat-label">Videos Totales</span>
@@ -25,7 +25,7 @@
       </div>
     </div>
     <div class="vd-stat vd-stat-blue">
-      <span class="vd-stat-icon">👁️</span>
+      <span class="vd-stat-icon"><i class="pi pi-eye"></i></span>
       <div class="vd-stat-content">
         <span class="vd-stat-value">{{ totalViews }}</span>
         <span class="vd-stat-label">Visualizaciones</span>
@@ -33,7 +33,7 @@
       </div>
     </div>
     <div class="vd-stat vd-stat-green">
-      <span class="vd-stat-icon">✅</span>
+      <span class="vd-stat-icon"><i class="pi pi-check"></i></span>
       <div class="vd-stat-content">
         <span class="vd-stat-value">{{ totalSuccesses }}</span>
         <span class="vd-stat-label">Completados</span>
@@ -41,7 +41,7 @@
       </div>
     </div>
     <div class="vd-stat vd-stat-amber">
-      <span class="vd-stat-icon">📊</span>
+      <span class="vd-stat-icon"><i class="pi pi-chart-bar"></i></span>
       <div class="vd-stat-content">
         <span class="vd-stat-value">{{ successRate }}%</span>
         <span class="vd-stat-label">Tasa de Éxito</span>
@@ -93,13 +93,13 @@
           </span>
           <div class="vd-video-actions">
             <button class="vd-action-btn vd-action-preview" (click)="openPreview(video)" title="Vista previa">
-              👁️
+              <i class="pi pi-eye"></i>
             </button>
             <button class="vd-action-btn vd-action-edit" (click)="openEditDialog(video)" title="Editar">
-              ✏️
+              <i class="pi pi-pencil"></i>
             </button>
             <button class="vd-action-btn vd-action-delete" (click)="deleteVideo(video)" title="Eliminar">
-              🗑️
+              <i class="pi pi-trash"></i>
             </button>
           </div>
         </div>
@@ -110,11 +110,11 @@
   <!-- ── EMPTY STATE ── -->
   <ng-template #emptyState>
     <div class="vd-empty">
-      <span class="vd-empty-icon">📹</span>
+      <span class="vd-empty-icon"><i class="pi pi-video"></i></span>
       <h2 class="vd-empty-title">No hay videos todavía</h2>
       <p class="vd-empty-text">Crea tu primer video educativo para comenzar</p>
       <button class="vd-btn vd-btn-primary" (click)="openCreateDialog()">
-        <span>➕</span>
+        <i class="pi pi-plus"></i>
         <span>Crear Primer Video</span>
       </button>
     </div>
@@ -141,7 +141,7 @@
   [closable]="true"
   [draggable]="false"
   [style]="{ width: '90vw', maxWidth: '700px' }"
-  [header]="editMode ? '✏️ Editar Video' : '➕ Crear Nuevo Video'"
+  [header]="editMode ? 'Editar Video' : 'Crear Nuevo Video'"
   styleClass="vd-dialog">
 
   <form [formGroup]="videoForm" class="vd-form">
@@ -183,7 +183,7 @@
       <div class="vd-field-header">
         <label class="vd-label">Pasos del Desafío <span class="vd-required">* (mínimo 3)</span></label>
         <button type="button" class="vd-btn-small" (click)="addStep()">
-          ➕ Agregar Paso
+          <i class="pi pi-plus"></i> Agregar Paso
         </button>
       </div>
 
@@ -200,7 +200,7 @@
             </div>
           </div>
           <button type="button" class="vd-step-remove" (click)="removeStep(i)" [disabled]="stepsArray.length <= 1">
-            🗑️
+            <i class="pi pi-trash"></i>
           </button>
         </div>
       </div>
@@ -230,7 +230,7 @@
   [closable]="true"
   [draggable]="false"
   [style]="{ width: '90vw', maxWidth: '800px' }"
-  [header]="'👁️ ' + (previewVideo?.title || 'Vista Previa')"
+  [header]="(previewVideo?.title || 'Vista Previa')"
   styleClass="vd-dialog">
 
   <div *ngIf="previewVideo" class="vd-preview">
@@ -267,7 +267,7 @@
         <ol class="vd-preview-steps">
           <li *ngFor="let step of previewVideo.steps">
             {{ step.step_text }}
-            <span *ngIf="step.hint" class="vd-step-hint">💡 {{ step.hint }}</span>
+            <span *ngIf="step.hint" class="vd-step-hint"><i class="pi pi-lightbulb"></i> {{ step.hint }}</span>
           </li>
         </ol>
       </div>

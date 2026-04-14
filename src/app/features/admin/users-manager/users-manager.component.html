@@ -8,14 +8,14 @@
     <div class="um-topbar-left">
       <button class="um-back-btn" [routerLink]="['/admin/dashboard']">←</button>
       <div>
-        <h1 class="um-title">👥 Usuarios</h1>
+        <h1 class="um-title"><i class="pi pi-users"></i> Usuarios</h1>
         <span class="um-subtitle">{{ filteredUsers.length }} de {{ users.length }} usuarios</span>
       </div>
     </div>
     <div class="um-topbar-right">
       <!-- Search -->
       <div class="um-search-wrap">
-        <span class="um-search-icon">🔍</span>
+        <span class="um-search-icon"><i class="pi pi-search"></i></span>
         <input
           class="um-search-input"
           type="text"
@@ -26,40 +26,40 @@
       </div>
       <!-- Filter toggle -->
       <button class="um-filter-btn" (click)="showFilterPanel = !showFilterPanel">
-        <span>⚙️</span>
+        <i class="pi pi-cog"></i>
         <span>Filtros</span>
         <span *ngIf="activeFiltersCount" class="um-filter-badge">{{ activeFiltersCount }}</span>
       </button>
       <!-- Export -->
-      <button class="um-export-btn" (click)="exportUsers()">📥 Exportar</button>
+      <button class="um-export-btn" (click)="exportUsers()"><i class="pi pi-download"></i> Exportar</button>
     </div>
   </div>
 
   <!-- ── STAT CARDS ── -->
   <div class="um-stats">
     <div class="um-stat um-stat-blue">
-      <span class="um-stat-emoji">👥</span>
+      <span class="um-stat-emoji"><i class="pi pi-users"></i></span>
       <div class="um-stat-info">
         <span class="um-stat-val">{{ totalUsers }}</span>
         <span class="um-stat-lbl">Total</span>
       </div>
     </div>
     <div class="um-stat um-stat-green">
-      <span class="um-stat-emoji">✅</span>
+      <span class="um-stat-emoji"><i class="pi pi-check"></i></span>
       <div class="um-stat-info">
         <span class="um-stat-val">{{ activeUsers }}</span>
         <span class="um-stat-lbl">Activos</span>
       </div>
     </div>
     <div class="um-stat um-stat-amber">
-      <span class="um-stat-emoji">⭐</span>
+      <span class="um-stat-emoji"><i class="pi pi-star"></i></span>
       <div class="um-stat-info">
         <span class="um-stat-val">{{ averageLevel | number:'1.1-1' }}</span>
         <span class="um-stat-lbl">Nivel prom.</span>
       </div>
     </div>
     <div class="um-stat um-stat-purple">
-      <span class="um-stat-emoji">🎮</span>
+      <span class="um-stat-emoji"><i class="pi pi-play"></i></span>
       <div class="um-stat-info">
         <span class="um-stat-val">{{ totalGamesPlayed }}</span>
         <span class="um-stat-lbl">Juegos</span>
@@ -77,7 +77,7 @@
   <div *ngIf="!loading" class="um-grid">
     <!-- Empty state -->
     <div *ngIf="filteredUsers.length === 0" class="um-empty">
-      <span class="um-empty-emoji">👥</span>
+      <span class="um-empty-emoji"><i class="pi pi-users"></i></span>
       <h3>Sin usuarios</h3>
       <p>Los usuarios aparecerán aquí cuando se registren con tu código de administrador.</p>
     </div>
@@ -127,17 +127,17 @@
 
       <!-- Actions -->
       <div class="um-card-actions">
-        <button class="um-action um-action-info" (click)="viewUserDetails(user)" title="Ver detalles">👁️</button>
-        <button class="um-action um-action-help" (click)="viewUserStats(user)" title="Estadísticas">📊</button>
+        <button class="um-action um-action-info" (click)="viewUserDetails(user)" title="Ver detalles"><i class="pi pi-eye"></i></button>
+        <button class="um-action um-action-help" (click)="viewUserStats(user)" title="Estadísticas"><i class="pi pi-chart-bar"></i></button>
         <button class="um-action"
                 [class.um-action-warn]="user.is_active"
                 [class.um-action-success]="!user.is_active"
                 (click)="toggleUserStatus(user)"
                 [title]="user.is_active ? 'Desactivar' : 'Activar'">
-          {{ user.is_active ? '🚫' : '✅' }}
+          <i [class]="user.is_active ? 'pi pi-ban' : 'pi pi-check'"></i>
         </button>
-        <button class="um-action um-action-secondary" (click)="resetUserProgress(user)" title="Reiniciar progreso">🔄</button>
-        <button class="um-action um-action-danger" (click)="deleteUser(user)" title="Eliminar">🗑️</button>
+        <button class="um-action um-action-secondary" (click)="resetUserProgress(user)" title="Reiniciar progreso"><i class="pi pi-refresh"></i></button>
+        <button class="um-action um-action-danger" (click)="deleteUser(user)" title="Eliminar"><i class="pi pi-trash"></i></button>
       </div>
     </div>
   </div>
@@ -147,7 +147,7 @@
 <div class="um-drawer-overlay" [class.open]="showFilterPanel" (click)="showFilterPanel = false"></div>
 <div class="um-drawer" [class.open]="showFilterPanel">
   <div class="um-drawer-header">
-    <span class="um-drawer-title">⚙️ Filtros</span>
+    <span class="um-drawer-title"><i class="pi pi-cog"></i> Filtros</span>
     <button class="um-drawer-close" (click)="showFilterPanel = false">✕</button>
   </div>
 
@@ -170,8 +170,8 @@
       <label class="um-drawer-label">Estado</label>
       <div class="um-pill-row">
         <button class="um-pill" [class.active]="!filters.status" (click)="setStatusFilter(null)">Todos</button>
-        <button class="um-pill" [class.active]="filters.status === 'active'" (click)="setStatusFilter('active')">✅ Activos</button>
-        <button class="um-pill" [class.active]="filters.status === 'inactive'" (click)="setStatusFilter('inactive')">🚫 Inactivos</button>
+        <button class="um-pill" [class.active]="filters.status === 'active'" (click)="setStatusFilter('active')"><i class="pi pi-check"></i> Activos</button>
+        <button class="um-pill" [class.active]="filters.status === 'inactive'" (click)="setStatusFilter('inactive')"><i class="pi pi-ban"></i> Inactivos</button>
       </div>
     </div>
 
@@ -215,14 +215,14 @@
 
     <!-- Extra info -->
     <div class="ud-info">
-      <div class="ud-info-row"><span>🏆 Logros</span><span>{{ selectedUser.achievements_count || 0 }}</span></div>
-      <div class="ud-info-row"><span>📁 Categoría favorita</span><span>{{ selectedUser.favorite_category || 'N/A' }}</span></div>
+      <div class="ud-info-row"><span><i class="pi pi-trophy"></i> Logros</span><span>{{ selectedUser.achievements_count || 0 }}</span></div>
+      <div class="ud-info-row"><span><i class="pi pi-folder"></i> Categoría favorita</span><span>{{ selectedUser.favorite_category || 'N/A' }}</span></div>
     </div>
 
     <!-- Footer -->
     <div class="ud-footer">
       <button class="ud-btn-secondary" (click)="showUserDialog = false">Cerrar</button>
-      <button class="ud-btn-primary" (click)="viewUserStats(selectedUser!); showUserDialog = false">📊 Estadísticas</button>
+      <button class="ud-btn-primary" (click)="viewUserStats(selectedUser!); showUserDialog = false"><i class="pi pi-chart-bar"></i> Estadísticas</button>
     </div>
   </div>
 </p-dialog>
@@ -235,7 +235,7 @@
   [style]="{width: '480px'}"
   [closable]="true">
   <div *ngIf="selectedUser" class="text-center p-4">
-    <div style="font-size:3rem">📊</div>
+    <div style="font-size:3rem"><i class="pi pi-chart-bar"></i></div>
     <p style="color:#6b7280">Estadísticas detalladas de <strong>{{ selectedUser.full_name }}</strong> próximamente.</p>
     <button class="ud-btn-secondary" style="margin-top:1rem" (click)="showStatsDialog = false">Cerrar</button>
   </div>

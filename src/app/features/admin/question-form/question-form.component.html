@@ -4,7 +4,7 @@
   <!-- Header -->
   <div class="qf-header">
     <div>
-      <h2 class="qf-title">{{ isEditMode ? '✏️ Editar Pregunta' : '➕ Nueva Pregunta' }}</h2>
+      <h2 class="qf-title"><i [class]="isEditMode ? 'pi pi-pencil' : 'pi pi-plus'"></i> {{ isEditMode ? 'Editar Pregunta' : 'Nueva Pregunta' }}</h2>
       <p class="qf-subtitle">{{ isEditMode ? 'Modifica los campos y guarda' : 'Completa los campos para crear la pregunta' }}</p>
     </div>
     <button class="qf-close-btn" type="button" (click)="closeForm()" title="Cerrar">✕</button>
@@ -58,7 +58,7 @@
             class="qf-pill"
             [class.active]="questionForm.get('question_type')?.value === t.value"
             (click)="questionForm.get('question_type')?.setValue(t.value)">
-            {{ t.emoji }} {{ t.label }}
+            <i [class]="t.icon"></i> {{ t.label }}
           </button>
         </div>
       </div>
@@ -75,7 +75,7 @@
           [class.active]="questionForm.get('difficulty_level')?.value === d.value"
           [style.--diff-color]="d.color"
           (click)="questionForm.get('difficulty_level')?.setValue(d.value)">
-          {{ d.emoji }} {{ d.label }}
+          <i [class]="d.icon"></i> {{ d.label }}
           <span class="diff-desc">{{ d.description }}</span>
         </button>
       </div>
@@ -113,7 +113,7 @@
             [class.weighted-active]="isWeightedMode"
             (click)="toggleWeightedMode()"
             title="Activar puntaje individual por opción">
-            <span class="qf-mode-toggle-icon">{{ isWeightedMode ? '🏆' : '✅' }}</span>
+            <i [class]="isWeightedMode ? 'pi pi-trophy qf-mode-toggle-icon' : 'pi pi-check qf-mode-toggle-icon'"></i>
             <span class="qf-mode-toggle-text">{{ isWeightedMode ? 'Puntaje por opción' : 'Una correcta' }}</span>
           </button>
           <button
@@ -129,10 +129,10 @@
       <!-- Banner informativo del modo activo -->
       <div class="qf-mode-banner" [class.weighted-banner]="isWeightedMode">
         <span *ngIf="!isWeightedMode">
-          ✅ <strong>Modo clásico:</strong> una opción correcta, las demás suman 0 puntos.
+          <i class="pi pi-check"></i> <strong>Modo clásico:</strong> una opción correcta, las demás suman 0 puntos.
         </span>
         <span *ngIf="isWeightedMode">
-          🏆 <strong>Modo puntaje:</strong> asigna puntos a cada opción. Ninguna respuesta es "incorrecta", cada una vale lo que indiques.
+          <i class="pi pi-trophy"></i> <strong>Modo puntaje:</strong> asigna puntos a cada opción. Ninguna respuesta es "incorrecta", cada una vale lo que indiques.
         </span>
       </div>
 
@@ -178,7 +178,7 @@
               [class.selected]="correctIndexCtrl.value === i"
               (click)="correctIndexCtrl.setValue(i)"
               title="Marcar como correcta">
-              {{ correctIndexCtrl.value === i ? '✅' : '○' }}
+              <i [class]="correctIndexCtrl.value === i ? 'pi pi-check-circle' : 'pi pi-circle'"></i>
             </button>
 
             <!-- Eliminar -->
@@ -188,7 +188,7 @@
               (click)="removeOption(i)"
               [disabled]="!canRemoveOption()"
               title="Eliminar">
-              🗑
+              <i class="pi pi-trash"></i>
             </button>
           </div>
 
@@ -279,8 +279,9 @@
         class="qf-btn-save"
         [disabled]="!questionForm.valid || isLoading"
         (click)="onSubmit()">
-        <span *ngIf="isLoading" class="qf-spinner">⏳</span>
-        {{ isLoading ? 'Guardando...' : (isEditMode ? '💾 Guardar cambios' : '✨ Crear pregunta') }}
+        <i *ngIf="isLoading" class="pi pi-spin pi-spinner qf-spinner"></i>
+        <ng-container *ngIf="!isLoading"><i [class]="isEditMode ? 'pi pi-save' : 'pi pi-plus'"></i> {{ isEditMode ? 'Guardar cambios' : 'Crear pregunta' }}</ng-container>
+        <ng-container *ngIf="isLoading">Guardando...</ng-container>
       </button>
     </div>
 

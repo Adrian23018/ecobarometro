@@ -79,22 +79,22 @@ export class FooterComponent {
 
   ecoFeatures = [
     {
-      icon: '🌱',
+      icon: 'pi pi-leaf',
       title: 'Educación Ambiental',
       description: 'Aprende sobre sostenibilidad de forma divertida'
     },
     {
-      icon: '🏆',
+      icon: 'pi pi-trophy',
       title: 'Gamificación',
       description: 'Compite y sube de nivel mientras aprendes'
     },
     {
-      icon: '📊',
+      icon: 'pi pi-chart-bar',
       title: 'Métricas Reales',
       description: 'Trackea tu progreso en conciencia ecológica'
     },
     {
-      icon: '🤝',
+      icon: 'pi pi-users',
       title: 'Comunidad',
       description: 'Únete a miles de eco-guerreros'
     }

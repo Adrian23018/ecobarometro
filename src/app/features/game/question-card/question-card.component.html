@@ -69,7 +69,7 @@
           <div 
             class="w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg"
             [style.background-color]="question.category.color">
-            <span class="text-xl">{{ question.category.icon | icon }}</span>
+            <i [class]="question.category.icon" style="font-size:1.25rem"></i>
           </div>
           <div>
             <p class="text-sm text-gray-600">{{ question.category.name }}</p>
