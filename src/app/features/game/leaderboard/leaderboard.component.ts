@@ -79,7 +79,7 @@ interface RisingStar extends LeaderboardEntry {
   ],
   providers: [MessageService],
   templateUrl: './leaderboard.component.html',
-  styleUrls: ['./leaderboard.component.scss']
+  styleUrls: ['./leaderboard.component.css']
 })
 export class LeaderboardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();

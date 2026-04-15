@@ -1,516 +1,271 @@
-<div class="leaderboard">
-  <!-- Header -->
-  <div class="header-section">
-    <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
+<div class="lb-page">
+
+  <!-- HERO -->
+  <div class="lb-hero">
+    <div class="lb-hero-top">
       <div>
-        <h1 class="text-4xl font-bold text-900 mb-2"><i class="pi pi-trophy"></i> Ranking EcoBarómetro</h1>
-        <p class="text-600 text-lg">Descubre quiénes son los eco-campeones</p>
+        <div class="lb-hero-eyebrow">EcoBarómetro</div>
+        <h1 class="lb-hero-title"><i class="pi pi-trophy"></i> Ranking</h1>
+        <p class="lb-hero-sub">Descubre quiénes son los eco-campeones</p>
+      </div>
+      <button class="lb-play-btn" [routerLink]="['/game/lobby']">
+        <i class="pi pi-play"></i> Jugar
+      </button>
+    </div>
+    <div class="lb-hero-actions">
+      <button class="lb-action-ghost" (click)="op.toggle($event)">
+        <i class="pi pi-filter"></i> Filtros
+        <span *ngIf="getActiveFiltersCount()" class="lb-filter-dot">{{ getActiveFiltersCount() }}</span>
+      </button>
+      <button class="lb-action-ghost" (click)="scrollToMyPosition()">
+        <i class="pi pi-user"></i> Mi Posición
+      </button>
+    </div>
+  </div>
+
+  <!-- MY POSITION -->
+  <div class="lb-my-pos" *ngIf="currentUser && userStats">
+    <div class="lb-my-pos-label">Mi Posición Actual</div>
+    <div class="lb-my-stats">
+      <div class="lb-my-stat">
+        <span class="lb-my-val">#{{ userStats.overall_position }}</span>
+        <span class="lb-my-lbl">Posición</span>
+        <span class="lb-my-hint">de {{ userStats.total_participants }}</span>
+      </div>
+      <div class="lb-my-stat lb-stat-sep">
+        <span class="lb-my-val">{{ currentUser.total_points | number }}</span>
+        <span class="lb-my-lbl">Puntos</span>
+        <span class="lb-my-hint">Nivel {{ currentUser.level }}</span>
+      </div>
+      <div class="lb-my-stat lb-stat-sep">
+        <span class="lb-my-val">+{{ userStats.recent_improvement }}%</span>
+        <span class="lb-my-lbl">Mejora</span>
+        <span class="lb-my-hint">últimos 7d</span>
+      </div>
+      <div class="lb-my-stat lb-stat-sep">
+        <span class="lb-my-val">{{ userStats.points_to_next_rank }}</span>
+        <span class="lb-my-lbl">Al siguiente</span>
+        <span class="lb-my-hint">posición</span>
       </div>
     </div>
-    <div class="action-buttons-container">
-      <div class="action-buttons">
-        <p-button
-          label="Filtros"
-          icon="pi pi-filter"
-          [outlined]="true"
-          (onClick)="op.toggle($event)"
-          [badge]="getActiveFiltersCount()"
-          badgeClass="p-badge-info"
-          styleClass="action-btn" />
-        <p-button
-          label="Mi Posición"
-          icon="pi pi-user"
-          [outlined]="true"
-          (onClick)="scrollToMyPosition()"
-          styleClass="action-btn" />
-        <p-button
-          label="Jugar Ahora"
-          icon="pi pi-play"
-          [routerLink]="['/game/lobby']"
-          styleClass="action-btn" />
+  </div>
+
+  <!-- TABS -->
+  <div class="lb-tabs">
+    <button class="lb-tab" [class.lb-tab-active]="activeTabIndex === 0" (click)="activeTabIndex = 0">
+      <i class="pi pi-globe"></i> General
+    </button>
+    <button class="lb-tab" [class.lb-tab-active]="activeTabIndex === 1" (click)="activeTabIndex = 1">
+      <i class="pi pi-chart-bar"></i> Categoría
+    </button>
+    <button class="lb-tab" [class.lb-tab-active]="activeTabIndex === 2" (click)="activeTabIndex = 2">
+      <i class="pi pi-star"></i> Destacados
+    </button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="lb-content">
+
+    <!-- ── RANKING GENERAL ── -->
+    <div *ngIf="activeTabIndex === 0">
+
+      <div *ngIf="loading" class="lb-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+
+      <div *ngIf="!loading">
+
+        <!-- Podium -->
+        <div class="lb-podium" *ngIf="topUsers.length >= 3">
+          <!-- 2nd -->
+          <div class="lb-pod lb-pod-2">
+            <div class="lb-pod-av" style="background:#94a3b8">{{ getInitial(topUsers[1].full_name) }}</div>
+            <div class="lb-pod-name">{{ topUsers[1].full_name }}</div>
+            <div class="lb-pod-pts">{{ topUsers[1].total_points | number }}</div>
+            <div class="lb-pod-base lb-pod-base-2"><span class="lb-pod-num">2</span></div>
+          </div>
+          <!-- 1st -->
+          <div class="lb-pod lb-pod-1">
+            <i class="pi pi-crown lb-crown"></i>
+            <div class="lb-pod-av lb-pod-av-lg" style="background:#f59e0b">{{ getInitial(topUsers[0].full_name) }}</div>
+            <div class="lb-pod-name lb-pod-name-1">{{ topUsers[0].full_name }}</div>
+            <div class="lb-pod-pts lb-pod-pts-1">{{ topUsers[0].total_points | number }}</div>
+            <div class="lb-pod-base lb-pod-base-1"><span class="lb-pod-num">1</span></div>
+          </div>
+          <!-- 3rd -->
+          <div class="lb-pod lb-pod-3">
+            <div class="lb-pod-av" style="background:#cd7c4a">{{ getInitial(topUsers[2].full_name) }}</div>
+            <div class="lb-pod-name">{{ topUsers[2].full_name }}</div>
+            <div class="lb-pod-pts">{{ topUsers[2].total_points | number }}</div>
+            <div class="lb-pod-base lb-pod-base-3"><span class="lb-pod-num">3</span></div>
+          </div>
+        </div>
+
+        <!-- Ranking list -->
+        <div class="lb-list">
+          <div
+            *ngFor="let user of filteredLeaderboard | slice:0:currentMobileLimit"
+            class="lb-row"
+            [class.lb-row-me]="user.is_current_user"
+            [id]="user.is_current_user ? 'my-position' : ''">
+
+            <div class="lb-row-pos"
+                 [class.lb-pos-gold]="user.rank_position === 1"
+                 [class.lb-pos-silver]="user.rank_position === 2"
+                 [class.lb-pos-bronze]="user.rank_position === 3">
+              {{ user.rank_position }}
+            </div>
+
+            <div class="lb-row-av">{{ getInitial(user.full_name) }}</div>
+
+            <div class="lb-row-info">
+              <div class="lb-row-name">
+                {{ user.full_name }}
+                <span *ngIf="user.is_current_user" class="lb-you">Tú</span>
+              </div>
+              <div class="lb-row-sub">{{ user.username }} · Niv. {{ user.level }}</div>
+            </div>
+
+            <div class="lb-row-right">
+              <div class="lb-row-pts">{{ user.total_points | number }}</div>
+              <div class="lb-row-pts-lbl">pts</div>
+            </div>
+          </div>
+
+          <!-- Load more -->
+          <div class="lb-load-more" *ngIf="currentMobileLimit < filteredLeaderboard.length">
+            <button class="lb-load-btn" (click)="loadMoreUsers()">
+              <i class="pi pi-chevron-down"></i> Cargar más
+            </button>
+          </div>
+
+          <!-- Empty -->
+          <div class="lb-empty" *ngIf="filteredLeaderboard.length === 0">
+            <i class="pi pi-users"></i>
+            <p>No hay usuarios en el ranking</p>
+            <small>Sé el primero en participar</small>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- Filters Overlay Panel -->
-    <p-overlayPanel #op styleClass="filters-overlay">
-      <ng-template pTemplate="content">
-        <div class="filters-panel">
-          <div class="flex align-items-center justify-content-between mb-4">
-            <h3 class="m-0 text-900 font-bold">
-              <i class="pi pi-filter mr-2"></i>Filtros de Ranking
-            </h3>
-            <p-button label="Limpiar" icon="pi pi-times" [text]="true" size="small"
-                      (onClick)="clearFilters()" *ngIf="getActiveFiltersCount() > 0" />
-          </div>
-
-          <div class="filter-section mb-4">
-            <label class="block text-900 font-semibold mb-2">
-              <i class="pi pi-clock mr-2"></i>Período
-            </label>
-            <p-selectButton [options]="timeFilters" [(ngModel)]="selectedTimeFilter" optionLabel="label"
-              optionValue="value" (onChange)="onTimeFilterChange()" styleClass="w-full">
-              <ng-template pTemplate="option" let-option>
-                <div class="flex align-items-center gap-2">
-                  <i [class]="option.icon"></i>
-                  <span>{{ option.label }}</span>
-                </div>
-              </ng-template>
-            </p-selectButton>
-          </div>
-
-          <div class="filter-section mb-4">
-            <label class="block text-900 font-semibold mb-2">
-              <i class="pi pi-tag mr-2"></i>Categoría
-            </label>
-            <p-dropdown [options]="categoryOptions" [(ngModel)]="selectedCategory" placeholder="Todas las categorías"
-              optionLabel="name" optionValue="id" [showClear]="true" (onChange)="onCategoryChange()" styleClass="w-full">
-              <ng-template pTemplate="selectedItem" let-category>
-                <div class="flex align-items-center gap-2" *ngIf="category">
-                  <div class="category-icon-sm" [style.background-color]="category.color">
-                    <i [class]="category.icon"></i>
-                  </div>
-                  <span>{{ category.name }}</span>
-                </div>
-              </ng-template>
-              <ng-template pTemplate="item" let-category>
-                <div class="flex align-items-center gap-2">
-                  <div class="category-icon-sm" [style.background-color]="category.color">
-                    <i [class]="category.icon"></i>
-                  </div>
-                  <span>{{ category.name }}</span>
-                </div>
-              </ng-template>
-            </p-dropdown>
-          </div>
-
-          <div class="filter-section">
-            <label class="block text-900 font-semibold mb-2">
-              <i class="pi pi-search mr-2"></i>Buscar Usuario
-            </label>
-            <span class="p-input-icon-left w-full">
-              <i class="pi pi-search"></i>
-              <input type="text" pInputText [(ngModel)]="searchTerm" (input)="onSearch()"
-                placeholder="Buscar por nombre..." class="w-full" />
-            </span>
-          </div>
-
-          <p-divider />
-
-          <div class="flex justify-content-end gap-2">
-            <p-button label="Cerrar" icon="pi pi-times" [outlined]="true" size="small" (onClick)="hideOverlay()" />
-            <p-button label="Aplicar Filtros" icon="pi pi-check" size="small" (onClick)="applyFilters(); hideOverlay()" />
-          </div>
-        </div>
-      </ng-template>
-    </p-overlayPanel>
-  </div>
-
-  <!-- Podium -->
-  <div class="podium-section" *ngIf="topUsers.length >= 3">
-    <p-card header="Podio de Campeones" styleClass="podium-card">
-      <div class="podium-container">
-        <!-- Second Place -->
-        <div class="podium-position second" *ngIf="topUsers[1]">
-          <div class="podium-user">
-            <p-avatar [image]="topUsers[1].avatar_url"
-              [label]="getInitial(topUsers[1].full_name)" size="large" shape="circle"
-              styleClass="podium-avatar second-place" />
-            <h4 class="mt-2 mb-1 font-semibold">{{ topUsers[1].full_name }}</h4>
-            <p class="text-500 text-sm mb-2">{{ topUsers[1].username }}</p>
-            <p-badge [value]="topUsers[1].total_points | number" severity="secondary" size="large" />
-            <div class="podium-medal silver">
-              <span class="medal-text">2</span>
+    <!-- ── POR CATEGORÍA ── -->
+    <div *ngIf="activeTabIndex === 1">
+      <div *ngIf="loading" class="lb-loading"><i class="pi pi-spin pi-spinner"></i></div>
+      <div *ngIf="!loading" class="lb-cat-grid">
+        <div *ngFor="let cr of categoryRankings" class="lb-cat-card">
+          <div class="lb-cat-hd">
+            <div class="lb-cat-icon"
+                 [style.background]="cr.category.color + '18'"
+                 [style.color]="cr.category.color">
+              <i [class]="cr.category.icon"></i>
+            </div>
+            <div>
+              <div class="lb-cat-name">{{ cr.category.name }}</div>
+              <div class="lb-cat-count">{{ cr.total_participants }} participantes</div>
             </div>
           </div>
-          <div class="podium-base second-base">
-            <div class="podium-height"></div>
-          </div>
-        </div>
-
-        <!-- First Place -->
-        <div class="podium-position first" *ngIf="topUsers[0]">
-          <div class="podium-user">
-            <div class="crown"><i class="pi pi-star-fill" style="color:#fbbf24"></i></div>
-            <p-avatar [image]="topUsers[0].avatar_url"
-              [label]="getInitial(topUsers[0].full_name)" size="xlarge" shape="circle"
-              styleClass="podium-avatar first-place" />
-            <h3 class="mt-2 mb-1 font-bold">{{ topUsers[0].full_name }}</h3>
-            <p class="text-500 mb-2">{{ topUsers[0].username }}</p>
-            <p-badge [value]="topUsers[0].total_points | number" severity="warning" size="large" />
-            <div class="podium-medal gold">
-              <span class="medal-text">1</span>
+          <div class="lb-cat-rows">
+            <div *ngFor="let u of cr.rankings.slice(0, 5); let i = index"
+                 class="lb-cat-row"
+                 [class.lb-cat-row-me]="u.is_current_user">
+              <span class="lb-cat-pos"
+                    [class.lb-pos-gold]="i === 0"
+                    [class.lb-pos-silver]="i === 1"
+                    [class.lb-pos-bronze]="i === 2">{{ i + 1 }}</span>
+              <span class="lb-cat-av">{{ getInitial(u.full_name) }}</span>
+              <span class="lb-cat-uname">{{ u.full_name }}</span>
+              <span class="lb-cat-upts">{{ u.total_points | number }}</span>
             </div>
           </div>
-          <div class="podium-base first-base">
-            <div class="podium-height"></div>
-          </div>
-        </div>
-
-        <!-- Third Place -->
-        <div class="podium-position third" *ngIf="topUsers[2]">
-          <div class="podium-user">
-            <p-avatar [image]="topUsers[2].avatar_url"
-              [label]="getInitial(topUsers[2].full_name)" size="large" shape="circle"
-              styleClass="podium-avatar third-place" />
-            <h4 class="mt-2 mb-1 font-semibold">{{ topUsers[2].full_name }}</h4>
-            <p class="text-500 text-sm mb-2">{{ topUsers[2].username }}</p>
-            <p-badge [value]="topUsers[2].total_points | number" severity="contrast" size="large" />
-            <div class="podium-medal bronze">
-              <span class="medal-text">3</span>
-            </div>
-          </div>
-          <div class="podium-base third-base">
-            <div class="podium-height"></div>
-          </div>
-        </div>
-      </div>
-    </p-card>
-  </div>
-
-  <!-- My Stats Card -->
-  <div class="my-stats-section" *ngIf="currentUser && userStats">
-    <p-card header="Mi Posición Actual" styleClass="my-stats-card">
-      <div class="grid">
-        <div class="col-12 md:col-3 text-center">
-          <div class="stat-item">
-            <div class="text-3xl font-bold text-primary"># {{ userStats.overall_position }}</div>
-            <div class="text-600">Posición General</div>
-            <small class="text-500">de {{ userStats.total_participants }} usuarios</small>
-          </div>
-        </div>
-        <div class="col-12 md:col-3 text-center">
-          <div class="stat-item">
-            <div class="text-3xl font-bold text-green-500">{{ currentUser.total_points | number }}</div>
-            <div class="text-600">Puntos Totales</div>
-            <small class="text-500">Nivel {{ currentUser.level }}</small>
-          </div>
-        </div>
-        <div class="col-12 md:col-3 text-center">
-          <div class="stat-item">
-            <div class="text-3xl font-bold text-orange-500">+{{ userStats.recent_improvement }}%</div>
-            <div class="text-600">Mejora Reciente</div>
-            <small class="text-500">últimos 7 días</small>
-          </div>
-        </div>
-        <div class="col-12 md:col-3 text-center">
-          <div class="stat-item">
-            <div class="text-3xl font-bold text-blue-500">{{ userStats.points_to_next_rank }}</div>
-            <div class="text-600">Puntos al Siguiente</div>
-            <small class="text-500">para subir posición</small>
-          </div>
-        </div>
-      </div>
-
-      <p-divider />
-
-      <div class="text-center">
-        <p-button label="Jugar para Mejorar" icon="pi pi-play" [routerLink]="['/game/lobby']"
-          styleClass="play-to-improve-btn" />
-        <p-button label="Mi Posición" icon="pi pi-user" [outlined]="true" (onClick)="scrollToMyPosition()"
-          styleClass="ml-3" />
-      </div>
-    </p-card>
-  </div>
-
-  <!-- Tabs -->
-  <p-tabView [(activeIndex)]="activeTabIndex">
-    <!-- General Ranking -->
-    <p-tabPanel header="Ranking General" leftIcon="pi pi-globe">
-      <div *ngIf="!loading; else loadingTemplate">
-        <!-- Vista Desktop: Tabla -->
-        <div class="hidden lg:block">
-          <p-table [value]="filteredLeaderboard" [paginator]="true" [rows]="20" [showCurrentPageReport]="true"
-            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} usuarios"
-            [rowsPerPageOptions]="[10, 20, 50, 100]"
-            [paginatorDropdownAppendTo]="'body'"
-            paginatorStyleClass="custom-paginator"
-            styleClass="ranking-table" dataKey="user_id" #dt>
-            <ng-template pTemplate="header">
-              <tr>
-                <th style="width: 4rem">Pos.</th>
-                <th>Usuario</th>
-                <th>Puntos</th>
-                <th>Nivel</th>
-                <th>Partidas</th>
-                <th>Promedio</th>
-                <th>Logros</th>
-              </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-user let-i="rowIndex">
-              <tr [class.current-user-row]="user.is_current_user" [id]="user.is_current_user ? 'my-position' : ''">
-                <td>
-                  <div class="position-cell">
-                    <p-badge [value]="user.rank_position" [severity]="getPositionSeverity(user.rank_position)"
-                      size="large" />
-                    <i *ngIf="user.rank_position <= 3" [class]="getPositionIcon(user.rank_position)"
-                      [style.color]="getPositionColor(user.rank_position)" class="ml-2"></i>
-                  </div>
-                </td>
-                <td>
-                  <div class="user-cell">
-                    <p-avatar [image]="user.avatar_url" [label]="getInitial(user.full_name)" size="normal"
-                      shape="circle" styleClass="user-avatar" />
-                    <div class="user-info">
-                      <div class="font-medium">{{ user.full_name }}</div>
-                      <small class="text-500">{{ user.username }}</small>
-                    </div>
-                    <p-tag *ngIf="user.is_current_user" value="Tú" severity="info" size="small" />
-                  </div>
-                </td>
-                <td>
-                  <p-tag [value]="(user.total_points | number) || '0'" severity="success" />
-                </td>
-                <td>
-                  <p-badge [value]="user.level" severity="info" />
-                </td>
-                <td>
-                  <span class="font-medium">{{ user.games_played }}</span>
-                </td>
-                <td>
-                  <div class="avg-score-cell">
-                    <span class="font-medium">{{ user.avg_score }}%</span>
-                    <p-progressBar [value]="user.avg_score" [showValue]="false" styleClass="mt-1 h-0.5rem" />
-                  </div>
-                </td>
-                <td>
-                  <p-badge [value]="user.achievements_count" severity="warning" />
-                </td>
-              </tr>
-            </ng-template>
-
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="7" class="text-center p-4">
-                  <div class="text-center">
-                    <i class="pi pi-users text-4xl text-400 mb-3"></i>
-                    <h4 class="text-500">No hay usuarios en el ranking</h4>
-                    <p class="text-600">Sé el primero en participar</p>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        </div>
-
-        <!-- Vista Mobile: Cards -->
-        <div class="block lg:hidden">
-          <div class="mobile-ranking-list" *ngIf="filteredLeaderboard.length > 0; else emptyMobile">
-            <div
-              *ngFor="let user of filteredLeaderboard | slice:0:currentMobileLimit; let i = index"
-              class="mobile-user-card"
-              [class.current-user-card]="user.is_current_user"
-              [id]="user.is_current_user ? 'my-position' : ''">
-
-              <!-- Header con posición y avatar -->
-              <div class="card-header">
-                <div class="position-badge-mobile">
-                  <p-badge
-                    [value]="user.rank_position"
-                    [severity]="getPositionSeverity(user.rank_position)"
-                    size="large" />
-                  <i *ngIf="user.rank_position <= 3"
-                    [class]="getPositionIcon(user.rank_position)"
-                    [style.color]="getPositionColor(user.rank_position)"
-                    class="position-icon-mobile"></i>
-                </div>
-
-                <div class="user-info-mobile">
-                  <p-avatar
-                    [image]="user.avatar_url"
-                    [label]="getInitial(user.full_name)"
-                    size="xlarge"
-                    shape="circle"
-                    styleClass="mobile-avatar" />
-                  <div class="user-details-mobile">
-                    <h3 class="user-name-mobile">{{ user.full_name }}</h3>
-                    <p class="username-mobile">{{ user.username }}</p>
-                    <p-tag *ngIf="user.is_current_user" value="Tú" severity="info" styleClass="mt-2" />
-                  </div>
-                </div>
-              </div>
-
-              <p-divider />
-
-              <!-- Stats Grid -->
-              <div class="stats-grid-mobile">
-                <div class="stat-item-mobile">
-                  <i class="pi pi-star stat-icon"></i>
-                  <div class="stat-content">
-                    <span class="stat-value">{{ user.total_points | number }}</span>
-                    <span class="stat-label">Puntos</span>
-                  </div>
-                </div>
-
-                <div class="stat-item-mobile">
-                  <i class="pi pi-chart-line stat-icon"></i>
-                  <div class="stat-content">
-                    <span class="stat-value">Nivel {{ user.level }}</span>
-                    <span class="stat-label">Nivel</span>
-                  </div>
-                </div>
-
-                <div class="stat-item-mobile">
-                  <i class="pi pi-play-circle stat-icon"></i>
-                  <div class="stat-content">
-                    <span class="stat-value">{{ user.games_played }}</span>
-                    <span class="stat-label">Partidas</span>
-                  </div>
-                </div>
-
-                <div class="stat-item-mobile">
-                  <i class="pi pi-trophy stat-icon"></i>
-                  <div class="stat-content">
-                    <span class="stat-value">{{ user.achievements_count }}</span>
-                    <span class="stat-label">Logros</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Promedio con barra -->
-              <div class="avg-score-mobile">
-                <div class="flex justify-content-between align-items-center mb-2">
-                  <span class="text-600 font-semibold">Promedio de Aciertos</span>
-                  <span class="text-900 font-bold text-xl">{{ user.avg_score }}%</span>
-                </div>
-                <p-progressBar
-                  [value]="user.avg_score"
-                  [showValue]="false"
-                  styleClass="custom-progress-bar" />
-              </div>
-            </div>
-
-            <!-- Botón cargar más -->
-            <div class="text-center mt-4" *ngIf="currentMobileLimit < filteredLeaderboard.length">
-              <p-button
-                label="Cargar más usuarios"
-                icon="pi pi-chevron-down"
-                [outlined]="true"
-                (onClick)="loadMoreUsers()"
-                styleClass="load-more-btn" />
-            </div>
-          </div>
-
-          <ng-template #emptyMobile>
-            <div class="empty-state-mobile">
-              <i class="pi pi-users empty-icon"></i>
-              <h3 class="empty-title">No hay usuarios en el ranking</h3>
-              <p class="empty-message">Sé el primero en participar</p>
-            </div>
-          </ng-template>
-        </div>
-      </div>
-    </p-tabPanel>
-
-    <!-- Category Rankings -->
-    <p-tabPanel header="Por Categoría" leftIcon="pi pi-chart-bar">
-      <div *ngIf="!loading; else loadingTemplate">
-        <div class="grid">
-          <div class="col-12 md:col-6"
-            *ngFor="let categoryRanking of categoryRankings; trackBy: trackByCategoryRanking">
-            <p-card [header]="categoryRanking.category.name" styleClass="category-ranking-card">
-              <ng-template pTemplate="header">
-                <div class="flex align-items-center gap-3 p-3">
-                  <div class="category-icon" [style.background-color]="categoryRanking.category.color">
-                    <i [class]="categoryRanking.category.icon"></i>
-                  </div>
-                  <div>
-                    <h4 class="m-0">{{ categoryRanking.category.name }}</h4>
-                    <small class="text-500">{{ categoryRanking.total_participants }} participantes</small>
-                  </div>
-                </div>
-              </ng-template>
-
-              <div class="category-rankings">
-                <div *ngFor="let user of categoryRanking.rankings.slice(0, 5); let i = index" class="ranking-item"
-                  [class.highlight]="user.is_current_user">
-                  <div class="flex align-items-center justify-content-between">
-                    <div class="flex align-items-center gap-2">
-                      <p-badge [value]="i + 1" [severity]="getPositionSeverity(i + 1)" size="large" />
-                      <p-avatar [image]="user.avatar_url" [label]="getInitial(user.full_name)"
-                        size="large" shape="circle" />
-                      <div>
-                        <div class="font-medium text-sm">{{ user.full_name }}</div>
-                        <small class="text-500">{{ user.avg_score }}%</small>
-                      </div>
-                    </div>
-                    <p-tag [value]="(user.total_points  | number) || '0'" severity="success" size="small" />
-                  </div>
-                </div>
-
-                <div class="text-center mt-3" *ngIf="categoryRanking.rankings.length > 5">
-                  <p-button label="Ver más" [text]="true" size="small"
-                    (onClick)="viewFullCategoryRanking(categoryRanking.category.id)" />
-                </div>
-              </div>
-            </p-card>
-          </div>
-        </div>
-      </div>
-    </p-tabPanel>
-
-    <!-- Top Performers -->
-    <p-tabPanel header="Destacados" leftIcon="pi pi-star">
-      <div *ngIf="!loading; else loadingTemplate">
-        <div class="grid">
-          <!-- This Week's Champions -->
-          <div class="col-12 lg:col-6">
-            <p-card header="Campeones de la Semana" styleClass="champions-card">
-              <div class="champions-list">
-                <div *ngFor="let champion of weeklyChampions; let i = index" class="champion-item">
-                  <div class="flex align-items-center gap-3">
-                    <div class="champion-position">
-                      <p-badge [value]="i + 1" [severity]="getPositionSeverity(i + 1)" />
-                    </div>
-                    <p-avatar [image]="champion.avatar_url" [label]="getInitial(champion.full_name)" size="normal"
-                      shape="circle" />
-                    <div class="flex-1">
-                      <div class="font-medium">{{ champion.full_name }}</div>
-                      <small class="text-500">{{ champion.total_points }} puntos esta semana</small>
-                    </div>
-                    <div class="champion-badge">
-                      <i class="pi pi-star text-yellow-500"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </p-card>
-          </div>
-
-          <!-- Rising Stars -->
-          <div class="col-12 lg:col-6">
-            <p-card header="Estrellas Emergentes" styleClass="rising-stars-card">
-              <div class="rising-stars-list">
-                <div *ngFor="let star of risingStars; let i = index" class="rising-star-item">
-                  <div class="flex align-items-center gap-3">
-                    <p-avatar [image]="star.avatar_url" [label]="getInitial(star.full_name)" size="normal"
-                      shape="circle" />
-
-                    <div class="flex-1">
-                      <div class="font-medium">{{ star.full_name }}</div>
-                      <small class="text-500">+{{ star.improvement }}% de mejora</small>
-                    </div>
-                    <div class="rising-indicator">
-                      <i class="pi pi-arrow-up text-green-500"></i>
-                      <span class="text-green-500 font-medium">+{{ star.improvement }}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </p-card>
-          </div>
-        </div>
-      </div>
-    </p-tabPanel>
-  </p-tabView>
-
-  <ng-template #loadingTemplate>
-    <div class="loading-section">
-      <div class="grid">
-        <div class="col-12" *ngFor="let item of [1,2,3,4,5]">
-          <p-skeleton height="4rem" styleClass="mb-2" />
         </div>
       </div>
     </div>
-  </ng-template>
+
+    <!-- ── DESTACADOS ── -->
+    <div *ngIf="activeTabIndex === 2">
+      <div *ngIf="loading" class="lb-loading"><i class="pi pi-spin pi-spinner"></i></div>
+      <div *ngIf="!loading">
+
+        <div class="lb-section-hd">
+          <i class="pi pi-star" style="color:#f59e0b"></i> Campeones de la Semana
+        </div>
+        <div class="lb-list">
+          <div *ngFor="let c of weeklyChampions; let i = index" class="lb-row">
+            <div class="lb-row-pos"
+                 [class.lb-pos-gold]="i === 0"
+                 [class.lb-pos-silver]="i === 1"
+                 [class.lb-pos-bronze]="i === 2">{{ i + 1 }}</div>
+            <div class="lb-row-av">{{ getInitial(c.full_name) }}</div>
+            <div class="lb-row-info">
+              <div class="lb-row-name">{{ c.full_name }}</div>
+              <div class="lb-row-sub">{{ c.total_points | number }} pts esta semana</div>
+            </div>
+            <i class="pi pi-star" style="color:#fbbf24;font-size:0.9rem"></i>
+          </div>
+          <div class="lb-empty" *ngIf="weeklyChampions.length === 0">
+            <i class="pi pi-star"></i><p>Sin datos</p>
+          </div>
+        </div>
+
+        <div class="lb-section-hd" style="margin-top:1rem">
+          <i class="pi pi-arrow-up" style="color:#10b981"></i> Estrellas Emergentes
+        </div>
+        <div class="lb-list">
+          <div *ngFor="let s of risingStars; let i = index" class="lb-row">
+            <div class="lb-row-av">{{ getInitial(s.full_name) }}</div>
+            <div class="lb-row-info">
+              <div class="lb-row-name">{{ s.full_name }}</div>
+              <div class="lb-row-sub">{{ s.username }}</div>
+            </div>
+            <span class="lb-improvement">+{{ s.improvement }}%</span>
+          </div>
+          <div class="lb-empty" *ngIf="risingStars.length === 0">
+            <i class="pi pi-users"></i><p>Sin datos</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FILTERS OVERLAY -->
+  <p-overlayPanel #op>
+    <div class="lb-fp">
+      <div class="lb-fp-hd">
+        <span class="lb-fp-title"><i class="pi pi-filter"></i> Filtros</span>
+        <button *ngIf="getActiveFiltersCount()" class="lb-fp-clear" (click)="clearFilters()">
+          <i class="pi pi-times"></i> Limpiar
+        </button>
+      </div>
+
+      <div class="lb-fp-block">
+        <label class="lb-fp-label">Período</label>
+        <p-selectButton [options]="timeFilters" [(ngModel)]="selectedTimeFilter"
+          optionLabel="label" optionValue="value" (onChange)="onTimeFilterChange()" styleClass="w-full" />
+      </div>
+
+      <div class="lb-fp-block">
+        <label class="lb-fp-label">Categoría</label>
+        <p-dropdown [options]="categoryOptions" [(ngModel)]="selectedCategory"
+          placeholder="Todas las categorías" optionLabel="name" optionValue="id"
+          [showClear]="true" (onChange)="onCategoryChange()" styleClass="w-full" />
+      </div>
+
+      <div class="lb-fp-block">
+        <label class="lb-fp-label">Buscar usuario</label>
+        <input type="text" pInputText [(ngModel)]="searchTerm" (input)="onSearch()"
+          placeholder="Nombre o usuario..." class="w-full" />
+      </div>
+
+      <div class="lb-fp-foot">
+        <button class="lb-fp-apply" (click)="applyFilters(); hideOverlay()">Aplicar filtros</button>
+        <button class="lb-fp-close" (click)="hideOverlay()">Cerrar</button>
+      </div>
+    </div>
+  </p-overlayPanel>
+
+  <p-toast></p-toast>
 </div>

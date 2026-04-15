@@ -100,6 +100,7 @@
 /* ── MY POSITION ── */
 .lb-my-pos {
   background: white;
+  margin: 0;
   border-bottom: 1px solid #f0f0f0;
   padding: 0.875rem 1.25rem;
 }
@@ -222,7 +223,6 @@
 .lb-crown {
   font-size: 1.3rem;
   margin-bottom: 0.3rem;
-  color: #fbbf24;
 }
 
 .lb-pod-av {
@@ -352,6 +352,9 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .lb-row-sub {
