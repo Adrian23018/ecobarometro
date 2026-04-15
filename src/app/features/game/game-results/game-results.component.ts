@@ -237,6 +237,17 @@ export class GameResultComponent implements OnInit {
     return '#ef4444';
   }
 
+  isPiIcon(icon: string | null | undefined): boolean {
+    return !!icon && icon.startsWith('pi ');
+  }
+
+  getSafeIcon(icon: string | null | undefined): string {
+    if (!icon || icon.startsWith('fas ') || icon.startsWith('far ') || icon.startsWith('fab ')) {
+      return 'pi pi-trophy';
+    }
+    return icon;
+  }
+
   formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
