@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { IconPipe } from '../../../shared/pipes/icon.pipe';
@@ -82,7 +83,7 @@ interface GoalProgress {
     IconPipe
   ],
   templateUrl: './ranking.component.html',
-  styleUrls: ['./ranking.component.scss'],
+  styleUrls: ['./ranking.component.css'],
   providers: [MessageService]
 })
 export class UserRankingComponent implements OnInit {
@@ -122,9 +123,9 @@ export class UserRankingComponent implements OnInit {
   }
 
   loadUserData(): void {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('ecobarometro_user');
     if (userData) {
-      this.currentUser = JSON.parse(userData);
+      try { this.currentUser = JSON.parse(userData); } catch {}
     }
   }
 
@@ -138,7 +139,7 @@ export class UserRankingComponent implements OnInit {
       next: (stats:any) => {
         this.userStats = stats;
         this.generateCategoryComparisons();
-        this.loading = false;
+        // loading se apaga dentro de generateCategoryComparisons al completar forkJoin
       },
       error: (error:any) => {
         console.error('Error loading ranking stats:', error);
@@ -152,40 +153,36 @@ export class UserRankingComponent implements OnInit {
   }
 
   generateCategoryComparisons(): void {
-    if (!this.userStats) return;
+    if (!this.userStats || this.userStats.category_positions.length === 0) {
+      this.categoryComparisons = [];
+      this.loading = false;
+      return;
+    }
 
-    // Mock category comparisons data
-    this.categoryComparisons = this.userStats.category_positions.map(position => ({
-      category: position.category,
-      myPosition: position.position,
-      myScore: position.percentage_score,
-      topUsers: this.generateMockTopUsers(position.category.id),
-      improvement: Math.floor(Math.random() * 20) - 10, // -10 to +10
-      trend: this.getRandomTrend()
-    }));
-  }
+    const requests = this.userStats.category_positions.map(position =>
+      this.rankingService.getCategoryLeaderboard(position.category.id, 3)
+    );
 
-  generateMockTopUsers(categoryId: string): LeaderboardEntry[] {
-    return Array.from({ length: 3 }, (_, i) => ({
-      user_id: `user_${i + 1}`,
-      username: `user${i + 1}`,
-      full_name: `Usuario ${i + 1}`,
-      avatar_url: '',
-      total_points: 1000 - (i * 100),
-      rank_position: i + 1,
-      games_played: 20,
-      avg_score: 90 - (i * 5),
-      level: 5 - i,
-      achievements_count: 10 - i,
-      is_current_user: i === 1 && Math.random() > 0.5 // Sometimes current user is in top 3
-    }));
-  }
-
-  getRandomTrend(): 'up' | 'down' | 'stable' {
-    const rand = Math.random();
-    if (rand < 0.4) return 'up';
-    if (rand < 0.7) return 'stable';
-    return 'down';
+    forkJoin(requests).subscribe({
+      next: (results) => {
+        this.categoryComparisons = this.userStats!.category_positions.map((position, i) => ({
+          category: position.category,
+          myPosition: position.position,
+          myScore: position.percentage_score,
+          topUsers: (results[i] || []).map(u => ({
+            ...u,
+            is_current_user: u.user_id === this.currentUser?.id
+          })),
+          improvement: 0,
+          trend: 'stable' as 'stable'
+        }));
+        this.loading = false;
+      },
+      error: () => {
+        this.categoryComparisons = [];
+        this.loading = false;
+      }
+    });
   }
 
   loadProgressGoals(): void {

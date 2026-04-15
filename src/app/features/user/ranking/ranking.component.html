@@ -1,327 +1,251 @@
-<div class="user-ranking">
-  <!-- Header -->
-  <div class="ranking-header">
-    <div class="flex flex-column lg:flex-row lg:align-items-center lg:justify-content-between mb-4">
+<div class="ur-page">
+
+  <!-- HERO -->
+  <div class="ur-hero">
+    <div class="ur-hero-top">
       <div>
-        <h1 class="text-4xl font-bold text-900 mb-2"><i class="pi pi-chart-bar"></i> Mi Ranking</h1>
-        <p class="text-600 text-lg">Descubre tu posición y progreso en el EcoBarómetro</p>
+        <div class="ur-eyebrow">EcoBarómetro</div>
+        <h1 class="ur-hero-title"><i class="pi pi-chart-bar"></i> Mi Ranking</h1>
+        <p class="ur-hero-sub">Descubre tu posición y progreso</p>
       </div>
-      <div class="header-actions">
-        <p-button label="Ver Ranking Global" icon="pi pi-trophy" [routerLink]="['/game/leaderboard']" severity="secondary"
-          [outlined]="true" />
-        <p-button label="Mejorar mi Posición" icon="pi pi-play" [routerLink]="['/game/lobby']" styleClass="improve-btn" />
-      </div>
+      <button class="ur-play-btn" [routerLink]="['/game/lobby']">
+        <i class="pi pi-play"></i> Jugar
+      </button>
     </div>
 
-    <!-- Overall Position Card -->
-    <div class="position-overview" *ngIf="userStats">
-      <div class="grid">
-        <div class="col-12 lg:col-8">
-          <div class="position-main">
-            <div class="flex align-items-center gap-4 mb-4">
-              <div class="position-badge">
-                <div class="position-number text-4xl font-bold"># {{ userStats.overall_position }}</div>
-                <div class="position-label text-600">Posición General</div>
-              </div>
-              <div class="position-info flex-1">
-                <h3 class="m-0 mb-2">¡Excelente progreso!</h3>
-                <p class="text-600 mb-3">
-                  Estás en el top {{ getTopPercentage() }}% de {{ userStats.total_participants }} usuarios
-                </p>
-                <div class="position-actions">
-                  <p-tag [value]="'+' + userStats.recent_improvement + '% esta semana'"
-                    [severity]="userStats.recent_improvement > 0 ? 'success' : 'secondary'" size="large" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress to Next Position -->
-            <div class="next-position-progress">
-              <div class="flex justify-content-between align-items-center mb-2">
-                <span class="font-medium">Puntos para subir posición</span>
-                <span class="text-primary font-bold">{{ userStats.points_to_next_rank }} puntos</span>
-              </div>
-              <p-progressBar [value]="getProgressToNext()" [showValue]="false" styleClass="progress-bar-thick" />
-              <small class="text-500">
-                Con {{ userStats.points_to_next_rank }} puntos más llegarás a la posición #{{ userStats.overall_position
-                - 1 }}
-              </small>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 lg:col-4">
-          <div class="ranking-stats">
-            <h4 class="mb-3">Mis Estadísticas</h4>
-            <div class="stat-grid">
-              <div class="stat-item">
-                <div class="stat-icon bg-blue-100">
-                  <i class="pi pi-users text-blue-600"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-value">{{ userStats.total_participants }}</div>
-                  <div class="stat-label">Total Usuarios</div>
-                </div>
-              </div>
-              <div class="stat-item">
-                <div class="stat-icon bg-green-100">
-                  <i class="pi pi-arrow-up text-green-600"></i>
-                </div>
-                <div class="stat-content">
-                  <div class="stat-value">+{{ userStats.recent_improvement }}%</div>
-                  <div class="stat-label">Mejora Semanal</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <!-- Stats strip inside hero -->
+    <div class="ur-hero-stats" *ngIf="userStats">
+      <div class="ur-hstat">
+        <span class="ur-hstat-val">#{{ userStats.overall_position }}</span>
+        <span class="ur-hstat-lbl">Posición</span>
+      </div>
+      <div class="ur-hstat ur-hstat-sep">
+        <span class="ur-hstat-val">{{ userStats.total_participants }}</span>
+        <span class="ur-hstat-lbl">Usuarios</span>
+      </div>
+      <div class="ur-hstat ur-hstat-sep">
+        <span class="ur-hstat-val">+{{ userStats.recent_improvement }}%</span>
+        <span class="ur-hstat-lbl">Mejora</span>
+      </div>
+      <div class="ur-hstat ur-hstat-sep">
+        <span class="ur-hstat-val">{{ getTopPercentage() }}%</span>
+        <span class="ur-hstat-lbl">Top</span>
       </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <p-tabView [(activeIndex)]="activeTabIndex">
-    <!-- Category Rankings -->
-    <p-tabPanel header="Por Categoría" leftIcon="pi pi-chart-bar">
-      <div class="category-rankings" *ngIf="!loading; else loadingTemplate">
-        <div class="grid">
-          <div class="col-12 lg:col-6" *ngFor="let comparison of categoryComparisons; trackBy: trackByCategory">
-            <p-card [header]="comparison.category.name" styleClass="category-ranking-card h-full">
-              <ng-template pTemplate="header">
-                <div class="category-card-header">
-                  <div class="flex align-items-center gap-3">
-                    <div class="category-icon" [style.background-color]="comparison.category.color">
-                      <i [class]="comparison.category.icon"></i>
-                    </div>
-                    <div>
-                      <h4 class="m-0">{{ comparison.category.name }}</h4>
-                      <small class="text-500">Posición #{{ comparison.myPosition }}</small>
-                    </div>
-                    <div class="ml-auto">
-                      <div class="trend-indicator" [class]="'trend-' + comparison.trend">
-                        <i [class]="getTrendIcon(comparison.trend)" [style.color]="getTrendColor(comparison.trend)"></i>
-                        <span [style.color]="getTrendColor(comparison.trend)">
-                          {{ comparison.improvement > 0 ? '+' : '' }}{{ comparison.improvement }}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </ng-template>
+  <!-- PROGRESS TO NEXT -->
+  <div class="ur-next-card" *ngIf="userStats">
+    <div class="ur-next-head">
+      <span class="ur-next-label">Puntos para subir posición</span>
+      <span class="ur-next-pts">{{ userStats.points_to_next_rank }} pts</span>
+    </div>
+    <div class="ur-next-track">
+      <div class="ur-next-fill" [style.width.%]="getProgressToNext()"></div>
+    </div>
+    <div class="ur-next-hint">
+      Con {{ userStats.points_to_next_rank }} puntos más llegarás a la posición #{{ userStats.overall_position - 1 }}
+    </div>
+    <div class="ur-next-actions">
+      <button class="ur-btn-primary" [routerLink]="['/game/lobby']">
+        <i class="pi pi-play"></i> Mejorar mi Posición
+      </button>
+      <button class="ur-btn-ghost" [routerLink]="['/game/leaderboard']">
+        <i class="pi pi-trophy"></i> Ranking Global
+      </button>
+    </div>
+  </div>
 
-              <!-- My Performance -->
-              <div class="my-performance mb-4">
-                <div class="flex justify-content-between align-items-center mb-2">
-                  <span class="font-medium">Mi Puntuación</span>
-                  <span class="text-xl font-bold text-primary">{{ comparison.myScore }}%</span>
-                </div>
-                <p-progressBar [value]="comparison.myScore" [showValue]="false" styleClass="h-0.75rem"
-                  [style]="{ '--primary-color': comparison.category.color }" />
-              </div>
+  <!-- TABS -->
+  <div class="ur-tabs">
+    <button class="ur-tab" [class.ur-tab-active]="activeTabIndex === 0" (click)="activeTabIndex = 0">
+      <i class="pi pi-chart-bar"></i> Categorías
+    </button>
+    <button class="ur-tab" [class.ur-tab-active]="activeTabIndex === 1" (click)="activeTabIndex = 1">
+      <i class="pi pi-flag"></i> Objetivos
+    </button>
+    <button class="ur-tab" [class.ur-tab-active]="activeTabIndex === 2" (click)="activeTabIndex = 2">
+      <i class="pi pi-chart-line"></i> Análisis
+    </button>
+    <button class="ur-tab" [class.ur-tab-active]="activeTabIndex === 3" (click)="activeTabIndex = 3">
+      <i class="pi pi-star"></i> Logros
+    </button>
+  </div>
 
-              <!-- Top Users in Category -->
-              <div class="top-users">
-                <h5 class="mb-3">Top 3 en esta categoría</h5>
-                <div class="top-users-list">
-                  <div *ngFor="let user of comparison.topUsers.slice(0, 3); let i = index" class="top-user-item"
-                    [class.is-me]="user.is_current_user">
-                    <div class="flex align-items-center gap-2">
-                      <p-badge [value]="i + 1" [severity]="getPositionSeverity(i + 1)" size="large" />
-                      <p-avatar [image]="user.avatar_url" [label]="user.full_name ? user.full_name.charAt(0) : '?'"
-                        size="large" shape="circle" />
-                      <div class="user-info flex-1">
-                        <div class="user-name">{{ user.full_name }}</div>
-                        <small class="user-score">{{ user.avg_score }}% promedio</small>
-                      </div>
-                      <p-tag [value]="(user.total_points + '' || 0) || undefined" severity="success" size="small" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+  <!-- CONTENT -->
+  <div class="ur-content">
 
-              <!-- Action Button -->
-              <div class="text-center mt-4">
-                <p-button [label]="'Practicar ' + comparison.category.name" size="small" [outlined]="true"
-                  [routerLink]="['/game/lobby']" [queryParams]="{ category: comparison.category.id }" />
-              </div>
-            </p-card>
+    <!-- ── POR CATEGORÍA ── -->
+    <div *ngIf="activeTabIndex === 0">
+      <div *ngIf="loading" class="ur-loading"><i class="pi pi-spin pi-spinner"></i></div>
+      <div *ngIf="!loading" class="ur-cat-list">
+
+        <div *ngFor="let c of categoryComparisons" class="ur-cat-card">
+          <div class="ur-cat-hd">
+            <div class="ur-cat-icon"
+                 [style.background]="c.category.color + '18'"
+                 [style.color]="c.category.color">
+              <i [class]="c.category.icon"></i>
+            </div>
+            <div class="ur-cat-info">
+              <div class="ur-cat-name">{{ c.category.name }}</div>
+              <div class="ur-cat-pos">Posición #{{ c.myPosition }}</div>
+            </div>
+            <div class="ur-cat-trend" [style.color]="getTrendColor(c.trend)">
+              <i [class]="getTrendIcon(c.trend)"></i>
+              <span>{{ c.improvement > 0 ? '+' : '' }}{{ c.improvement }}%</span>
+            </div>
           </div>
+
+          <div class="ur-cat-score-row">
+            <span class="ur-cat-score-lbl">Mi puntuación</span>
+            <span class="ur-cat-score-val" [style.color]="c.category.color">{{ c.myScore }}%</span>
+          </div>
+          <div class="ur-bar-track">
+            <div class="ur-bar-fill" [style.width.%]="c.myScore" [style.background]="c.category.color"></div>
+          </div>
+
+          <div class="ur-cat-top">
+            <div class="ur-cat-top-lbl">Top 3 en esta categoría</div>
+            <div *ngFor="let u of c.topUsers.slice(0, 3); let i = index"
+                 class="ur-top-row"
+                 [class.ur-top-me]="u.is_current_user">
+              <span class="ur-top-pos"
+                    [class.ur-pos-gold]="i === 0"
+                    [class.ur-pos-silver]="i === 1"
+                    [class.ur-pos-bronze]="i === 2">{{ i + 1 }}</span>
+              <span class="ur-top-av">{{ u.full_name ? u.full_name.charAt(0) : '?' }}</span>
+              <span class="ur-top-name">{{ u.full_name }}</span>
+              <span class="ur-top-pts">{{ u.total_points | number }}</span>
+            </div>
+          </div>
+
+          <button class="ur-cat-play" [routerLink]="['/game/lobby']" [queryParams]="{ category: c.category.id }">
+            <i class="pi pi-play"></i> Practicar {{ c.category.name }}
+          </button>
         </div>
+
+        <div class="ur-empty" *ngIf="categoryComparisons.length === 0">
+          <i class="pi pi-chart-bar"></i>
+          <p>Sin datos de categorías aún</p>
+        </div>
+
       </div>
-    </p-tabPanel>
+    </div>
 
-    <!-- Progress Goals -->
-    <p-tabPanel header="Mis Objetivos" leftIcon="pi pi-flag">
-      <div class="progress-goals">
-        <div class="goals-intro mb-4">
-          <h3><i class="pi pi-flag"></i> Objetivos de Progreso</h3>
-          <p class="text-600">Establece y sigue tu progreso hacia metas específicas</p>
-        </div>
-
-        <div class="grid">
-          <div class="col-12 md:col-6" *ngFor="let goal of progressGoals">
-            <p-card styleClass="goal-card h-full">
-              <div class="goal-content">
-                <div class="goal-header mb-3">
-                  <div class="flex align-items-center gap-3">
-                    <div class="goal-icon" [style.background-color]="goal.color">
-                      <i [class]="goal.icon" class="text-white"></i>
-                    </div>
-                    <div>
-                      <h4 class="m-0">{{ goal.title }}</h4>
-                      <small class="text-500">{{ goal.timeframe }}</small>
-                    </div>
-                  </div>
-                </div>
-
-                <p class="goal-description text-600 mb-3">{{ goal.description }}</p>
-
-                <div class="goal-progress">
-                  <div class="flex justify-content-between align-items-center mb-2">
-                    <span class="progress-current">{{ goal.current }} / {{ goal.target }}</span>
-                    <span class="progress-percentage font-bold">{{ goal.progress }}%</span>
-                  </div>
-                  <p-progressBar [value]="goal.progress" [showValue]="false" styleClass="goal-progress-bar" />
-                  <small class="text-500">
-                    {{ goal.target - goal.current }} {{ getGoalUnit(goal.title) }} restantes
-                  </small>
-                </div>
-
-                <div class="goal-actions mt-3 text-center">
-                  <p-button label="Trabajar en este objetivo" size="small" [text]="true"
-                    [routerLink]="['/game/lobby']" />
-                </div>
-              </div>
-            </p-card>
+    <!-- ── MIS OBJETIVOS ── -->
+    <div *ngIf="activeTabIndex === 1">
+      <div class="ur-goals-list">
+        <div *ngFor="let g of progressGoals" class="ur-goal-card">
+          <div class="ur-goal-hd">
+            <div class="ur-goal-icon" [style.background]="g.color">
+              <i [class]="g.icon"></i>
+            </div>
+            <div class="ur-goal-info">
+              <div class="ur-goal-title">{{ g.title }}</div>
+              <div class="ur-goal-time">{{ g.timeframe }}</div>
+            </div>
+            <span class="ur-goal-pct">{{ g.progress | number:'1.0-0' }}%</span>
           </div>
-        </div>
-      </div>
-    </p-tabPanel>
-
-    <!-- Performance Analysis -->
-    <p-tabPanel header="Análisis" leftIcon="pi pi-chart-line">
-      <div class="performance-analysis">
-        <div class="grid">
-          <!-- Performance Chart -->
-          <div class="col-12 lg:col-8">
-            <p-card header="Evolución de mi Ranking">
-              <p-chart type="line" [data]="rankingEvolutionChart" [options]="chartOptions" height="300" />
-            </p-card>
+          <p class="ur-goal-desc">{{ g.description }}</p>
+          <div class="ur-goal-track">
+            <div class="ur-goal-fill" [style.width.%]="g.progress" [style.background]="g.color"></div>
           </div>
-
-          <!-- Performance Metrics -->
-          <div class="col-12 lg:col-4">
-            <p-card header="Métricas de Rendimiento" styleClass="h-full">
-              <div class="metrics-list">
-                <div class="metric-item">
-                  <div class="metric-header">
-                    <span class="metric-label">Consistencia</span>
-                    <span class="metric-value">85%</span>
-                  </div>
-                  <p-progressBar [value]="85" [showValue]="false" styleClass="h-0.5rem" />
-                  <small class="text-500">Qué tan estable es tu rendimiento</small>
-                </div>
-
-                <div class="metric-item">
-                  <div class="metric-header">
-                    <span class="metric-label">Velocidad de Mejora</span>
-                    <span class="metric-value">92%</span>
-                  </div>
-                  <p-progressBar [value]="92" [showValue]="false" styleClass="h-0.5rem" />
-                  <small class="text-500">Qué tan rápido progresas</small>
-                </div>
-
-                <div class="metric-item">
-                  <div class="metric-header">
-                    <span class="metric-label">Participación</span>
-                    <span class="metric-value">78%</span>
-                  </div>
-                  <p-progressBar [value]="78" [showValue]="false" styleClass="h-0.5rem" />
-                  <small class="text-500">Frecuencia de participación</small>
-                </div>
-              </div>
-
-              <p-divider />
-
-              <div class="performance-tips">
-                <h5><i class="pi pi-lightbulb"></i> Consejos para Mejorar</h5>
-                <ul class="tips-list">
-                  <li>Practica más en categorías con menor puntuación</li>
-                  <li>Mantén una racha diaria de participación</li>
-                  <li>Compite con usuarios de tu nivel</li>
-                </ul>
-              </div>
-            </p-card>
+          <div class="ur-goal-foot">
+            <span>{{ g.current }} / {{ g.target }}</span>
+            <span>{{ g.target - g.current }} {{ getGoalUnit(g.title) }} restantes</span>
           </div>
-
-          <!-- Comparison with Similar Users -->
-          <div class="col-12">
-            <p-card header="Comparación con Usuarios Similares">
-              <div class="comparison-chart">
-                <p-chart type="radar" [data]="comparisonChart" [options]="radarOptions" height="400" />
-              </div>
-            </p-card>
-          </div>
-        </div>
-      </div>
-    </p-tabPanel>
-
-    <!-- Achievements Impact -->
-    <p-tabPanel header="Impacto de Logros" leftIcon="pi pi-star">
-      <div class="achievements-impact">
-        <div class="impact-overview mb-4">
-          <h3><i class="pi pi-trophy"></i> Cómo los Logros Afectan tu Ranking</h3>
-          <p class="text-600">Descubre cómo cada logro contribuye a tu posición general</p>
-        </div>
-
-        <div class="grid">
-          <div class="col-12 md:col-4">
-            <p-card header="Progreso de Logros" styleClass="text-center">
-              <p-knob [ngModel]="achievementCompletionRate" [readonly]="true" [size]="100" [strokeWidth]="10"
-                valueColor="#22c55e" rangeColor="#e5e7eb" valueTemplate="{value}%" />
-              <div class="mt-3">
-                <div class="text-xl font-bold">{{ completedAchievements }} / {{ totalAchievements }}</div>
-                <div class="text-600">Logros Completados</div>
-              </div>
-            </p-card>
-          </div>
-
-          <div class="col-12 md:col-8">
-            <p-card header="Timeline de Logros Recientes">
-              <p-timeline [value]="recentAchievements" layout="vertical" styleClass="achievement-timeline">
-                <ng-template pTemplate="content" let-achievement>
-                  <div class="achievement-timeline-item">
-                    <div class="flex align-items-center gap-3">
-                      <div class="achievement-icon" [style.background-color]="achievement.color">
-                        <i [class]="achievement.icon" class="text-white"></i>
-                      </div>
-                      <div class="flex-1">
-                        <h5 class="m-0 mb-1">{{ achievement.name }}</h5>
-                        <p class="text-600 text-sm mb-1">{{ achievement.description }}</p>
-                        <small class="text-500">{{ achievement.date | date:'medium' }}</small>
-                      </div>
-                      <div class="achievement-impact">
-                        <p-tag [value]="'+' + achievement.rankingImpact + ' posiciones'" severity="success"
-                          size="small" />
-                      </div>
-                    </div>
-                  </div>
-                </ng-template>
-              </p-timeline>
-            </p-card>
-          </div>
-        </div>
-      </div>
-    </p-tabPanel>
-  </p-tabView>
-
-  <ng-template #loadingTemplate>
-    <div class="loading-section">
-      <div class="grid">
-        <div class="col-12 md:col-6" *ngFor="let item of [1,2,3,4]">
-          <p-skeleton height="250px" styleClass="mb-3" />
         </div>
       </div>
     </div>
-  </ng-template>
+
+    <!-- ── ANÁLISIS ── -->
+    <div *ngIf="activeTabIndex === 2">
+      <div class="ur-section-card">
+        <div class="ur-section-title"><i class="pi pi-chart-line"></i> Evolución de mi Ranking</div>
+        <p-chart type="line" [data]="rankingEvolutionChart" [options]="chartOptions" height="250" />
+      </div>
+
+      <div class="ur-section-card" style="margin-top:0.875rem">
+        <div class="ur-section-title"><i class="pi pi-sliders-h"></i> Métricas de Rendimiento</div>
+        <div class="ur-metrics">
+          <div class="ur-metric">
+            <div class="ur-metric-head">
+              <span class="ur-metric-lbl">Consistencia</span>
+              <span class="ur-metric-val">85%</span>
+            </div>
+            <div class="ur-bar-track"><div class="ur-bar-fill" style="width:85%;background:#3b82f6"></div></div>
+            <small class="ur-metric-hint">Qué tan estable es tu rendimiento</small>
+          </div>
+          <div class="ur-metric">
+            <div class="ur-metric-head">
+              <span class="ur-metric-lbl">Velocidad de Mejora</span>
+              <span class="ur-metric-val">92%</span>
+            </div>
+            <div class="ur-bar-track"><div class="ur-bar-fill" style="width:92%;background:#10b981"></div></div>
+            <small class="ur-metric-hint">Qué tan rápido progresas</small>
+          </div>
+          <div class="ur-metric">
+            <div class="ur-metric-head">
+              <span class="ur-metric-lbl">Participación</span>
+              <span class="ur-metric-val">78%</span>
+            </div>
+            <div class="ur-bar-track"><div class="ur-bar-fill" style="width:78%;background:#8b5cf6"></div></div>
+            <small class="ur-metric-hint">Frecuencia de participación</small>
+          </div>
+        </div>
+        <div class="ur-tips">
+          <div class="ur-tips-title"><i class="pi pi-lightbulb"></i> Consejos para Mejorar</div>
+          <div class="ur-tip-row"><i class="pi pi-check-circle"></i> Practica más en categorías con menor puntuación</div>
+          <div class="ur-tip-row"><i class="pi pi-check-circle"></i> Mantén una racha diaria de participación</div>
+          <div class="ur-tip-row"><i class="pi pi-check-circle"></i> Compite con usuarios de tu nivel</div>
+        </div>
+      </div>
+
+      <div class="ur-section-card" style="margin-top:0.875rem">
+        <div class="ur-section-title"><i class="pi pi-users"></i> Comparación con Usuarios Similares</div>
+        <p-chart type="radar" [data]="comparisonChart" [options]="radarOptions" height="280" />
+      </div>
+    </div>
+
+    <!-- ── IMPACTO DE LOGROS ── -->
+    <div *ngIf="activeTabIndex === 3">
+      <div class="ur-section-card">
+        <div class="ur-section-title"><i class="pi pi-trophy"></i> Progreso de Logros</div>
+        <div class="ur-ach-summary">
+          <div class="ur-ach-ring">
+            <p-knob [ngModel]="achievementCompletionRate" [readonly]="true" [size]="90" [strokeWidth]="10"
+              valueColor="#10b981" rangeColor="#e5e7eb" valueTemplate="{value}%" />
+          </div>
+          <div class="ur-ach-info">
+            <div class="ur-ach-count">{{ completedAchievements }} / {{ totalAchievements }}</div>
+            <div class="ur-ach-lbl">Logros Completados</div>
+            <div class="ur-ach-hint">Cómo los logros afectan tu ranking</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ur-section-card" style="margin-top:0.875rem">
+        <div class="ur-section-title"><i class="pi pi-clock"></i> Logros Recientes</div>
+        <div class="ur-ach-list">
+          <div *ngFor="let a of recentAchievements" class="ur-ach-row">
+            <div class="ur-ach-icon" [style.background]="a.color">
+              <i [class]="a.icon"></i>
+            </div>
+            <div class="ur-ach-body">
+              <div class="ur-ach-name">{{ a.name }}</div>
+              <div class="ur-ach-desc">{{ a.description }}</div>
+              <div class="ur-ach-date">{{ a.date | date:'dd MMM yyyy' }}</div>
+            </div>
+            <span class="ur-ach-impact">+{{ a.rankingImpact }} pos.</span>
+          </div>
+          <div class="ur-empty" *ngIf="recentAchievements.length === 0">
+            <i class="pi pi-star"></i><p>Sin logros recientes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
 </div>
