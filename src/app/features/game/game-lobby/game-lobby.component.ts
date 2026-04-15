@@ -84,6 +84,7 @@ export class GameLobbyComponent implements OnInit {
   // UI State
   loadingCategories = true;
   startingGame = false;
+  accessBlocked = false;
 
   // Stats
   userStats = {
@@ -146,11 +147,19 @@ export class GameLobbyComponent implements OnInit {
   }
 
   loadUserData(): void {
-    const userData = localStorage.getItem('user');
+    const userData = localStorage.getItem('ecobarometro_user');
     if (userData) {
       this.currentUser = JSON.parse(userData);
+      this.checkGameAccess();
       this.loadUserStats();
     }
+  }
+
+  checkGameAccess(): void {
+    if (!this.currentUser) return;
+    const gamesPlayed = this.currentUser.games_played || 0;
+    const extraAttempts = (this.currentUser as any).extra_attempts || 0;
+    this.accessBlocked = gamesPlayed > extraAttempts;
   }
 
   loadUserStats(): void {

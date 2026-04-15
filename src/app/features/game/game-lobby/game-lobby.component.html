@@ -1,5 +1,24 @@
+<!-- ── ACCESO BLOQUEADO ── -->
+<div *ngIf="accessBlocked" class="gl-blocked-wrap">
+  <div class="gl-blocked-card">
+    <div class="gl-blocked-icon"><i class="pi pi-lock"></i></div>
+    <h2 class="gl-blocked-title">Ya jugaste tu EcoChallenge</h2>
+    <p class="gl-blocked-desc">
+      Solo puedes presentar el EcoChallenge una vez.<br>
+      Si necesitas volver a presentarlo, solicítaselo a tu administrador.
+    </p>
+    <div class="gl-blocked-info">
+      <i class="pi pi-info-circle"></i>
+      El administrador puede habilitarte un nuevo intento desde el panel de usuarios.
+    </div>
+    <button class="gl-blocked-back" [routerLink]="['/user/dashboard']">
+      <i class="pi pi-arrow-left"></i> Volver al inicio
+    </button>
+  </div>
+</div>
+
 <!-- Header con botón atrás -->
-<div class="gradient-bg text-white relative overflow-hidden">
+<div *ngIf="!accessBlocked" class="gradient-bg text-white relative overflow-hidden">
   <!-- Botón Atrás -->
   <button 
     class="back-button absolute top-4 left-4 z-20 p-3 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg"

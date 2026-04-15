@@ -251,6 +251,54 @@ export class UsersManagerComponent implements OnInit {
     });
   }
 
+  isUserBlocked(user: UserWithStats): boolean {
+    const gamesPlayed = user.games_played || 0;
+    const extraAttempts = (user as any).extra_attempts || 0;
+    return gamesPlayed > extraAttempts;
+  }
+
+  grantGameAccess(user: UserWithStats) {
+    if (!this.isUserBlocked(user)) {
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Sin bloqueo',
+        detail: `${user.full_name} ya puede acceder al juego`,
+        life: 3000
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      message: `¿Conceder un nuevo intento de EcoChallenge a ${user.full_name}?`,
+      header: 'Conceder Acceso',
+      icon: 'pi pi-unlock',
+      acceptLabel: 'Sí, conceder',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        const currentExtra = (user as any).extra_attempts || 0;
+        this.userService.grantGameAccess(user.id, currentExtra).subscribe({
+          next: () => {
+            (user as any).extra_attempts = currentExtra + 1;
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Acceso concedido',
+              detail: `${user.full_name} puede volver a presentar el EcoChallenge`,
+              life: 3000
+            });
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo conceder el acceso',
+              life: 3000
+            });
+          }
+        });
+      }
+    });
+  }
+
   deleteUser(user: UserWithStats) {
     this.confirmationService.confirm({
       message: `¿Estás seguro de que deseas eliminar al usuario ${user.full_name}? Esta acción no se puede deshacer.`,

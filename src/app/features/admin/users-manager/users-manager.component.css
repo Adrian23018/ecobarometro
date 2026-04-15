@@ -331,6 +331,10 @@
 .um-action-success:hover { background: #dcfce7; }
 .um-action-secondary:hover{ background: #e5e7eb; }
 .um-action-danger:hover  { background: #fee2e2; }
+.um-action-grant        { color: #9ca3af; }
+.um-action-grant:hover  { background: #f0fdf4; color: #10b981; }
+.um-action-grant-active { color: #10b981 !important; background: #f0fdf4; }
+.um-action-grant-active:hover { background: #dcfce7 !important; }
 
 /* ── DRAWER ── */
 .um-drawer-overlay {

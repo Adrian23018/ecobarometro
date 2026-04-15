@@ -137,6 +137,12 @@
           <i [class]="user.is_active ? 'pi pi-ban' : 'pi pi-check'"></i>
         </button>
         <button class="um-action um-action-secondary" (click)="resetUserProgress(user)" title="Reiniciar progreso"><i class="pi pi-refresh"></i></button>
+        <button class="um-action um-action-grant"
+                (click)="grantGameAccess(user)"
+                [title]="isUserBlocked(user) ? 'Conceder nuevo intento de juego' : 'El usuario puede jugar'"
+                [class.um-action-grant-active]="isUserBlocked(user)">
+          <i class="pi pi-unlock"></i>
+        </button>
         <button class="um-action um-action-danger" (click)="deleteUser(user)" title="Eliminar"><i class="pi pi-trash"></i></button>
       </div>
     </div>

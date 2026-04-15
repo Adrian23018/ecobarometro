@@ -9,6 +9,7 @@ export interface User {
   level: number;
   experience_points: number;
   games_played: number;
+  extra_attempts?: number;
   admin_code: string;
   admin_id: string;
   is_active: boolean;

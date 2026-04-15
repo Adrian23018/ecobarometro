@@ -845,6 +845,28 @@ export class UserService {
     return from(this.performProgressReset(userId));
   }
 
+  /**
+   * Conceder un intento adicional de juego al usuario
+   */
+  grantGameAccess(userId: string, currentExtraAttempts: number): Observable<any> {
+    return from(
+      this.supabase
+        .from('users')
+        .update({
+          extra_attempts: (currentExtraAttempts || 0) + 1,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single()
+    ).pipe(
+      map(response => {
+        if (response.error) throw new Error(response.error.message);
+        return response.data;
+      })
+    );
+  }
+
   private async performProgressReset(userId: string): Promise<User> {
     try {
       // Eliminar datos de progreso
