@@ -1,289 +1,174 @@
-<!-- Botón Atrás (solo visible cuando NO está cargando) -->
-<!-- <app-back-button *ngIf="!isLoading" position="top-left" customRoute="/user/dashboard"></app-back-button> -->
-
 <!-- Loading State -->
-<div *ngIf="isLoading"
-  class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center">
-  <p-card class="w-full max-w-md">
-    <div class="text-center space-y-4">
-      <div class="flex justify-center">
-        <div class="text-6xl loading-spinner"><i class="pi pi-spin pi-spinner"></i></div>
-      </div>
-      <h3 class="text-xl font-bold text-gray-800">Preparando tu EcoChallenge...</h3>
-      <p class="text-gray-600">Cargando preguntas y configuración</p>
-      <p-skeleton height="1rem" class="mb-2"></p-skeleton>
-      <p-skeleton height="1rem" width="60%"></p-skeleton>
-    </div>
-  </p-card>
+<div *ngIf="isLoading" class="gp-loading">
+  <i class="pi pi-spin pi-spinner"></i>
+  <p>Preparando tu EcoChallenge...</p>
 </div>
 
 <!-- Game Interface -->
-<div *ngIf="!isLoading && !gameCompleted"
-  class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50">
-  <!-- Game Header -->
-  <div class="bg-white shadow-md border-b-4 border-emerald-500">
-    <div class="container mx-auto px-4 py-4">
-      <div class="flex justify-between items-center">
-        <!-- Progress Info -->
-        <div class="flex items-center space-x-4">
-          <h1 class="text-2xl font-bold text-gray-800" style="margin-top: 50px;">EcoChallenge</h1>
+<div *ngIf="!isLoading && !gameCompleted" class="gp-page">
 
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex items-center space-x-2">
-          <button class="action-btn pause-btn" pTooltip="Pausar juego" (click)="pauseGame()">
-            <i class="pi pi-pause emoji-btn"></i>
-          </button>
-          <button class="action-btn quit-btn" pTooltip="Abandonar juego" (click)="quitGame()">
-            <i class="pi pi-times emoji-btn"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <p-badge [value]="'Pregunta ' + gameStats.currentQuestionNumber + ' de ' + gameStats.totalQuestions"
-          severity="info">
-        </p-badge>
-        <p-badge [value]="gameStats.totalPoints + ' puntos'" severity="success">
-        </p-badge>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="mt-4">
-        <div class="flex justify-between text-sm text-gray-600 mb-1">
-          <span>Progreso del juego</span>
-          <span>{{gameStats.currentQuestionNumber}}/{{gameStats.totalQuestions}}</span>
-        </div>
-        <p-progressBar [value]="progressPercentage" [showValue]="false" styleClass="h-2">
-        </p-progressBar>
-      </div>
+  <!-- HEADER -->
+  <div class="gp-header">
+    <div class="gp-header-left">
+      <span class="gp-header-title">EcoChallenge</span>
+      <span class="gp-q-badge">{{ gameStats.currentQuestionNumber }}/{{ gameStats.totalQuestions }}</span>
+    </div>
+    <div class="gp-header-right">
+      <span class="gp-pts-badge">{{ gameStats.totalPoints }} pts</span>
+      <button class="gp-action-btn gp-pause" (click)="pauseGame()" title="Pausar">
+        <i class="pi pi-pause"></i>
+      </button>
+      <button class="gp-action-btn gp-quit" (click)="quitGame()" title="Salir">
+        <i class="pi pi-times"></i>
+      </button>
     </div>
   </div>
 
-  <!-- Main Game Area -->
-  <div class="container mx-auto px-4 py-8">
-    <div class="max-w-4xl mx-auto">
-      <!-- Question Card -->
-      <div *ngIf="currentQuestion && !questionTransition" class="mb-8" [@fadeInOut]>
-        <p-card class="shadow-lg border-0 overflow-hidden">
-          <!-- Question Header -->
-          <div class="bg-gradient-to-r from-emerald-500 to-blue-500 text-white p-6 -m-6 mb-6">
-            <div class="flex justify-between items-start">
-              <div class="flex-1">
-                <div class="flex items-center space-x-3 mb-3 flex-wrap">
-                  <span class="difficulty-tag" [ngClass]="'difficulty-' + currentQuestion.question.difficulty_level">
-                    <i class="pi emoji-tag" [ngClass]="currentQuestion.question.difficulty_level === 3 ? 'pi-bolt' : 'pi-circle-fill'"></i>
-                    <span>{{difficultyLabel}}</span>
-                  </span>
-                  <span class="points-tag">
-                    <i class="pi pi-star emoji-tag"></i>
-                    <span>{{currentQuestion.question.points}} pts</span>
-                  </span>
-                  <span *ngIf="currentQuestion.bonus_points && currentQuestion.bonus_points > 0" class="bonus-tag">
-                    <i class="pi pi-bolt emoji-tag"></i>
-                    <span>Bonus: +{{currentQuestion.bonus_points}}</span>
-                  </span>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">{{currentQuestion.question.question_text}}</h2>
-                <p class="text-blue-100 flex items-center gap-2">
-                  <i class="pi pi-folder emoji-small"></i>
-                  <span>{{currentQuestion.question.category?.name || 'Categoría General'}}</span>
-                </p>
-              </div>
+  <!-- PROGRESS STRIP -->
+  <div class="gp-progress-track">
+    <div class="gp-progress-fill" [style.width.%]="progressPercentage"></div>
+  </div>
 
-              <!-- Timer -->
-              <div class="text-center ml-4 timer-widget">
-                <div class="bg-white/20 rounded-full p-4 mb-2">
-                  <i class="pi pi-clock text-4xl"></i>
-                </div>
-                <div class="text-3xl font-bold">{{gameStats.timeRemaining}}</div>
-                <div class="text-sm">segundos</div>
-                <p-progressBar [value]="timePercentage" [showValue]="false" styleClass="mt-2 h-1"
-                  [class]="timePercentage < 30 ? 'animate-pulse' : ''">
-                </p-progressBar>
-              </div>
-            </div>
+  <!-- BODY -->
+  <div class="gp-body">
+
+    <!-- QUESTION CARD -->
+    <div *ngIf="currentQuestion && !questionTransition" [@fadeInOut]>
+
+      <div class="gp-question-card">
+
+        <!-- Meta row: difficulty + points + timer -->
+        <div class="gp-question-meta">
+          <div class="gp-meta-tags">
+            <span class="gp-tag" [ngClass]="'gp-diff-' + currentQuestion.question.difficulty_level">
+              <i class="pi" [ngClass]="currentQuestion.question.difficulty_level === 3 ? 'pi-bolt' : 'pi-circle-fill'"></i>
+              {{ difficultyLabel }}
+            </span>
+            <span class="gp-tag gp-tag-pts">
+              <i class="pi pi-star"></i>
+              {{ currentQuestion.question.points }} pts
+            </span>
+            <span *ngIf="currentQuestion.bonus_points && currentQuestion.bonus_points > 0" class="gp-tag gp-tag-bonus">
+              <i class="pi pi-bolt"></i>
+              +{{ currentQuestion.bonus_points }}
+            </span>
           </div>
 
-          <!-- Feedback Message -->
-          <div *ngIf="showFeedback" class="mb-6">
-            <div [ngClass]="{
-              'bg-green-100 border-green-500 text-green-800': feedbackType === 'correct',
-              'bg-red-100 border-red-500 text-red-800': feedbackType === 'incorrect'
-            }" class="border-l-4 p-4 rounded feedback-card">
-              <div class="flex items-center">
-                <span class="text-4xl mr-3">
-                  <i [class]="feedbackType === 'correct' ? 'pi pi-check' : 'pi pi-times'"></i>
-                </span>
-                <div>
-                  <h4 class="font-bold text-lg">
-                    {{feedbackType === 'correct' ? '¡Correcto!' : 'Incorrecto'}}
-                  </h4>
-                  <p *ngIf="feedbackType === 'correct' && selectedOption" class="mt-1">
-                    <i class="pi pi-star emoji-small"></i> Has ganado {{calculatePointsEarned()}} puntos
-                  </p>
-                  <p *ngIf="feedbackType === 'incorrect'" class="mt-1">
-                    La respuesta correcta era:
-                    <span class="font-semibold block mt-1">
-                      {{(currentQuestion.options | filter:'is_correct':true)[0]?.option_text}}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Video Help Option (only shows after incorrect answer if eligible) -->
-            <div *ngIf="feedbackType === 'incorrect' && canUseVideoHelp && !videoHelpUsedForCurrentQuestion"
-                 class="mt-4 pt-4 border-t border-red-300">
-              <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border-2 border-blue-300">
-                <div class="flex items-start gap-3">
-                  <div class="text-3xl flex-shrink-0"><i class="pi pi-video"></i></div>
-                  <div class="flex-1">
-                    <h5 class="font-bold text-gray-800 mb-2">¿Necesitas ayuda?</h5>
-                    <p class="text-sm text-gray-700 mb-3">
-                      Mira un video educativo y completa un desafío para ganar
-                      <span class="font-bold text-blue-600">+30 segundos</span> y
-                      <span class="font-bold text-green-600">+10 puntos</span>
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                      <button
-                        (click)="openVideoHelp()"
-                        class="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2">
-                        <i class="pi pi-book"></i>
-                        <span>Ver Video Educativo</span>
-                      </button>
-                      <button
-                        (click)="continueWithoutHelp()"
-                        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200">
-                        Continuar sin ayuda
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <!-- Timer -->
+          <div class="gp-timer" [class.gp-timer-warn]="timePercentage < 30">
+            <svg viewBox="0 0 36 36" class="gp-timer-svg">
+              <circle cx="18" cy="18" r="15.9" class="gp-timer-bg"/>
+              <circle cx="18" cy="18" r="15.9" class="gp-timer-arc"
+                [style.stroke-dasharray]="(timePercentage * 0.999) + ' 100'"/>
+            </svg>
+            <span class="gp-timer-val">{{ gameStats.timeRemaining }}</span>
           </div>
-
-          <!-- Streak Indicator -->
-          <div *ngIf="gameStats.streakCount > 1" class="mb-6">
-            <div
-              class="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-300 rounded-lg p-4 streak-card">
-              <div class="flex items-center justify-center space-x-2">
-                <i class="pi pi-bolt text-2xl"></i>
-                <span class="text-purple-800 font-bold">{{streakMessage}}</span>
-                <i class="pi pi-star text-2xl"></i>
-              </div>
-            </div>
-          </div>
-
-          <!-- Options -->
-          <div class="space-y-3">
-            <div *ngFor="let option of currentQuestion.options; let i = index" class="option-card" [ngClass]="{
-                   'selected': selectedOption?.id === option.id,
-                   'correct': showFeedback && option.is_correct,
-                   'incorrect': showFeedback && selectedOption?.id === option.id && !option.is_correct,
-                   'disabled': showFeedback || isPaused
-                 }" (click)="selectOption(option)">
-              <div
-                class="flex items-center space-x-4 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:border-blue-400 hover:shadow-md">
-                <div class="option-indicator">
-                  {{String.fromCharCode(65 + i)}}
-                </div>
-                <div class="flex-1 text-lg">{{option.option_text}}</div>
-                <span *ngIf="showFeedback && option.is_correct" class="text-3xl">
-                  <i class="pi pi-check"></i>
-                </span>
-                <span *ngIf="showFeedback && selectedOption?.id === option.id && !option.is_correct" class="text-3xl">
-                  <i class="pi pi-times"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="mt-8 text-center">
-            <button class="submit-button" [disabled]="!canSubmit" [class.loading]="isSubmitting"
-              (click)="submitAnswer()">
-              <i *ngIf="!isSubmitting" class="pi pi-check emoji-btn-large"></i>
-              <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner emoji-btn-large"></i>
-              <span class="ml-2">{{ isSubmitting ? 'Enviando...' : 'Confirmar Respuesta' }}</span>
-            </button>
-          </div>
-        </p-card>
-      </div>
-
-      <!-- Question Transition -->
-      <div *ngIf="questionTransition" class="mb-8 text-center py-20">
-        <div class="space-y-4">
-          <div class="text-6xl loading-spinner"><i class="pi pi-spin pi-spinner"></i></div>
-          <h3 class="text-2xl font-bold text-gray-800">Siguiente pregunta...</h3>
         </div>
-      </div>
 
-      <!-- Game Stats Sidebar -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Current Score -->
-        <p-card class="text-center stats-card">
-          <div class="space-y-2">
-            <i class="pi pi-star text-5xl"></i>
-            <h4 class="font-bold text-gray-800">Puntos</h4>
-            <div class="text-3xl font-bold text-blue-600">{{gameStats.totalPoints}}</div>
-          </div>
-        </p-card>
+        <!-- Category -->
+        <div class="gp-category">
+          <i class="pi pi-folder"></i>
+          {{ currentQuestion.question.category?.name || 'Categoría General' }}
+        </div>
 
-        <!-- Correct Answers -->
-        <p-card class="text-center stats-card">
-          <div class="space-y-2">
-            <i class="pi pi-check text-5xl"></i>
-            <h4 class="font-bold text-gray-800">Correctas</h4>
-            <div class="text-3xl font-bold text-green-600">
-              {{gameStats.correctAnswers}}/{{gameStats.currentQuestionNumber - 1}}
-            </div>
+        <!-- Question text -->
+        <h2 class="gp-question-text">{{ currentQuestion.question.question_text }}</h2>
+
+        <!-- Feedback -->
+        <div *ngIf="showFeedback" class="gp-feedback" [class.gp-feedback-ok]="feedbackType === 'correct'" [class.gp-feedback-err]="feedbackType === 'incorrect'">
+          <i class="pi" [ngClass]="feedbackType === 'correct' ? 'pi-check-circle' : 'pi-times-circle'"></i>
+          <div class="gp-feedback-body">
+            <span class="gp-feedback-title">{{ feedbackType === 'correct' ? '¡Correcto!' : 'Incorrecto' }}</span>
+            <span *ngIf="feedbackType === 'correct'" class="gp-feedback-sub">
+              +{{ calculatePointsEarned() }} puntos ganados
+            </span>
+            <span *ngIf="feedbackType === 'incorrect'" class="gp-feedback-sub">
+              Correcta: {{ (currentQuestion.options | filter:'is_correct':true)[0]?.option_text }}
+            </span>
           </div>
-        </p-card>
+        </div>
+
+        <!-- Video help -->
+        <div *ngIf="feedbackType === 'incorrect' && canUseVideoHelp && !videoHelpUsedForCurrentQuestion" class="gp-video-help">
+          <div class="gp-vh-icon"><i class="pi pi-video"></i></div>
+          <div class="gp-vh-body">
+            <span class="gp-vh-title">¿Necesitas ayuda?</span>
+            <span class="gp-vh-desc">Mira un video y gana <strong>+30s</strong> y <strong>+10 pts</strong></span>
+          </div>
+          <div class="gp-vh-actions">
+            <button class="gp-vh-btn-yes" (click)="openVideoHelp()">Ver video</button>
+            <button class="gp-vh-btn-no" (click)="continueWithoutHelp()">Omitir</button>
+          </div>
+        </div>
 
         <!-- Streak -->
-        <p-card class="text-center stats-card">
-          <div class="space-y-2">
-            <i class="pi pi-bolt text-5xl"></i>
-            <h4 class="font-bold text-gray-800">Racha</h4>
-            <div class="text-3xl font-bold text-purple-600">{{gameStats.streakCount}}</div>
-          </div>
-        </p-card>
+        <div *ngIf="gameStats.streakCount > 1" class="gp-streak">
+          <i class="pi pi-bolt"></i>
+          <span>{{ streakMessage }}</span>
+        </div>
       </div>
+
+      <!-- OPTIONS -->
+      <div class="gp-options">
+        <div *ngFor="let option of currentQuestion.options; let i = index"
+             class="gp-option"
+             [class.gp-opt-selected]="selectedOption?.id === option.id"
+             [class.gp-opt-correct]="showFeedback && option.is_correct"
+             [class.gp-opt-wrong]="showFeedback && selectedOption?.id === option.id && !option.is_correct"
+             [class.gp-opt-disabled]="showFeedback || isPaused"
+             (click)="selectOption(option)">
+          <span class="gp-opt-letter">{{ String.fromCharCode(65 + i) }}</span>
+          <span class="gp-opt-text">{{ option.option_text }}</span>
+          <i *ngIf="showFeedback && option.is_correct" class="pi pi-check gp-opt-icon gp-icon-ok"></i>
+          <i *ngIf="showFeedback && selectedOption?.id === option.id && !option.is_correct" class="pi pi-times gp-opt-icon gp-icon-err"></i>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <div class="gp-submit-wrap">
+        <button class="gp-submit" [disabled]="!canSubmit" [class.gp-submit-loading]="isSubmitting" (click)="submitAnswer()">
+          <i *ngIf="!isSubmitting" class="pi pi-check"></i>
+          <i *ngIf="isSubmitting" class="pi pi-spin pi-spinner"></i>
+          {{ isSubmitting ? 'Enviando...' : 'Confirmar Respuesta' }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Transition -->
+    <div *ngIf="questionTransition" class="gp-transition">
+      <i class="pi pi-spin pi-spinner"></i>
+      <p>Siguiente pregunta...</p>
+    </div>
+
+  </div>
+
+  <!-- STATS STRIP -->
+  <div class="gp-stats">
+    <div class="gp-stat">
+      <i class="pi pi-star" style="color:#3b82f6"></i>
+      <span class="gp-stat-val">{{ gameStats.totalPoints }}</span>
+      <span class="gp-stat-lbl">Puntos</span>
+    </div>
+    <div class="gp-stat">
+      <i class="pi pi-check" style="color:#10b981"></i>
+      <span class="gp-stat-val">{{ gameStats.correctAnswers }}/{{ gameStats.currentQuestionNumber - 1 }}</span>
+      <span class="gp-stat-lbl">Correctas</span>
+    </div>
+    <div class="gp-stat">
+      <i class="pi pi-bolt" style="color:#8b5cf6"></i>
+      <span class="gp-stat-val">{{ gameStats.streakCount }}</span>
+      <span class="gp-stat-lbl">Racha</span>
     </div>
   </div>
+
 </div>
 
 <!-- Game Completed -->
-<div *ngIf="gameCompleted"
-  class="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center">
-  <p-card class="w-full max-w-2xl">
-    <div class="text-center space-y-6">
-      <div class="text-6xl mb-4"><i class="pi pi-star"></i></div>
-      <h2 class="text-4xl font-bold text-gray-800">¡Felicitaciones!</h2>
-      <p class="text-xl text-gray-600">Has completado tu EcoChallenge</p>
-
-      <div class="grid grid-cols-3 gap-4 my-8">
-        <div class="text-center">
-          <div class="text-3xl font-bold text-blue-600">{{gameStats.totalPoints}}</div>
-          <div class="text-sm text-gray-600">Puntos Totales</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold text-green-600">{{gameStats.correctAnswers}}</div>
-          <div class="text-sm text-gray-600">Respuestas Correctas</div>
-        </div>
-        <div class="text-center">
-          <div class="text-3xl font-bold text-purple-600">{{getAccuracyPercentage()}}%</div>
-          <div class="text-sm text-gray-600">Precisión</div>
-        </div>
-      </div>
-
-      <p class="text-gray-600">Preparando tus resultados detallados...</p>
-      <p-progressBar mode="indeterminate" styleClass="h-2"></p-progressBar>
-    </div>
-  </p-card>
+<div *ngIf="gameCompleted" class="gp-loading">
+  <i class="pi pi-check-circle" style="color:#10b981;font-size:3rem"></i>
+  <p style="font-weight:700;font-size:1.1rem;color:#111827">¡Felicitaciones!</p>
+  <p style="color:#6b7280;font-size:0.9rem">Preparando tus resultados...</p>
 </div>
 
 <!-- Video Help Modal -->
@@ -296,8 +181,5 @@
   (cancelled)="onVideoHelpCancelled()">
 </app-video-help>
 
-<!-- Toast Messages -->
 <p-toast></p-toast>
-
-<!-- Confirm Dialogs -->
 <p-confirmDialog></p-confirmDialog>
