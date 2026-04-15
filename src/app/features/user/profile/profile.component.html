@@ -1,479 +1,337 @@
-<div class="user-profile">
-  <!-- Animated background particles -->
-  <div class="bg-particles">
-    <div class="particle" *ngFor="let particle of backgroundParticles; trackBy: trackByIndex"
-         [style.left.%]="particle.x"
-         [style.top.%]="particle.y"
-         [style.width.px]="particle.size"
-         [style.height.px]="particle.size"
-         [style.animation-delay.s]="particle.delay">
-    </div>
-  </div>
+<div class="pf-page">
 
-  <div class="profile-container">
-    <!-- Back Button -->
-    <button class="btn-back" (click)="goBack()" pTooltip="Regresar" tooltipPosition="right">
+  <!-- HERO -->
+  <div class="pf-hero">
+    <button class="pf-back" (click)="goBack()">
       <i class="pi pi-arrow-left"></i>
-      Regresar
     </button>
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <div class="profile-main-info">
-        <!-- Avatar Section -->
-        <div class="avatar-section">
-          <div class="avatar-container">
-            <p-avatar 
-              [image]="currentUser?.avatar_url"
-              [label]="currentUser?.full_name?.charAt(0) || '?'"
-              size="xlarge"
-              shape="circle"
-              styleClass="profile-avatar"
-            />
-            <p-button 
-              icon="pi pi-camera"
-              [rounded]="true"
-              size="small"
-              styleClass="avatar-edit-btn"
-              (onClick)="showAvatarDialog = true"
-              pTooltip="Cambiar foto"
-            />
-          </div>
-        </div>
 
-        <!-- User Info -->
-        <div class="user-info">
-          <h1 class="user-name">{{ currentUser?.full_name }}</h1>
-          <p class="username">&#64;{{ currentUser?.username }}</p>
-          
-          <div class="user-badges">
-            <div class="badge badge-level">
-              <i class="pi pi-star"></i>
-              Nivel {{ currentUser?.level || 1 }}
-            </div>
-            <div class="badge badge-points">
-              <i class="pi pi-circle-fill"></i>
-              {{ currentUser?.total_points || 0 }} puntos
-            </div>
-            <div class="badge badge-member">
-              <i class="pi pi-calendar"></i>
-              {{ getMembershipDuration() }}
-            </div>
-          </div>
-
-          <!-- Level Progress -->
-          <div class="level-progress">
-            <div class="progress-header">
-              <span class="progress-title">Progreso al Nivel {{ (currentUser?.level || 1) + 1 }}</span>
-              <span class="progress-percentage">{{ levelProgress }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="levelProgress"></div>
-            </div>
-            <div class="points-remaining">{{ pointsToNextLevel }} puntos restantes</div>
-          </div>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-          <div class="stat-card" [style.--stat-color]="'#22c55e'" [style.--stat-color-light]="'#16a34a'">
-            <div class="stat-value">{{ userStats.totalGames }}</div>
-            <div class="stat-label">Partidas</div>
-          </div>
-          <div class="stat-card" [style.--stat-color]="'#3b82f6'" [style.--stat-color-light]="'#2563eb'">
-            <div class="stat-value">{{ userStats.avgScore }}%</div>
-            <div class="stat-label">Promedio</div>
-          </div>
-          <div class="stat-card" [style.--stat-color]="'#f59e0b'" [style.--stat-color-light]="'#d97706'">
-            <div class="stat-value">{{ userStats.streakDays }}</div>
-            <div class="stat-label">Racha</div>
-          </div>
-        </div>
+    <!-- Avatar -->
+    <div class="pf-avatar-wrap">
+      <div class="pf-avatar">
+        <img *ngIf="currentUser?.avatar_url" [src]="currentUser?.avatar_url" alt="avatar" />
+        <span *ngIf="!currentUser?.avatar_url" class="pf-avatar-init">
+          {{ currentUser?.full_name?.charAt(0) || '?' }}
+        </span>
       </div>
+      <button class="pf-avatar-cam" (click)="showAvatarDialog = true" title="Cambiar foto">
+        <i class="pi pi-camera"></i>
+      </button>
     </div>
 
-    <!-- Tabs Container -->
-    <div class="tabs-container">
-      <nav class="tab-nav">
-        <button class="tab-button" 
-                [class.active]="activeTab === 'info'" 
-                (click)="setActiveTab('info')">
-          <i class="pi pi-user"></i>
-          Mi Información
-        </button>
-        <button class="tab-button" 
-                [class.active]="activeTab === 'security'" 
-                (click)="setActiveTab('security')">
-          <i class="pi pi-shield"></i>
-          Seguridad
-        </button>
-        <button class="tab-button" 
-                [class.active]="activeTab === 'stats'" 
-                (click)="setActiveTab('stats')">
-          <i class="pi pi-chart-bar"></i>
-          Estadísticas
-        </button>
-      </nav>
+    <!-- Name & username -->
+    <h1 class="pf-name">{{ currentUser?.full_name }}</h1>
+    <p class="pf-username">&#64;{{ currentUser?.username }}</p>
 
-      <div class="tab-content">
-        <!-- Profile Info Tab -->
-        <div class="tab-panel" [class.active]="activeTab === 'info'">
-          <div class="form-grid">
-            <div class="form-section">
-              <h2 class="section-title">Información Personal</h2>
-              <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
-                <div class="form-group">
-                  <label class="form-label">Nombre Completo *</label>
-                  <input 
-                    type="text" 
-                    class="form-input"
-                    formControlName="full_name"
-                    placeholder="Tu nombre completo"
-                    [class.error]="isFieldInvalid('full_name')"
-                  />
-                  <small *ngIf="isFieldInvalid('full_name')" class="form-error">
-                    El nombre es requerido
-                  </small>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Nombre de Usuario *</label>
-                  <input 
-                    type="text" 
-                    class="form-input"
-                    formControlName="username"
-                    placeholder="Tu nombre de usuario"
-                    [class.error]="isFieldInvalid('username')"
-                  />
-                  <small *ngIf="isFieldInvalid('username')" class="form-error">
-                    El nombre de usuario es requerido
-                  </small>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Correo Electrónico *</label>
-                  <input 
-                    type="email" 
-                    class="form-input"
-                    formControlName="email"
-                    placeholder="tu@email.com"
-                    [class.error]="isFieldInvalid('email')"
-                  />
-                  <small *ngIf="isFieldInvalid('email')" class="form-error">
-                    <span *ngIf="profileForm.get('email')?.errors?.['required']">
-                      El correo es requerido
-                    </span>
-                    <span *ngIf="profileForm.get('email')?.errors?.['email']">
-                      Formato de correo inválido
-                    </span>
-                  </small>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Biografía</label>
-                  <textarea 
-                    class="form-input form-textarea"
-                    formControlName="bio"
-                    placeholder="Cuéntanos algo sobre ti y tu interés por el medio ambiente..."
-                  ></textarea>
-                </div>
-
-                <div class="btn-group">
-                  <button type="button" class="btn btn-secondary" (click)="resetForm()">
-                    Cancelar
-                  </button>
-                  <button type="submit" 
-                          class="btn btn-primary" 
-                          [disabled]="profileForm.invalid || !profileForm.dirty || updating">
-                    <i class="pi pi-save"></i>
-                    <span *ngIf="!updating">Guardar Cambios</span>
-                    <span *ngIf="updating">Guardando...</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-card">
-                <h3 class="section-title">Información de Cuenta</h3>
-                <div class="info-item">
-                  <span class="info-label">Código de Admin:</span>
-                  <span class="info-value">{{ currentUser?.admin_code }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Miembro desde:</span>
-                  <span class="info-value">{{ currentUser?.created_at | date:'mediumDate' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Última actividad:</span>
-                  <span class="info-value">{{ getLastLoginInfo() }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Estado:</span>
-                  <span class="info-value" 
-                        [style.color]="currentUser?.is_active ? '#22c55e' : '#ef4444'">
-                    {{ currentUser?.is_active ? 'Activo' : 'Inactivo' }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="info-card">
-                <h3 class="section-title">Preferencias</h3>
-                <form [formGroup]="preferencesForm">
-                  <div class="form-group">
-                    <label class="form-label checkbox-label">
-                      <p-checkbox 
-                        formControlName="emailNotifications"
-                        [binary]="true">
-                      </p-checkbox>
-                      Notificaciones por correo
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label checkbox-label">
-                      <p-checkbox 
-                        formControlName="weeklyDigest"
-                        [binary]="true">
-                      </p-checkbox>
-                      Resumen semanal
-                    </label>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label checkbox-label">
-                      <p-checkbox 
-                        formControlName="achievementAlerts"
-                        [binary]="true">
-                      </p-checkbox>
-                      Alertas de logros
-                    </label>
-                  </div>
-                  <button type="button" 
-                          class="btn btn-primary full-width" 
-                          (click)="updatePreferences()">
-                    Actualizar Preferencias
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Security Tab -->
-        <div class="tab-panel" [class.active]="activeTab === 'security'">
-          <div class="form-grid">
-            <div class="form-section">
-              <h2 class="section-title">Cambiar Contraseña</h2>
-              <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
-                <div class="form-group">
-                  <label class="form-label">Contraseña Actual *</label>
-                  <p-password 
-                    formControlName="currentPassword"
-                    [toggleMask]="true"
-                    [feedback]="false"
-                    placeholder="Contraseña actual"
-                    styleClass="w-full custom-password"
-                    inputStyleClass="form-input">
-                  </p-password>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Nueva Contraseña *</label>
-                  <p-password 
-                    formControlName="newPassword"
-                    [toggleMask]="true"
-                    [feedback]="true"
-                    placeholder="Nueva contraseña"
-                    styleClass="w-full custom-password"
-                    inputStyleClass="form-input">
-                  </p-password>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label">Confirmar Contraseña *</label>
-                  <p-password 
-                    formControlName="confirmPassword"
-                    [toggleMask]="true"
-                    [feedback]="false"
-                    placeholder="Confirmar nueva contraseña"
-                    styleClass="w-full custom-password"
-                    inputStyleClass="form-input">
-                  </p-password>
-                  <small *ngIf="passwordForm.get('confirmPassword')?.errors?.['passwordMismatch'] && 
-                                passwordForm.get('confirmPassword')?.touched" 
-                         class="form-error">
-                    Las contraseñas no coinciden
-                  </small>
-                </div>
-
-                <div class="btn-group">
-                  <button type="submit" 
-                          class="btn btn-primary" 
-                          [disabled]="passwordForm.invalid || changingPassword">
-                    <i class="pi pi-key"></i>
-                    <span *ngIf="!changingPassword">Cambiar Contraseña</span>
-                    <span *ngIf="changingPassword">Cambiando...</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div class="form-section">
-              <h2 class="section-title">Configuración de Seguridad</h2>
-              <div class="info-grid">
-                <div class="security-item">
-                  <div class="security-icon-container">
-                    <i class="pi pi-shield" style="color: #22c55e; font-size: 1.2rem;"></i>
-                    <div>
-                      <div class="security-title">Cuenta Verificada</div>
-                      <div class="security-description">Tu cuenta ha sido verificada correctamente</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="security-item">
-                  <div class="security-icon-container">
-                    <i class="pi pi-clock" style="color: #3b82f6; font-size: 1.2rem;"></i>
-                    <div>
-                      <div class="security-title">Último Acceso</div>
-                      <div class="security-description">{{ getLastLoginInfo() }}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div class="security-item danger-zone">
-                  <div class="security-icon-container">
-                    <i class="pi pi-exclamation-triangle" style="color: #f59e0b; font-size: 1.2rem;"></i>
-                    <div>
-                      <div class="security-title">Eliminar Cuenta</div>
-                      <div class="security-description">Esta acción no se puede deshacer</div>
-                      <button class="btn btn-danger small-btn" (click)="confirmDeleteAccount()">
-                        <i class="pi pi-trash"></i>
-                        Eliminar Mi Cuenta
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Statistics Tab -->
-        <div class="tab-panel" [class.active]="activeTab === 'stats'">
-          <div class="stats-overview">
-            <div class="stat-circle">
-              <div class="circular-progress">
-                <div class="progress-text">{{ userStats.avgScore }}%</div>
-              </div>
-              <div class="stat-label">Puntuación Promedio</div>
-            </div>
-            
-            <div class="stat-circle">
-              <div class="stat-big-number" style="color: #3b82f6;">
-                {{ userStats.totalGames }}
-              </div>
-              <div class="stat-label">Partidas Jugadas</div>
-            </div>
-            
-            <div class="stat-circle">
-              <div class="stat-big-number" style="color: #f59e0b;">
-                {{ userStats.hoursPlayed }}
-              </div>
-              <div class="stat-label">Horas Jugadas</div>
-            </div>
-            
-            <div class="stat-circle">
-              <div class="stat-big-number" style="color: #8b5cf6;">
-                {{ userStats.improvementRate }}%
-              </div>
-              <div class="stat-label">Mejora General</div>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-section">
-              <h2 class="section-title">Actividad de los Últimos 30 Días</h2>
-              <div class="chart-container">
-                <p-chart 
-                  type="line" 
-                  [data]="activityChart" 
-                  [options]="chartOptions"
-                  height="300">
-                </p-chart>
-              </div>
-            </div>
-
-            <div class="form-section">
-              <h2 class="section-title">Actividad Reciente</h2>
-              <div class="activity-timeline">
-                <div class="timeline-item" *ngFor="let activity of recentActivity">
-                  <div class="timeline-icon" [style.background]="getTimelineIconBackground(activity.color)">
-                    <i [class]="activity.icon"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-title">{{ activity.title }}</div>
-                    <div class="timeline-description">{{ activity.description }}</div>
-                    <div class="timeline-time">{{ activity.timestamp | date:'short' }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Badges -->
+    <div class="pf-badges">
+      <span class="pf-badge pf-badge-green">
+        <i class="pi pi-star"></i> Nivel {{ currentUser?.level || 1 }}
+      </span>
+      <span class="pf-badge pf-badge-blue">
+        <i class="pi pi-circle-fill"></i> {{ currentUser?.total_points || 0 }} pts
+      </span>
+      <span class="pf-badge pf-badge-amber">
+        <i class="pi pi-calendar"></i> {{ getMembershipDuration() }}
+      </span>
     </div>
   </div>
 
-  <!-- Avatar Upload Dialog -->
-  <p-dialog 
-    header="Cambiar Foto de Perfil" 
-    [(visible)]="showAvatarDialog"
-    [modal]="true"
-    [style]="{width: '400px'}"
-    styleClass="custom-dialog">
-    <div class="avatar-upload">
-      <div class="preview-container">
-        <p-avatar 
-          [image]="previewAvatar || currentUser?.avatar_url"
-          [label]="currentUser?.full_name?.charAt(0) || '?'"
-          size="xlarge"
-          shape="circle"
-          styleClass="preview-avatar">
-        </p-avatar>
+  <!-- STATS STRIP -->
+  <div class="pf-stats">
+    <div class="pf-stat">
+      <span class="pf-stat-val">{{ userStats.totalGames }}</span>
+      <span class="pf-stat-lbl">Partidas</span>
+    </div>
+    <div class="pf-stat pf-stat-sep">
+      <span class="pf-stat-val">{{ userStats.avgScore }}%</span>
+      <span class="pf-stat-lbl">Promedio</span>
+    </div>
+    <div class="pf-stat pf-stat-sep">
+      <span class="pf-stat-val">{{ userStats.streakDays }}</span>
+      <span class="pf-stat-lbl">Racha</span>
+    </div>
+    <div class="pf-stat pf-stat-sep" *ngIf="userRank > 0">
+      <span class="pf-stat-val">#{{ userRank }}</span>
+      <span class="pf-stat-lbl">Ranking</span>
+    </div>
+  </div>
+
+  <!-- LEVEL PROGRESS -->
+  <div class="pf-level-card">
+    <div class="pf-level-head">
+      <span class="pf-level-lbl">Progreso al Nivel {{ (currentUser?.level || 1) + 1 }}</span>
+      <span class="pf-level-pct">{{ levelProgress | number:'1.0-0' }}%</span>
+    </div>
+    <div class="pf-level-track">
+      <div class="pf-level-fill" [style.width.%]="levelProgress"></div>
+    </div>
+    <div class="pf-level-hint">{{ pointsToNextLevel }} puntos restantes</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="pf-tabs">
+    <button class="pf-tab" [class.pf-tab-active]="activeTab === 'info'" (click)="setActiveTab('info')">
+      <i class="pi pi-user"></i> Información
+    </button>
+    <button class="pf-tab" [class.pf-tab-active]="activeTab === 'security'" (click)="setActiveTab('security')">
+      <i class="pi pi-shield"></i> Seguridad
+    </button>
+    <button class="pf-tab" [class.pf-tab-active]="activeTab === 'stats'" (click)="setActiveTab('stats')">
+      <i class="pi pi-chart-bar"></i> Estadísticas
+    </button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="pf-content">
+
+    <!-- ── INFORMACIÓN ── -->
+    <div *ngIf="activeTab === 'info'">
+
+      <!-- Personal info form -->
+      <div class="pf-card">
+        <div class="pf-card-title"><i class="pi pi-user"></i> Información Personal</div>
+        <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+          <div class="pf-field">
+            <label class="pf-label">Nombre Completo *</label>
+            <input class="pf-input" type="text" formControlName="full_name"
+                   placeholder="Tu nombre completo"
+                   [class.pf-input-err]="isFieldInvalid('full_name')" />
+            <small *ngIf="isFieldInvalid('full_name')" class="pf-err">El nombre es requerido</small>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Nombre de Usuario *</label>
+            <input class="pf-input" type="text" formControlName="username"
+                   placeholder="Tu usuario"
+                   [class.pf-input-err]="isFieldInvalid('username')" />
+            <small *ngIf="isFieldInvalid('username')" class="pf-err">El usuario es requerido</small>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Correo Electrónico *</label>
+            <input class="pf-input" type="email" formControlName="email"
+                   placeholder="tu@email.com"
+                   [class.pf-input-err]="isFieldInvalid('email')" />
+            <small *ngIf="isFieldInvalid('email')" class="pf-err">
+              <span *ngIf="profileForm.get('email')?.errors?.['required']">El correo es requerido</span>
+              <span *ngIf="profileForm.get('email')?.errors?.['email']">Formato inválido</span>
+            </small>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Biografía</label>
+            <textarea class="pf-input pf-textarea" formControlName="bio"
+                      placeholder="Cuéntanos sobre ti y tu interés por el medio ambiente..."></textarea>
+          </div>
+          <div class="pf-form-actions">
+            <button type="button" class="pf-btn-ghost" (click)="resetForm()">Cancelar</button>
+            <button type="submit" class="pf-btn-primary"
+                    [disabled]="profileForm.invalid || !profileForm.dirty || updating">
+              <i class="pi pi-save"></i>
+              {{ updating ? 'Guardando...' : 'Guardar Cambios' }}
+            </button>
+          </div>
+        </form>
       </div>
-      
-      <p-fileUpload 
-        mode="basic" 
-        [auto]="false"
-        accept="image/*"
-        [maxFileSize]="1000000"
-        chooseLabel="Seleccionar Imagen"
-        (onSelect)="onAvatarSelect($event)"
-        styleClass="w-full custom-file-upload">
-      </p-fileUpload>
-      
-      <div class="upload-info">
-        Tamaño máximo: 1MB. Formatos: JPG, PNG, GIF
+
+      <!-- Account info -->
+      <div class="pf-card" style="margin-top:0.875rem">
+        <div class="pf-card-title"><i class="pi pi-id-card"></i> Información de Cuenta</div>
+        <div class="pf-info-row">
+          <span class="pf-info-lbl">Código de Admin</span>
+          <span class="pf-info-val pf-mono">{{ currentUser?.admin_code }}</span>
+        </div>
+        <div class="pf-info-row">
+          <span class="pf-info-lbl">Miembro desde</span>
+          <span class="pf-info-val">{{ currentUser?.created_at | date:'mediumDate' }}</span>
+        </div>
+        <div class="pf-info-row">
+          <span class="pf-info-lbl">Última actividad</span>
+          <span class="pf-info-val">{{ getLastLoginInfo() }}</span>
+        </div>
+        <div class="pf-info-row">
+          <span class="pf-info-lbl">Estado</span>
+          <span class="pf-info-val pf-status" [class.pf-status-ok]="currentUser?.is_active" [class.pf-status-err]="!currentUser?.is_active">
+            {{ currentUser?.is_active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Preferences -->
+      <div class="pf-card" style="margin-top:0.875rem">
+        <div class="pf-card-title"><i class="pi pi-bell"></i> Preferencias</div>
+        <form [formGroup]="preferencesForm">
+          <div class="pf-pref-row">
+            <div>
+              <div class="pf-pref-title">Notificaciones por correo</div>
+              <div class="pf-pref-desc">Recibe alertas de actividad</div>
+            </div>
+            <p-checkbox formControlName="emailNotifications" [binary]="true"></p-checkbox>
+          </div>
+          <div class="pf-pref-row">
+            <div>
+              <div class="pf-pref-title">Resumen semanal</div>
+              <div class="pf-pref-desc">Progreso de la semana cada lunes</div>
+            </div>
+            <p-checkbox formControlName="weeklyDigest" [binary]="true"></p-checkbox>
+          </div>
+          <div class="pf-pref-row">
+            <div>
+              <div class="pf-pref-title">Alertas de logros</div>
+              <div class="pf-pref-desc">Notificación al desbloquear logros</div>
+            </div>
+            <p-checkbox formControlName="achievementAlerts" [binary]="true"></p-checkbox>
+          </div>
+          <button type="button" class="pf-btn-primary pf-btn-full" style="margin-top:0.875rem"
+                  (click)="updatePreferences()">Actualizar Preferencias</button>
+        </form>
       </div>
     </div>
 
-    <ng-template pTemplate="footer">
-      <div class="dialog-footer">
-        <button class="btn btn-secondary" (click)="closeAvatarDialog()">
-          Cancelar
+    <!-- ── SEGURIDAD ── -->
+    <div *ngIf="activeTab === 'security'">
+
+      <div class="pf-card">
+        <div class="pf-card-title"><i class="pi pi-key"></i> Cambiar Contraseña</div>
+        <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+          <div class="pf-field">
+            <label class="pf-label">Contraseña Actual *</label>
+            <p-password formControlName="currentPassword" [toggleMask]="true" [feedback]="false"
+              placeholder="Contraseña actual" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Nueva Contraseña *</label>
+            <p-password formControlName="newPassword" [toggleMask]="true" [feedback]="true"
+              placeholder="Nueva contraseña" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+          </div>
+          <div class="pf-field">
+            <label class="pf-label">Confirmar Contraseña *</label>
+            <p-password formControlName="confirmPassword" [toggleMask]="true" [feedback]="false"
+              placeholder="Confirmar contraseña" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+            <small *ngIf="passwordForm.get('confirmPassword')?.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched"
+                   class="pf-err">Las contraseñas no coinciden</small>
+          </div>
+          <button type="submit" class="pf-btn-primary pf-btn-full" [disabled]="passwordForm.invalid || changingPassword">
+            <i class="pi pi-key"></i>
+            {{ changingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
+          </button>
+        </form>
+      </div>
+
+      <div class="pf-card" style="margin-top:0.875rem">
+        <div class="pf-card-title"><i class="pi pi-shield"></i> Estado de Seguridad</div>
+        <div class="pf-sec-row">
+          <div class="pf-sec-icon" style="background:#f0fdf4;color:#10b981">
+            <i class="pi pi-check-circle"></i>
+          </div>
+          <div>
+            <div class="pf-sec-title">Cuenta Verificada</div>
+            <div class="pf-sec-desc">Tu cuenta ha sido verificada correctamente</div>
+          </div>
+        </div>
+        <div class="pf-sec-row">
+          <div class="pf-sec-icon" style="background:#eff6ff;color:#3b82f6">
+            <i class="pi pi-clock"></i>
+          </div>
+          <div>
+            <div class="pf-sec-title">Último Acceso</div>
+            <div class="pf-sec-desc">{{ getLastLoginInfo() }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="pf-card pf-card-danger" style="margin-top:0.875rem">
+        <div class="pf-danger-head">
+          <i class="pi pi-exclamation-triangle"></i>
+          <div>
+            <div class="pf-danger-title">Zona de Peligro</div>
+            <div class="pf-danger-desc">Esta acción no se puede deshacer</div>
+          </div>
+        </div>
+        <button class="pf-btn-danger" (click)="confirmDeleteAccount()">
+          <i class="pi pi-trash"></i> Eliminar Mi Cuenta
         </button>
-        <button class="btn btn-primary" 
-                (click)="uploadAvatar()" 
+      </div>
+    </div>
+
+    <!-- ── ESTADÍSTICAS ── -->
+    <div *ngIf="activeTab === 'stats'">
+
+      <!-- Stats grid -->
+      <div class="pf-stats-grid">
+        <div class="pf-stat-box">
+          <span class="pf-stat-box-val" style="color:#10b981">{{ userStats.avgScore }}%</span>
+          <span class="pf-stat-box-lbl">Promedio</span>
+        </div>
+        <div class="pf-stat-box">
+          <span class="pf-stat-box-val" style="color:#3b82f6">{{ userStats.totalGames }}</span>
+          <span class="pf-stat-box-lbl">Partidas</span>
+        </div>
+        <div class="pf-stat-box">
+          <span class="pf-stat-box-val" style="color:#f59e0b">{{ userStats.hoursPlayed }}h</span>
+          <span class="pf-stat-box-lbl">Jugadas</span>
+        </div>
+        <div class="pf-stat-box">
+          <span class="pf-stat-box-val" style="color:#8b5cf6">+{{ userStats.improvementRate }}%</span>
+          <span class="pf-stat-box-lbl">Mejora</span>
+        </div>
+      </div>
+
+      <!-- Activity chart -->
+      <div class="pf-card" style="margin-top:0.875rem">
+        <div class="pf-card-title"><i class="pi pi-chart-line"></i> Actividad (últimas 4 semanas)</div>
+        <p-chart type="line" [data]="activityChart" [options]="chartOptions" height="220"></p-chart>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="pf-card" style="margin-top:0.875rem">
+        <div class="pf-card-title"><i class="pi pi-clock"></i> Actividad Reciente</div>
+        <div class="pf-activity-list">
+          <div *ngFor="let a of recentActivity" class="pf-activity-row">
+            <div class="pf-activity-icon" [style.background]="getTimelineIconBackground(a.color)">
+              <i [class]="a.icon"></i>
+            </div>
+            <div class="pf-activity-body">
+              <div class="pf-activity-title">{{ a.title }}</div>
+              <div class="pf-activity-desc">{{ a.description }}</div>
+              <div class="pf-activity-time">{{ a.timestamp | date:'dd MMM · HH:mm' }}</div>
+            </div>
+          </div>
+          <div class="pf-empty" *ngIf="recentActivity.length === 0">
+            <i class="pi pi-clock"></i><p>Sin actividad reciente</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AVATAR DIALOG -->
+  <p-dialog header="Cambiar Foto de Perfil" [(visible)]="showAvatarDialog"
+            [modal]="true" [style]="{width:'340px'}">
+    <div class="pf-av-dialog">
+      <div class="pf-av-preview">
+        <img *ngIf="previewAvatar || currentUser?.avatar_url"
+             [src]="previewAvatar || currentUser?.avatar_url" alt="preview" />
+        <span *ngIf="!previewAvatar && !currentUser?.avatar_url" class="pf-av-preview-init">
+          {{ currentUser?.full_name?.charAt(0) || '?' }}
+        </span>
+      </div>
+      <p-fileUpload mode="basic" [auto]="false" accept="image/*" [maxFileSize]="1000000"
+        chooseLabel="Seleccionar Imagen" (onSelect)="onAvatarSelect($event)" styleClass="pf-file-btn">
+      </p-fileUpload>
+      <p class="pf-av-hint">Máx. 1MB · JPG, PNG, GIF</p>
+    </div>
+    <ng-template pTemplate="footer">
+      <div class="pf-dialog-foot">
+        <button class="pf-btn-ghost" (click)="closeAvatarDialog()">Cancelar</button>
+        <button class="pf-btn-primary" (click)="uploadAvatar()"
                 [disabled]="!selectedAvatarFile || uploadingAvatar">
-          <span *ngIf="!uploadingAvatar">Guardar</span>
-          <span *ngIf="uploadingAvatar">Subiendo...</span>
+          {{ uploadingAvatar ? 'Subiendo...' : 'Guardar' }}
         </button>
       </div>
     </ng-template>
   </p-dialog>
 
-  <!-- Confirmation Dialog -->
-  <p-confirmDialog styleClass="custom-confirm-dialog"></p-confirmDialog>
-  
-  <!-- Toast -->
+  <p-confirmDialog></p-confirmDialog>
   <p-toast></p-toast>
 </div>

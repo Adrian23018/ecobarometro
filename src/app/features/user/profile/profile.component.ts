@@ -102,7 +102,7 @@ interface BackgroundParticle {
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.scss']
+  styleUrls: ['./profile.component.css']
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
