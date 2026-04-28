@@ -1,0 +1,432 @@
+/* ============================================
+   PAGE
+   ============================================ */
+.profile-page {
+  padding: 1.5rem;
+  padding-bottom: 5rem;
+  min-height: 100vh;
+  background: #f1f5f9;
+}
+
+/* ============================================
+   TOOLBAR
+   ============================================ */
+::ng-deep .profile-toolbar.p-toolbar {
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1a7a4a 0%, #22c55e 100%);
+  border: none;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.25);
+}
+
+.toolbar-title {
+  margin: 0;
+  color: white;
+  font-size: 1.125rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+::ng-deep .back-btn.p-button {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  color: white !important;
+  margin-right: 0.75rem;
+  transition: all 0.2s !important;
+}
+
+::ng-deep .back-btn.p-button:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ============================================
+   GRID
+   ============================================ */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* ============================================
+   AVATAR CARD (left)
+   ============================================ */
+.avatar-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e8eef4;
+  padding: 2rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.625rem;
+}
+
+.avatar-circle {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a7a4a 0%, #22c55e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35);
+  margin-bottom: 0.5rem;
+}
+
+.avatar-letter {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: white;
+  line-height: 1;
+}
+
+.admin-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.admin-email {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  padding: 0.3rem 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.role-badge i { font-size: 0.7rem; }
+
+/* Info pills */
+.info-pills {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.info-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.625rem 0.875rem;
+  text-align: left;
+}
+
+.info-pill > i {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.info-pill.is-active > i { color: #22c55e; }
+
+.info-pill div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.pill-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pill-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Admin code */
+.code-section {
+  width: 100%;
+  margin-top: 0.75rem;
+  text-align: left;
+}
+
+.code-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.code-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 0.625rem 0.875rem;
+}
+
+.code-value {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #166534;
+  letter-spacing: 0.1em;
+  font-family: monospace;
+}
+
+.copy-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #16a34a;
+  font-size: 0.875rem;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.copy-btn:hover { background: #dcfce7; }
+.copy-btn.copied { color: #22c55e; }
+
+.code-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* ============================================
+   RIGHT COLUMN
+   ============================================ */
+.profile-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ============================================
+   SECTION CARDS
+   ============================================ */
+.section-card {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e8eef4;
+  padding: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.section-icon.green {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.section-icon.orange {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.section-title {
+  margin: 0 0 0.125rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.section-sub {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+/* ============================================
+   FORM
+   ============================================ */
+.profile-form { width: 100%; }
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.field-label i { color: #22c55e; font-size: 0.8rem; }
+
+.field-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  background: white;
+  color: #1e293b;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.field-readonly {
+  background: #f8fafc;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: #ef4444;
+}
+
+.field-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+/* Password component width fix */
+::ng-deep .pass-input {
+  width: 100% !important;
+}
+
+::ng-deep .pass-input .p-inputtext {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 10px !important;
+  font-size: 0.9375rem !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+::ng-deep .pass-input .p-inputtext:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15) !important;
+  outline: none !important;
+}
+
+/* ============================================
+   SAVE BUTTONS
+   ============================================ */
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  color: white;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.save-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.save-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.save-btn-orange {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+}
+
+.save-btn-orange:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-card {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-page {
+    padding: 0.875rem;
+  }
+}

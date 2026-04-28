@@ -1,1 +1,195 @@
-<p>profile works!</p>
+<div class="profile-page">
+
+  <!-- Toolbar -->
+  <p-toolbar styleClass="mb-4 profile-toolbar">
+    <div class="p-toolbar-group-start">
+      <p-button
+        [routerLink]="['/admin/dashboard']"
+        severity="secondary"
+        [outlined]="true"
+        styleClass="back-btn"
+      >
+        <i class="pi pi-arrow-left"></i>
+      </p-button>
+      <h2 class="toolbar-title"><i class="pi pi-user"></i> Mi Perfil</h2>
+    </div>
+  </p-toolbar>
+
+  <div class="profile-grid">
+
+    <!-- LEFT: Avatar card -->
+    <div class="profile-left">
+      <div class="avatar-card">
+        <div class="avatar-circle">
+          <span class="avatar-letter">{{ avatarLabel }}</span>
+        </div>
+        <h3 class="admin-name">{{ admin?.name || '—' }}</h3>
+        <p class="admin-email">{{ admin?.email || '—' }}</p>
+        <span class="role-badge">
+          <i class="pi pi-shield"></i> Administrador
+        </span>
+
+        <div class="info-pills">
+          <div class="info-pill">
+            <i class="pi pi-calendar"></i>
+            <div>
+              <span class="pill-label">Miembro desde</span>
+              <span class="pill-value">{{ memberSince }}</span>
+            </div>
+          </div>
+          <div class="info-pill" [class.is-active]="admin?.is_active">
+            <i class="pi pi-circle-fill"></i>
+            <div>
+              <span class="pill-label">Estado</span>
+              <span class="pill-value">{{ admin?.is_active ? 'Activo' : 'Inactivo' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Code -->
+        <div class="code-section">
+          <span class="code-label">Código de acceso</span>
+          <div class="code-box">
+            <span class="code-value">{{ admin?.admin_code }}</span>
+            <button class="copy-btn" (click)="copyCode()" [class.copied]="codeCopied">
+              <i class="pi" [class.pi-copy]="!codeCopied" [class.pi-check]="codeCopied"></i>
+            </button>
+          </div>
+          <p class="code-hint">Comparte este código con tus usuarios para que puedan registrarse.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Forms -->
+    <div class="profile-right">
+
+      <!-- Info form -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon green"><i class="pi pi-user-edit"></i></div>
+          <div>
+            <h4 class="section-title">Información personal</h4>
+            <p class="section-sub">Actualiza tu nombre y empresa</p>
+          </div>
+        </div>
+
+        <form [formGroup]="infoForm" class="profile-form">
+          <div class="field-group">
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-user"></i> Nombre completo *</label>
+              <input
+                pInputText
+                formControlName="name"
+                class="field-input"
+                placeholder="Tu nombre"
+              />
+              <small class="field-error"
+                *ngIf="infoForm.get('name')?.errors?.['required'] && infoForm.get('name')?.touched">
+                El nombre es requerido
+              </small>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-building"></i> Empresa / Organización</label>
+              <input
+                pInputText
+                formControlName="company"
+                class="field-input"
+                placeholder="Tu empresa"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-envelope"></i> Correo electrónico</label>
+              <input
+                pInputText
+                [value]="admin?.email || ''"
+                class="field-input field-readonly"
+                readonly
+              />
+              <small class="field-hint">El correo no se puede modificar</small>
+            </div>
+          </div>
+
+          <button
+            class="save-btn"
+            type="button"
+            (click)="saveInfo()"
+            [disabled]="infoForm.invalid || savingInfo"
+          >
+            <i class="pi" [class.pi-check]="!savingInfo" [class.pi-spin]="savingInfo" [class.pi-spinner]="savingInfo"></i>
+            {{ savingInfo ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Password form -->
+      <div class="section-card">
+        <div class="section-header">
+          <div class="section-icon orange"><i class="pi pi-lock"></i></div>
+          <div>
+            <h4 class="section-title">Cambiar contraseña</h4>
+            <p class="section-sub">Usa una contraseña segura de al menos 6 caracteres</p>
+          </div>
+        </div>
+
+        <form [formGroup]="passwordForm" class="profile-form">
+          <div class="field-group">
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-lock"></i> Contraseña actual</label>
+              <p-password
+                formControlName="currentPassword"
+                [feedback]="false"
+                [toggleMask]="true"
+                styleClass="pass-input"
+                placeholder="Tu contraseña actual"
+              />
+            </div>
+
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-lock-open"></i> Nueva contraseña</label>
+              <p-password
+                formControlName="newPassword"
+                [toggleMask]="true"
+                styleClass="pass-input"
+                placeholder="Mínimo 6 caracteres"
+              />
+              <small class="field-error"
+                *ngIf="passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.touched">
+                Mínimo 6 caracteres
+              </small>
+            </div>
+
+            <div class="form-field">
+              <label class="field-label"><i class="pi pi-lock-open"></i> Confirmar contraseña</label>
+              <p-password
+                formControlName="confirmPassword"
+                [feedback]="false"
+                [toggleMask]="true"
+                styleClass="pass-input"
+                placeholder="Repite la nueva contraseña"
+              />
+              <small class="field-error"
+                *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched">
+                Las contraseñas no coinciden
+              </small>
+            </div>
+          </div>
+
+          <button
+            class="save-btn save-btn-orange"
+            type="button"
+            (click)="changePassword()"
+            [disabled]="passwordForm.invalid || savingPassword"
+          >
+            <i class="pi" [class.pi-check]="!savingPassword" [class.pi-spin]="savingPassword" [class.pi-spinner]="savingPassword"></i>
+            {{ savingPassword ? 'Actualizando...' : 'Cambiar contraseña' }}
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p-toast />
