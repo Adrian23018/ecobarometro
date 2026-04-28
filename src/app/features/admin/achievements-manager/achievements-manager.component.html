@@ -1,151 +1,108 @@
 <div class="am-page">
-  <!-- ── HEADER ── -->
-  <div class="am-header">
-    <div class="am-header-left">
-      <button class="am-back-btn" (click)="goBack()"><i class="pi pi-arrow-left"></i></button>
+
+  <!-- ── TOOLBAR ── -->
+  <div class="am-toolbar">
+    <div class="am-toolbar-left">
+      <button class="am-back-btn" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
       <div>
         <h1 class="am-title"><i class="pi pi-trophy"></i> Gestión de Logros</h1>
-        <p class="am-subtitle">Crea y administra logros para motivar a tus usuarios</p>
       </div>
     </div>
-    <div class="am-header-actions">
-      <button class="am-btn am-btn-primary" (click)="openDialog()">
+    <div class="am-toolbar-right">
+      <button class="am-btn-filters" (click)="showFilters = true" [class.am-btn-filters-active]="hasActiveFilters">
+        <i class="pi pi-filter"></i>
+        <span>Filtros</span>
+        <span class="am-filter-badge" *ngIf="hasActiveFilters">•</span>
+      </button>
+      <button class="am-btn-new" (click)="openDialog()">
         <i class="pi pi-plus"></i>
         <span>Nuevo Logro</span>
       </button>
     </div>
   </div>
 
-  <!-- ── FILTERS ── -->
+  <!-- ── SEARCH BAR ── -->
   <div class="am-filters">
-    <div class="am-filter-item">
-      <label class="am-filter-label">Búsqueda</label>
+    <div class="am-filter-search">
+      <i class="pi pi-search am-filter-icon"></i>
       <input
         type="text"
         class="am-input"
         [(ngModel)]="globalFilter"
         (input)="applyFilters()"
-        placeholder="Buscar logros..."
+        placeholder="Buscar logros por nombre o descripción..."
       />
     </div>
-
-    <div class="am-filter-item">
-      <label class="am-filter-label">Categoría</label>
-      <p-dropdown
-        [options]="categoryOptions"
-        [(ngModel)]="categoryFilter"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="applyFilters()"
-        placeholder="Todos"
-        [showClear]="true"
-        styleClass="am-dropdown"
-      />
-    </div>
-
-    <div class="am-filter-item">
-      <label class="am-filter-label">Tipo</label>
-      <p-dropdown
-        [options]="typeOptions"
-        [(ngModel)]="typeFilter"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="applyFilters()"
-        placeholder="Todos"
-        [showClear]="true"
-        styleClass="am-dropdown"
-      />
-    </div>
-
-    <div class="am-filter-item">
-      <label class="am-filter-label">Estado</label>
-      <p-dropdown
-        [options]="statusOptions"
-        [(ngModel)]="statusFilter"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="applyFilters()"
-        placeholder="Todos"
-        [showClear]="true"
-        styleClass="am-dropdown"
-      />
-    </div>
+    <button class="am-clear-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">
+      <i class="pi pi-times"></i> Limpiar filtros
+    </button>
   </div>
 
-  <!-- ── ACHIEVEMENTS GRID ── -->
-  <div class="am-grid" *ngIf="!loading && filteredAchievements.length > 0">
-    <div *ngFor="let achievement of filteredAchievements" class="am-achievement-card">
-      <!-- Header -->
-      <div class="am-card-header">
-        <div class="am-icon-container" [ngClass]="'am-icon-' + achievement.category">
-          <i [class]="getCategoryIcon(achievement.category) + ' am-icon-emoji'"></i>
-        </div>
-        <div class="am-card-title-section">
-          <h3 class="am-card-title">{{ achievement.title }}</h3>
-          <p class="am-card-description">{{ achievement.description }}</p>
-        </div>
+  <!-- ── SUMMARY BAR ── -->
+  <div class="am-summary" *ngIf="!loading && filteredAchievements.length > 0">
+    <span class="am-summary-count">
+      <strong>{{ filteredAchievements.length }}</strong>
+      {{ filteredAchievements.length === 1 ? 'logro' : 'logros' }}
+    </span>
+    <span class="am-summary-active">{{ activeCount }} activos</span>
+  </div>
+
+  <!-- ── ACHIEVEMENTS LIST ── -->
+  <div class="am-list" *ngIf="!loading && filteredAchievements.length > 0">
+    <div *ngFor="let achievement of filteredAchievements" class="am-item">
+
+      <!-- Accent bar -->
+      <div class="am-item-accent" [ngClass]="'am-accent-' + getTypeClass(achievement.achievement_type)"></div>
+
+      <!-- Icon -->
+      <div class="am-item-icon" [ngClass]="'am-icon-bg-' + getTypeClass(achievement.achievement_type)">
+        <i [class]="achievement.icon"></i>
       </div>
 
-      <!-- Info -->
-      <div class="am-card-info">
-        <div class="am-info-row">
-          <span class="am-info-label">Categoría</span>
-          <span class="am-tag" [ngClass]="'am-tag-' + achievement.category">
-            {{ getCategoryLabel(achievement.category) }}
-          </span>
-        </div>
-
-        <div class="am-info-row">
-          <span class="am-info-label">Tipo</span>
-          <span class="am-tag am-tag-secondary">
-            {{ getTypeLabel(achievement.type) }}
-          </span>
-        </div>
-
-        <div class="am-info-row">
-          <span class="am-info-label">Requisitos</span>
-          <span class="am-info-value">
-            {{ achievement.requirements.condition | titlecase }} {{ achievement.requirements.target_value }}
-          </span>
-        </div>
-
-        <div class="am-info-row">
-          <span class="am-info-label">Métrica</span>
-          <span class="am-info-value">{{ achievement.requirements.metric }}</span>
-        </div>
-
-        <div class="am-info-row">
-          <span class="am-info-label">Recompensa</span>
-          <div class="am-reward">
-            <span class="am-reward-icon"><i class="pi pi-star"></i></span>
-            <span class="am-reward-value">{{ achievement.reward_points }}</span>
+      <!-- Content -->
+      <div class="am-item-content">
+        <div class="am-item-header">
+          <span class="am-item-title">{{ achievement.name }}</span>
+          <div class="am-item-badges">
+            <span class="am-badge" [ngClass]="'am-badge-' + getTypeClass(achievement.achievement_type)">
+              {{ getTypeLabel(achievement.achievement_type) }}
+            </span>
           </div>
         </div>
-      </div>
-
-      <!-- Status & Actions -->
-      <div class="am-card-footer">
-        <div class="am-status">
-          <span class="am-status-badge" [ngClass]="achievement.is_active ? 'am-status-active' : 'am-status-inactive'">
-            {{ achievement.is_active ? 'Activo' : 'Inactivo' }}
+        <p class="am-item-desc">{{ achievement.description }}</p>
+        <div class="am-item-meta">
+          <span class="am-meta-pill">
+            <i class="pi pi-flag"></i>
+            Meta: {{ achievement.points_required }}
           </span>
-          <span class="am-status-badge am-status-hidden" *ngIf="achievement.is_hidden">
-            Oculto
+          <span class="am-meta-pill am-meta-color" *ngIf="achievement.badge_color">
+            <span class="am-color-dot" [style.background]="achievement.badge_color"></span>
+            Insignia
           </span>
         </div>
+      </div>
 
-        <div class="am-actions">
-          <button class="am-action-btn am-action-edit" (click)="openDialog(achievement)" title="Editar">
+      <!-- Status + Actions -->
+      <div class="am-item-right">
+        <div class="am-item-statuses">
+          <span class="am-status"
+            [class.am-status-on]="achievement.is_active"
+            [class.am-status-off]="!achievement.is_active">
+            {{ achievement.is_active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="am-item-actions">
+          <button class="am-act-btn am-act-edit" (click)="openDialog(achievement)" title="Editar">
             <i class="pi pi-pencil"></i>
           </button>
-          <button
-            class="am-action-btn am-action-toggle"
+          <button class="am-act-btn am-act-toggle"
             (click)="toggleStatus(achievement)"
-            [title]="achievement.is_active ? 'Desactivar' : 'Activar'"
-          >
-            <i [class]="achievement.is_active ? 'pi pi-eye' : 'pi pi-lock'"></i>
+            [title]="achievement.is_active ? 'Desactivar' : 'Activar'">
+            <i [class]="achievement.is_active ? 'pi pi-eye' : 'pi pi-eye-slash'"></i>
           </button>
-          <button class="am-action-btn am-action-delete" (click)="deleteAchievement(achievement)" title="Eliminar">
+          <button class="am-act-btn am-act-delete" (click)="deleteAchievement(achievement)" title="Eliminar">
             <i class="pi pi-trash"></i>
           </button>
         </div>
@@ -155,12 +112,11 @@
 
   <!-- ── EMPTY STATE ── -->
   <div class="am-empty" *ngIf="!loading && filteredAchievements.length === 0">
-    <div class="am-empty-icon"><i class="pi pi-trophy"></i></div>
+    <i class="pi pi-trophy am-empty-icon"></i>
     <h3 class="am-empty-title">No hay logros</h3>
-    <p class="am-empty-text">Crea tu primer logro para motivar a los usuarios</p>
-    <button class="am-btn am-btn-primary" (click)="openDialog()">
-      <i class="pi pi-plus"></i>
-      <span>Crear Logro</span>
+    <p class="am-empty-sub">Crea logros para motivar y recompensar a tus usuarios</p>
+    <button class="am-btn-new" (click)="openDialog()">
+      <i class="pi pi-plus"></i> Crear Primer Logro
     </button>
   </div>
 
@@ -171,204 +127,240 @@
   </div>
 </div>
 
-<!-- ── DIALOG: CREATE/EDIT ACHIEVEMENT ── -->
+<!-- ══════════════════════════════
+     SIDEBAR: FILTROS (derecha)
+     ══════════════════════════════ -->
+<p-sidebar
+  [(visible)]="showFilters"
+  position="right"
+  styleClass="am-filter-sidebar"
+  [style]="{width: '300px'}"
+>
+  <ng-template pTemplate="header">
+    <div class="am-sidebar-header">
+      <i class="pi pi-filter"></i>
+      <span>Filtrar Logros</span>
+    </div>
+  </ng-template>
+
+  <div class="am-sidebar-body">
+    <div class="am-sidebar-field">
+      <label class="am-sidebar-label">Tipo de Logro</label>
+      <p-dropdown
+        [options]="typeOptions"
+        [(ngModel)]="typeFilter"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Todos los tipos"
+        [showClear]="true"
+        styleClass="am-sidebar-dropdown"
+        appendTo="body"
+      />
+    </div>
+
+    <div class="am-sidebar-field">
+      <label class="am-sidebar-label">Estado</label>
+      <p-dropdown
+        [options]="statusOptions"
+        [(ngModel)]="statusFilter"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Todos los estados"
+        [showClear]="true"
+        styleClass="am-sidebar-dropdown"
+        appendTo="body"
+      />
+    </div>
+  </div>
+
+  <div class="am-sidebar-footer">
+    <button class="am-sidebar-apply" (click)="applyFilters(); showFilters = false">
+      <i class="pi pi-check"></i> Aplicar Filtros
+    </button>
+    <button class="am-sidebar-clear" (click)="clearFilters(); showFilters = false">
+      <i class="pi pi-times"></i> Limpiar
+    </button>
+  </div>
+</p-sidebar>
+
+<!-- ══════════════════════════════
+     DIALOG: CREAR / EDITAR LOGRO
+     ══════════════════════════════ -->
 <p-dialog
   [header]="isEditing ? 'Editar Logro' : 'Nuevo Logro'"
   [(visible)]="showDialog"
   [modal]="true"
-  [style]="{width: '600px'}"
+  [style]="{width: '560px'}"
   [closable]="true"
   styleClass="am-dialog"
 >
   <form [formGroup]="achievementForm" (ngSubmit)="onSubmit()">
-    <!-- Basic Information -->
-    <div class="am-form-section">
-      <h4 class="am-form-section-title"><i class="pi pi-file-edit"></i> Información Básica</h4>
 
-      <div class="am-form-field">
-        <label class="am-form-label">Título del Logro *</label>
+    <!-- ── SECCIÓN 1: Info básica ── -->
+    <div class="am-section">
+      <div class="am-section-head">
+        <div class="am-section-dot green"></div>
+        <span>Información Básica</span>
+      </div>
+
+      <!-- Nombre -->
+      <div class="am-field">
+        <label class="am-label">Nombre del Logro <span class="am-req">*</span></label>
         <input
           pInputText
-          formControlName="title"
-          class="am-form-input"
+          formControlName="name"
+          class="am-finput"
           placeholder="Ej: Primer Paso, Experto Eco..."
           [maxlength]="100"
         />
-        <small style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
-          {{ achievementForm.get('title')?.value?.length || 0 }}/100 caracteres
-        </small>
+        <div class="am-counter">{{ achievementForm.get('name')?.value?.length || 0 }}/100</div>
       </div>
 
-      <div class="am-form-field">
-        <label class="am-form-label">Descripción *</label>
+      <!-- Descripción -->
+      <div class="am-field">
+        <label class="am-label">Descripción <span class="am-req">*</span></label>
         <textarea
           pInputTextarea
           formControlName="description"
-          class="am-form-input"
-          rows="3"
-          placeholder="Escribe una descripción motivadora para el logro..."
+          class="am-finput"
+          rows="2"
+          placeholder="Escribe una descripción motivadora..."
           [maxlength]="300"
         ></textarea>
-        <small style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
-          {{ achievementForm.get('description')?.value?.length || 0 }}/300 caracteres
-        </small>
+        <div class="am-counter">{{ achievementForm.get('description')?.value?.length || 0 }}/300</div>
       </div>
 
-      <div class="am-form-row">
-        <div class="am-form-field">
-          <label class="am-form-label"><i class="pi pi-palette"></i> Icono</label>
+      <!-- Icono + Color -->
+      <div class="am-row">
+        <div class="am-field">
+          <label class="am-label">Icono</label>
           <p-dropdown
             formControlName="icon"
             [options]="iconOptions"
             optionLabel="label"
             optionValue="value"
-            styleClass="am-form-input"
-            placeholder="Selecciona un icono"
-          />
+            styleClass="am-fselect"
+            placeholder="Selecciona"
+            appendTo="body"
+          >
+            <ng-template let-opt pTemplate="item">
+              <div class="am-dd-item">
+                <i [class]="opt.value"></i>
+                <span>{{ opt.label }}</span>
+              </div>
+            </ng-template>
+            <ng-template let-opt pTemplate="selectedItem">
+              <div class="am-dd-item" *ngIf="opt">
+                <i [class]="opt.value"></i>
+                <span>{{ opt.label }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
         </div>
 
-        <div class="am-form-field">
-          <label class="am-form-label"><i class="pi pi-folder"></i> Categoría *</label>
-          <p-dropdown
-            formControlName="category"
-            [options]="categoryOptions.slice(1)"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="am-form-input"
-            placeholder="Selecciona categoría"
-          />
-        </div>
-      </div>
-    </div>
-
-    <!-- Requirements -->
-    <div class="am-form-section">
-      <h4 class="am-form-section-title"><i class="pi pi-flag"></i> Requisitos</h4>
-
-      <div class="am-form-row am-form-row-3">
-        <div class="am-form-field">
-          <label class="am-form-label">Tipo *</label>
-          <p-dropdown
-            formControlName="type"
-            [options]="typeOptions.slice(1)"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="am-form-input"
-            placeholder="Tipo de logro"
-          />
-        </div>
-
-        <div class="am-form-field">
-          <label class="am-form-label">Condición *</label>
-          <p-dropdown
-            formControlName="condition"
-            [options]="conditionOptions"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="am-form-input"
-            placeholder="Condición"
-          />
-        </div>
-
-        <div class="am-form-field">
-          <label class="am-form-label">Valor Objetivo *</label>
-          <p-inputNumber
-            formControlName="target_value"
-            [min]="1"
-            [max]="999999"
-            styleClass="am-form-input"
-            placeholder="Ej: 1000"
-          />
-        </div>
-      </div>
-
-      <div class="am-form-field">
-        <label class="am-form-label">Métrica *</label>
-        <input
-          pInputText
-          formControlName="metric"
-          class="am-form-input"
-          placeholder="Ej: total_points, games_completed, level, correct_streak"
-        />
-        <small style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
-          <i class="pi pi-lightbulb"></i> Nombre del campo en la base de datos que se evaluará
-        </small>
-      </div>
-    </div>
-
-    <!-- Reward and Settings -->
-    <div class="am-form-section">
-      <h4 class="am-form-section-title"><i class="pi pi-star"></i> Recompensa y Configuración</h4>
-
-      <div class="am-form-row">
-        <div class="am-form-field">
-          <label class="am-form-label">Puntos de Recompensa *</label>
-          <p-inputNumber
-            formControlName="reward_points"
-            [min]="1"
-            [max]="999999"
-            styleClass="am-form-input"
-            placeholder="Ej: 100"
-          />
-          <small style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; display: block;">
-            <i class="pi pi-lightbulb"></i> Puntos que obtendrá el usuario al desbloquear este logro
-          </small>
-        </div>
-
-        <div class="am-form-field">
-          <label class="am-form-label"><i class="pi pi-cog"></i> Opciones</label>
-          <div class="am-checkboxes">
-            <div class="am-checkbox-item">
-              <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active" />
-              <label for="is_active" class="am-checkbox-label"><i class="pi pi-check"></i> Logro Activo</label>
-            </div>
-            <div class="am-checkbox-item">
-              <p-checkbox formControlName="is_hidden" [binary]="true" inputId="is_hidden" />
-              <label for="is_hidden" class="am-checkbox-label"><i class="pi pi-eye"></i> Logro Oculto (sorpresa)</label>
-            </div>
+        <div class="am-field">
+          <label class="am-label">Color de Insignia</label>
+          <div class="am-color-row">
+            <p-colorPicker formControlName="badge_color" appendTo="body" />
+            <span class="am-color-preview" [style.background]="achievementForm.get('badge_color')?.value">
+              {{ achievementForm.get('badge_color')?.value || '#22c55e' }}
+            </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Templates -->
-    <div class="am-form-section" *ngIf="!isEditing">
-      <h4 class="am-form-section-title"><i class="pi pi-bolt"></i> Plantillas Rápidas</h4>
-      <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 1rem 0;">
-        Haz clic en cualquier plantilla para llenar el formulario automáticamente
-      </p>
+    <!-- ── SECCIÓN 2: Tipo y Meta ── -->
+    <div class="am-section">
+      <div class="am-section-head">
+        <div class="am-section-dot orange"></div>
+        <span>Tipo y Meta</span>
+      </div>
+
+      <div class="am-row">
+        <div class="am-field">
+          <label class="am-label">Tipo de Logro <span class="am-req">*</span></label>
+          <p-dropdown
+            formControlName="achievement_type"
+            [options]="typeOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="am-fselect"
+            placeholder="Selecciona tipo"
+            appendTo="body"
+          />
+        </div>
+
+        <div class="am-field">
+          <label class="am-label">Valor Requerido <span class="am-req">*</span></label>
+          <p-inputNumber
+            formControlName="points_required"
+            [min]="1"
+            [max]="999999"
+            styleClass="am-fselect"
+            placeholder="Ej: 100"
+          />
+          <div class="am-hint">
+            <i class="pi pi-info-circle"></i>
+            Puntos, juegos, días o categorías
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECCIÓN 3: Visibilidad ── -->
+    <div class="am-section">
+      <div class="am-section-head">
+        <div class="am-section-dot yellow"></div>
+        <span>Visibilidad</span>
+      </div>
+
+      <div class="am-checks">
+        <label class="am-check-row">
+          <p-checkbox formControlName="is_active" [binary]="true" inputId="is_active" />
+          <span>Logro activo y visible para los usuarios</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- ── SECCIÓN 4: Plantillas (solo al crear) ── -->
+    <div class="am-section am-section-templates" *ngIf="!isEditing">
+      <div class="am-section-head">
+        <div class="am-section-dot purple"></div>
+        <span>Plantillas Rápidas</span>
+      </div>
+      <p class="am-templates-hint">Haz clic para rellenar el formulario automáticamente</p>
       <div class="am-templates">
         <button
-          *ngFor="let template of achievementTemplates"
+          *ngFor="let t of achievementTemplates"
           type="button"
-          class="am-template-btn"
-          (click)="useTemplate(template)"
+          class="am-tpl-btn"
+          (click)="useTemplate(t)"
         >
-          <i [class]="template.icon"></i> {{ template.title }}
+          <i [class]="t.icon"></i>
+          <span>{{ t.name }}</span>
         </button>
       </div>
     </div>
-  </form>
 
-  <ng-template pTemplate="footer">
-    <div class="am-dialog-footer">
-      <button type="button" class="am-btn am-btn-secondary" (click)="closeDialog()">
-        <i class="pi pi-times"></i>
-        <span>Cancelar</span>
+    <!-- ── FOOTER INLINE ── -->
+    <div class="am-form-footer">
+      <button type="button" class="am-footer-cancel" (click)="closeDialog()">
+        <i class="pi pi-times"></i> Cancelar
       </button>
       <button
         type="button"
-        class="am-btn am-btn-primary"
+        class="am-footer-save"
         (click)="onSubmit()"
-        [disabled]="!achievementForm.valid"
+        [disabled]="!achievementForm.valid || saving"
       >
-        <i [class]="isEditing ? 'pi pi-save' : 'pi pi-check'"></i>
-        <span>{{ isEditing ? 'Actualizar' : 'Crear' }}</span>
+        <i [class]="saving ? 'pi pi-spin pi-spinner' : (isEditing ? 'pi pi-save' : 'pi pi-check')"></i>
+        {{ saving ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Crear Logro') }}
       </button>
     </div>
-  </ng-template>
+
+  </form>
 </p-dialog>
 
-<!-- Toast and Confirmation -->
 <p-toast />
 <p-confirmDialog />

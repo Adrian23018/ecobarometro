@@ -1,51 +1,36 @@
-// src/app/features/admin/achievements-manager/achievements-manager.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 // PrimeNG
 import { DialogModule } from 'primeng/dialog';
+import { SidebarModule } from 'primeng/sidebar';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ColorPickerModule } from 'primeng/colorpicker';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-// Services and Models
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment.development';
 
-interface Achievement {
-  id: any;
+interface AchievementRow {
+  id: string;
   admin_id: string;
-  title: string;
+  name: string;
   description: string;
   icon: string;
-  category: 'points' | 'games' | 'streak' | 'level' | 'time' | 'special';
-  type: 'milestone' | 'streak' | 'collection' | 'challenge';
-  requirements: {
-    target_value: number;
-    condition: 'reach' | 'exceed' | 'maintain' | 'complete';
-    metric: string;
-  };
-  reward_points: number;
+  badge_color: string;
+  achievement_type: 'points' | 'games' | 'streak' | 'category';
+  points_required: number;
   is_active: boolean;
-  is_hidden: boolean;
-  unlock_date?: Date;
   created_at: string;
-  updated_at: string;
-}
-
-interface AchievementTemplate {
-  title: string;
-  description: string;
-  icon: string;
-  category: string;
-  type: string;
-  requirements: any;
-  reward_points: number;
 }
 
 @Component({
@@ -54,130 +39,76 @@ interface AchievementTemplate {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterModule,
+    FormsModule,
     DialogModule,
+    SidebarModule,
     InputTextModule,
     InputTextareaModule,
     InputNumberModule,
     DropdownModule,
     CheckboxModule,
+    ColorPickerModule,
     ToastModule,
     ConfirmDialogModule,
-    FormsModule
   ],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './achievements-manager.component.html',
   styleUrls: ['./achievements-manager.component.css']
 })
 export class AchievementsManagerComponent implements OnInit {
-  achievements: Achievement[] = [];
-  filteredAchievements: Achievement[] = [];
-  selectedAchievements: Achievement[] = [];
-  selectedAchievement: Achievement | null = null;
+  achievements: AchievementRow[] = [];
+  filteredAchievements: AchievementRow[] = [];
+  selectedAchievement: AchievementRow | null = null;
 
-  // Form and Dialog state
   achievementForm!: FormGroup;
-  showDialog = false;
-  isEditing = false;
-  loading = false;
+  showDialog  = false;
+  showFilters = false;
+  isEditing   = false;
+  loading     = false;
+  saving      = false;
 
   // Filters
-  globalFilter = '';
-  categoryFilter: string | null = null;
-  typeFilter: string | null = null;
+  globalFilter  = '';
+  typeFilter:   string | null = null;
   statusFilter: string | null = null;
 
-  // Options
-  categoryOptions = [
-    { label: 'Todos', value: null },
-    { label: 'Puntos', value: 'points', icon: 'pi pi-star' },
-    { label: 'Juegos', value: 'games', icon: 'pi pi-play' },
-    { label: 'Rachas', value: 'streak', icon: 'pi pi-bolt' },
-    { label: 'Nivel', value: 'level', icon: 'pi pi-arrow-up' },
-    { label: 'Tiempo', value: 'time', icon: 'pi pi-clock' },
-    { label: 'Especial', value: 'special', icon: 'pi pi-trophy' }
-  ];
+  private supabase: SupabaseClient;
+  private adminId = '';
 
   typeOptions = [
-    { label: 'Todos', value: null },
-    { label: 'Hito', value: 'milestone' },
-    { label: 'Racha', value: 'streak' },
-    { label: 'Colección', value: 'collection' },
-    { label: 'Desafío', value: 'challenge' }
+    { label: 'Puntos',      value: 'points',   icon: 'pi pi-star' },
+    { label: 'Juegos',      value: 'games',    icon: 'pi pi-play' },
+    { label: 'Racha',       value: 'streak',   icon: 'pi pi-bolt' },
+    { label: 'Categorías',  value: 'category', icon: 'pi pi-folder' },
   ];
 
   statusOptions = [
-    { label: 'Todos', value: null },
-    { label: 'Activos', value: 'active' },
+    { label: 'Activos',   value: 'active' },
     { label: 'Inactivos', value: 'inactive' },
-    { label: 'Ocultos', value: 'hidden' }
-  ];
-
-  conditionOptions = [
-    { label: 'Alcanzar', value: 'reach' },
-    { label: 'Superar', value: 'exceed' },
-    { label: 'Mantener', value: 'maintain' },
-    { label: 'Completar', value: 'complete' }
   ];
 
   iconOptions = [
-    { label: 'Trofeo', value: 'pi pi-trophy' },
+    { label: 'Trofeo',   value: 'pi pi-trophy' },
     { label: 'Estrella', value: 'pi pi-star' },
     { label: 'Objetivo', value: 'pi pi-flag' },
-    { label: 'Rayo', value: 'pi pi-bolt' },
+    { label: 'Rayo',     value: 'pi pi-bolt' },
     { label: 'Diamante', value: 'pi pi-diamond' },
-    { label: 'Medalla', value: 'pi pi-medal' },
-    { label: 'Enviar', value: 'pi pi-send' },
-    { label: 'Corazón', value: 'pi pi-heart' },
-    { label: 'Libro', value: 'pi pi-book' },
-    { label: 'Flash', value: 'pi pi-flash' }
+    { label: 'Medalla',  value: 'pi pi-medal' },
+    { label: 'Corazón',  value: 'pi pi-heart' },
+    { label: 'Libro',    value: 'pi pi-book' },
+    { label: 'Juego',    value: 'pi pi-play' },
+    { label: 'Hoja',     value: 'pi pi-leaf' },
+    { label: 'Globo',    value: 'pi pi-globe' },
+    { label: 'Usuario',  value: 'pi pi-user' },
   ];
 
-  // Achievement templates
-  achievementTemplates: any[] = [
-    {
-      title: 'Primer Paso',
-      description: 'Completa tu primer juego',
-      icon: 'pi pi-play',
-      category: 'games',
-      type: 'milestone',
-      requirements: { target_value: 1, condition: 'reach', metric: 'games_completed' },
-      reward_points: 50
-    },
-    {
-      title: 'Jugador Constante',
-      description: 'Completa 10 juegos',
-      icon: 'pi pi-star',
-      category: 'games',
-      type: 'milestone',
-      requirements: { target_value: 10, condition: 'reach', metric: 'games_completed' },
-      reward_points: 200
-    },
-    {
-      title: 'Experto Eco',
-      description: 'Alcanza 1000 puntos',
-      icon: 'pi pi-trophy',
-      category: 'points',
-      type: 'milestone',
-      requirements: { target_value: 1000, condition: 'reach', metric: 'total_points' },
-      reward_points: 100
-    },
-    {
-      title: 'Racha de Fuego',
-      description: 'Mantén una racha de 5 respuestas correctas',
-      icon: 'pi pi-bolt',
-      category: 'streak',
-      type: 'streak',
-      requirements: { target_value: 5, condition: 'maintain', metric: 'correct_streak' },
-      reward_points: 150
-    },
-    {
-      title: 'Subida de Nivel',
-      description: 'Alcanza el nivel 5',
-      icon: 'pi pi-chart-line',
-      category: 'level',
-      type: 'milestone',
-      requirements: { target_value: 5, condition: 'reach', metric: 'level' },
-      reward_points: 250
-    }
+  achievementTemplates = [
+    { name: 'Primer Paso',       description: 'Completa tu primer juego',    icon: 'pi pi-play',       badge_color: '#3b82f6', achievement_type: 'games',    points_required: 1    },
+    { name: 'Jugador Constante', description: 'Completa 10 juegos',          icon: 'pi pi-star',       badge_color: '#f59e0b', achievement_type: 'games',    points_required: 10   },
+    { name: 'Experto Eco',       description: 'Alcanza 1000 puntos',         icon: 'pi pi-trophy',     badge_color: '#22c55e', achievement_type: 'points',   points_required: 1000 },
+    { name: 'Racha Inicial',     description: 'Mantén una racha de 5 días',  icon: 'pi pi-bolt',       badge_color: '#ef4444', achievement_type: 'streak',   points_required: 5    },
+    { name: 'Maestro Eco',       description: 'Domina 3 categorías',         icon: 'pi pi-chart-line', badge_color: '#8b5cf6', achievement_type: 'category', points_required: 3    },
   ];
 
   constructor(
@@ -186,105 +117,67 @@ export class AchievementsManagerComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {
-    this.initializeForm();
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+    this.initForm();
   }
 
   ngOnInit(): void {
+    const admin = this.authService.getCurrentAdmin();
+    this.adminId = admin?.id || '';
     this.loadAchievements();
   }
 
-  private initializeForm(): void {
+  private initForm(): void {
     this.achievementForm = this.fb.group({
-      title: ['', [Validators.required, Validators.maxLength(100)]],
-      description: ['', [Validators.required, Validators.maxLength(300)]],
-      icon: ['pi pi-trophy', Validators.required],
-      category: ['points', Validators.required],
-      type: ['milestone', Validators.required],
-      target_value: [1, [Validators.required, Validators.min(1)]],
-      condition: ['reach', Validators.required],
-      metric: ['total_points', Validators.required],
-      reward_points: [50, [Validators.required, Validators.min(1)]],
-      is_active: [true],
-      is_hidden: [false]
+      name:             ['', [Validators.required, Validators.maxLength(100)]],
+      description:      ['', [Validators.required, Validators.maxLength(300)]],
+      icon:             ['pi pi-trophy', Validators.required],
+      badge_color:      ['#22c55e'],
+      achievement_type: ['points', Validators.required],
+      points_required:  [100, [Validators.required, Validators.min(1)]],
+      is_active:        [true],
     });
   }
 
-  private loadAchievements(): void {
+  async loadAchievements(): Promise<void> {
+    if (!this.adminId) return;
     this.loading = true;
 
-    // Simular carga de logros
-    setTimeout(() => {
-      this.achievements = [
-        {
-          id: '1',
-          admin_id: 'admin1',
-          title: 'Primer Paso',
-          description: 'Completa tu primer juego',
-          icon: 'pi pi-play',
-          category: 'games',
-          type: 'milestone',
-          requirements: { target_value: 1, condition: 'reach', metric: 'games_completed' },
-          reward_points: 50,
-          is_active: true,
-          is_hidden: false,
-          created_at: '2024-01-01',
-          updated_at: '2024-01-01'
-        },
-        {
-          id: '2',
-          admin_id: 'admin1',
-          title: 'Experto Eco',
-          description: 'Alcanza 1000 puntos',
-          icon: 'pi pi-trophy',
-          category: 'points',
-          type: 'milestone',
-          requirements: { target_value: 1000, condition: 'reach', metric: 'total_points' },
-          reward_points: 100,
-          is_active: true,
-          is_hidden: false,
-          created_at: '2024-01-01',
-          updated_at: '2024-01-01'
-        }
-      ];
+    const { data, error } = await this.supabase
+      .from('achievements')
+      .select('*')
+      .eq('admin_id', this.adminId)
+      .order('created_at', { ascending: false });
 
+    if (error) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron cargar los logros' });
+    } else {
+      this.achievements = data || [];
       this.applyFilters();
-      this.loading = false;
-    }, 1000);
+    }
+    this.loading = false;
   }
 
-  openDialog(achievement?: Achievement): void {
+  openDialog(achievement?: AchievementRow): void {
     this.isEditing = !!achievement;
     this.selectedAchievement = achievement || null;
 
     if (achievement) {
       this.achievementForm.patchValue({
-        title: achievement.title,
-        description: achievement.description,
-        icon: achievement.icon,
-        category: achievement.category,
-        type: achievement.type,
-        target_value: achievement.requirements.target_value,
-        condition: achievement.requirements.condition,
-        metric: achievement.requirements.metric,
-        reward_points: achievement.reward_points,
-        is_active: achievement.is_active,
-        is_hidden: achievement.is_hidden
+        name:             achievement.name,
+        description:      achievement.description,
+        icon:             achievement.icon,
+        badge_color:      achievement.badge_color || '#22c55e',
+        achievement_type: achievement.achievement_type,
+        points_required:  achievement.points_required,
+        is_active:        achievement.is_active,
       });
     } else {
-      this.achievementForm.reset();
-      this.achievementForm.patchValue({
-        icon: 'pi pi-trophy',
-        category: 'points',
-        type: 'milestone',
-        condition: 'reach',
-        metric: 'total_points',
-        target_value: 1,
-        reward_points: 50,
-        is_active: true,
-        is_hidden: false
+      this.achievementForm.reset({
+        icon: 'pi pi-trophy', badge_color: '#22c55e',
+        achievement_type: 'points', points_required: 100, is_active: true
       });
     }
-
     this.showDialog = true;
   }
 
@@ -294,179 +187,133 @@ export class AchievementsManagerComponent implements OnInit {
     this.achievementForm.reset();
   }
 
-  onSubmit(): void {
-    if (!this.achievementForm.valid) return;
+  async onSubmit(): Promise<void> {
+    if (this.achievementForm.invalid) return;
+    this.saving = true;
 
-    const formData = this.achievementForm.value;
-    const achievementData: Partial<Achievement> = {
-      title: formData.title,
-      description: formData.description,
-      icon: formData.icon,
-      category: formData.category,
-      type: formData.type,
-      requirements: {
-        target_value: formData.target_value,
-        condition: formData.condition,
-        metric: formData.metric
-      },
-      reward_points: formData.reward_points,
-      is_active: formData.is_active,
-      is_hidden: formData.is_hidden
+    const v = this.achievementForm.value;
+    const payload = {
+      name:             v.name,
+      description:      v.description,
+      icon:             v.icon,
+      badge_color:      v.badge_color || '#22c55e',
+      achievement_type: v.achievement_type,
+      points_required:  v.points_required,
+      is_active:        v.is_active ?? true,
     };
 
     if (this.isEditing && this.selectedAchievement) {
-      // Update existing achievement
-      const index = this.achievements.findIndex(a => a.id === this.selectedAchievement!.id);
-      if (index !== -1) {
-        this.achievements[index] = { ...this.achievements[index], ...achievementData };
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Logro actualizado correctamente'
-        });
+      const { error } = await this.supabase
+        .from('achievements')
+        .update(payload)
+        .eq('id', this.selectedAchievement.id);
+
+      if (error) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo actualizar el logro' });
+      } else {
+        this.messageService.add({ severity: 'success', summary: '¡Actualizado!', detail: 'Logro actualizado correctamente' });
+        await this.loadAchievements();
+        this.closeDialog();
       }
     } else {
-      // Create new achievement
-      const newAchievement: Achievement = {
-        id: Date.now().toString(),
-        admin_id: this.authService.getCurrentAdmin()?.id || 'admin1',
-        ...achievementData,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      } as Achievement;
+      const { error } = await this.supabase
+        .from('achievements')
+        .insert([{ ...payload, admin_id: this.adminId }]);
 
-      this.achievements.push(newAchievement);
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Logro creado correctamente'
-      });
+      if (error) {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo crear el logro' });
+      } else {
+        this.messageService.add({ severity: 'success', summary: '¡Creado!', detail: 'Logro creado y visible para los usuarios' });
+        await this.loadAchievements();
+        this.closeDialog();
+      }
     }
-
-    this.applyFilters();
-    this.closeDialog();
+    this.saving = false;
   }
 
-  deleteAchievement(achievement: Achievement): void {
+  deleteAchievement(achievement: AchievementRow): void {
     this.confirmationService.confirm({
-      message: `¿Estás seguro de eliminar el logro "${achievement.title}"?`,
-      header: 'Confirmar Eliminación',
-      icon: 'pi pi-exclamation-triangle',
+      message:     `¿Eliminar el logro "${achievement.name}"?`,
+      header:      'Confirmar eliminación',
+      icon:        'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
-      accept: () => {
-        this.achievements = this.achievements.filter(a => a.id !== achievement.id);
-        this.applyFilters();
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Logro eliminado correctamente'
-        });
+      accept: async () => {
+        const { error } = await this.supabase
+          .from('achievements')
+          .delete()
+          .eq('id', achievement.id);
+
+        if (error) {
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar el logro' });
+        } else {
+          this.messageService.add({ severity: 'success', summary: '¡Eliminado!', detail: 'Logro eliminado' });
+          await this.loadAchievements();
+        }
       }
     });
   }
 
-  useTemplate(template: AchievementTemplate): void {
-    this.achievementForm.patchValue({
-      title: template.title,
-      description: template.description,
-      icon: template.icon,
-      category: template.category,
-      type: template.type,
-      target_value: template.requirements.target_value,
-      condition: template.requirements.condition,
-      metric: template.requirements.metric,
-      reward_points: template.reward_points,
-      is_active: true,
-      is_hidden: false
-    });
+  async toggleStatus(achievement: AchievementRow): Promise<void> {
+    const newStatus = !achievement.is_active;
+    const { error } = await this.supabase
+      .from('achievements')
+      .update({ is_active: newStatus })
+      .eq('id', achievement.id);
+
+    if (error) {
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar el estado' });
+    } else {
+      achievement.is_active = newStatus;
+      this.applyFilters();
+      this.messageService.add({ severity: 'success', summary: '¡Listo!', detail: `Logro ${newStatus ? 'activado' : 'desactivado'}` });
+    }
   }
 
-  toggleStatus(achievement: Achievement): void {
-    achievement.is_active = !achievement.is_active;
-    achievement.updated_at = new Date().toISOString();
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Éxito',
-      detail: `Logro ${achievement.is_active ? 'activado' : 'desactivado'} correctamente`
+  useTemplate(t: any): void {
+    this.achievementForm.patchValue({
+      name: t.name, description: t.description,
+      icon: t.icon, badge_color: t.badge_color,
+      achievement_type: t.achievement_type,
+      points_required:  t.points_required,
+      is_active: true,
     });
   }
 
   applyFilters(): void {
-    this.filteredAchievements = this.achievements.filter(achievement => {
-      const matchesGlobal = !this.globalFilter ||
-        achievement.title.toLowerCase().includes(this.globalFilter.toLowerCase()) ||
-        achievement.description.toLowerCase().includes(this.globalFilter.toLowerCase());
+    this.filteredAchievements = this.achievements.filter(a => {
+      const matchSearch = !this.globalFilter ||
+        a.name.toLowerCase().includes(this.globalFilter.toLowerCase()) ||
+        a.description.toLowerCase().includes(this.globalFilter.toLowerCase());
 
-      const matchesCategory = !this.categoryFilter || achievement.category === this.categoryFilter;
-      const matchesType = !this.typeFilter || achievement.type === this.typeFilter;
+      const matchType   = !this.typeFilter   || a.achievement_type === this.typeFilter;
+      const matchStatus = !this.statusFilter ||
+        (this.statusFilter === 'active'   &&  a.is_active) ||
+        (this.statusFilter === 'inactive' && !a.is_active);
 
-      let matchesStatus = true;
-      if (this.statusFilter === 'active') {
-        matchesStatus = achievement.is_active && !achievement.is_hidden;
-      } else if (this.statusFilter === 'inactive') {
-        matchesStatus = !achievement.is_active;
-      } else if (this.statusFilter === 'hidden') {
-        matchesStatus = achievement.is_hidden;
-      }
-
-      return matchesGlobal && matchesCategory && matchesType && matchesStatus;
+      return matchSearch && matchType && matchStatus;
     });
   }
 
-  getCategoryIcon(category: string): string {
-    const categoryOption = this.categoryOptions.find(opt => opt.value === category);
-    return categoryOption?.icon || 'pi pi-star';
+  clearFilters(): void {
+    this.typeFilter = null;
+    this.statusFilter = null;
+    this.applyFilters();
   }
 
-  getCategorySeverity(category: string): any {
-    const severityMap: { [key: string]: string } = {
-      'points': 'warning',
-      'games': 'info',
-      'streak': 'danger',
-      'level': 'success',
-      'time': 'secondary',
-      'special': 'primary'
-    };
-    return severityMap[category] || 'info';
-  }
+  get activeCount(): number { return this.filteredAchievements.filter(a => a.is_active).length; }
 
-  getTypeSeverity(type: string): any {
-    const severityMap: { [key: string]: string } = {
-      'milestone': 'success',
-      'streak': 'warning',
-      'collection': 'info',
-      'challenge': 'danger'
-    };
-    return severityMap[type] || 'info';
-  }
-
-  getCategoryEmoji(category: string): string { return this.getCategoryIcon(category); }
-
-  getCategoryLabel(category: string): string {
-    const labelMap: { [key: string]: string } = {
-      'points': 'Puntos',
-      'games': 'Juegos',
-      'streak': 'Rachas',
-      'level': 'Nivel',
-      'time': 'Tiempo',
-      'special': 'Especial'
-    };
-    return labelMap[category] || category;
-  }
+  get hasActiveFilters(): boolean { return !!(this.typeFilter || this.statusFilter); }
 
   getTypeLabel(type: string): string {
-    const labelMap: { [key: string]: string } = {
-      'milestone': 'Hito',
-      'streak': 'Racha',
-      'collection': 'Colección',
-      'challenge': 'Desafío'
-    };
-    return labelMap[type] || type;
+    const m: any = { points: 'Puntos', games: 'Juegos', streak: 'Racha', category: 'Categorías' };
+    return m[type] || type;
   }
 
-  goBack(): void {
-    window.history.back();
+  getTypeClass(type: string): string {
+    const m: any = { points: 'points', games: 'games', streak: 'streak', category: 'category' };
+    return m[type] || 'points';
   }
+
+  goBack(): void { window.history.back(); }
 }
