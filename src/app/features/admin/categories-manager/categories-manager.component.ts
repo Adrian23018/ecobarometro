@@ -91,7 +91,7 @@ export class CategoriesManagerComponent implements OnInit {
 
   iconOptions: IconOption[] = [
     { label: 'Energía', value: 'pi pi-bolt', icon: 'pi pi-bolt' },
-    { label: 'Agua', value: 'pi pi-tint', icon: 'pi pi-tint' },
+    { label: 'Agua', value: 'pi pi-wave-pulse', icon: 'pi pi-wave-pulse' },
     { label: 'Reciclaje', value: 'pi pi-refresh', icon: 'pi pi-refresh' },
     { label: 'Transporte', value: 'pi pi-car', icon: 'pi pi-car' },
     { label: 'Hogar', value: 'pi pi-home', icon: 'pi pi-home' },
@@ -99,7 +99,12 @@ export class CategoriesManagerComponent implements OnInit {
     { label: 'Industria', value: 'pi pi-cog', icon: 'pi pi-cog' },
     { label: 'Alimentación', value: 'pi pi-apple', icon: 'pi pi-apple' },
     { label: 'Educación', value: 'pi pi-book', icon: 'pi pi-book' },
-    { label: 'Tecnología', value: 'pi pi-desktop', icon: 'pi pi-desktop' }
+    { label: 'Tecnología', value: 'pi pi-desktop', icon: 'pi pi-desktop' },
+    { label: 'Sol / Clima', value: 'pi pi-sun', icon: 'pi pi-sun' },
+    { label: 'Nube', value: 'pi pi-cloud', icon: 'pi pi-cloud' },
+    { label: 'Mapa / Tierra', value: 'pi pi-map', icon: 'pi pi-map' },
+    { label: 'Globo', value: 'pi pi-globe', icon: 'pi pi-globe' },
+    { label: 'Fuego / Calor', value: 'pi pi-fire', icon: 'pi pi-fire' }
   ];
 
   constructor(
