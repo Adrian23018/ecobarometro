@@ -104,7 +104,8 @@ export class CategoriesManagerComponent implements OnInit {
     { label: 'Nube', value: 'pi pi-cloud', icon: 'pi pi-cloud' },
     { label: 'Mapa / Tierra', value: 'pi pi-map', icon: 'pi pi-map' },
     { label: 'Globo', value: 'pi pi-globe', icon: 'pi pi-globe' },
-    { label: 'Fuego / Calor', value: 'pi pi-fire', icon: 'pi pi-fire' }
+    { label: 'Contaminación', value: 'pi pi-exclamation-triangle', icon: 'pi pi-exclamation-triangle' },
+    { label: 'Biodiversidad', value: 'pi pi-star-fill', icon: 'pi pi-star-fill' }
   ];
 
   constructor(
