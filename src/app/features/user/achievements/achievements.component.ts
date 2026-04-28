@@ -70,7 +70,7 @@ interface AchievementGroup {
     ReactiveFormsModule
   ],
   templateUrl: './achievements.component.html',
-  styleUrls: ['./achievements.component.scss'],
+  styleUrls: ['./achievements.component.css'],
   providers: [MessageService]
 })
 export class UserAchievementsComponent implements OnInit {
@@ -211,12 +211,53 @@ export class UserAchievementsComponent implements OnInit {
       .reduce((sum, a) => sum + a.achievement.points_required, 0);
   }
 
+  // Map Font Awesome → PrimeIcons for icons that come from the DB
+  private readonly FA_TO_PI: Record<string, string> = {
+    'fas fa-star':        'pi pi-star-fill',
+    'fas fa-star-fill':   'pi pi-star-fill',
+    'fas fa-play':        'pi pi-play',
+    'fas fa-play-circle': 'pi pi-play',
+    'fas fa-fire':        'pi pi-bolt',
+    'fas fa-tags':        'pi pi-tag',
+    'fas fa-tag':         'pi pi-tag',
+    'fas fa-trophy':      'pi pi-trophy',
+    'fas fa-medal':       'pi pi-trophy',
+    'fas fa-award':       'pi pi-verified',
+    'fas fa-check':       'pi pi-check',
+    'fas fa-bolt':        'pi pi-bolt',
+    'fas fa-globe':       'pi pi-globe',
+    'fas fa-leaf':        'pi pi-heart',
+    'fas fa-seedling':    'pi pi-heart',
+    'fas fa-recycle':     'pi pi-refresh',
+    'fas fa-water':       'pi pi-cloud',
+    'fas fa-sun':         'pi pi-sun',
+    'fas fa-chart-line':  'pi pi-chart-line',
+    'fas fa-coins':       'pi pi-dollar-sign',
+    'fas fa-bullseye':    'pi pi-crosshairs',
+    'fas fa-crown':       'pi pi-crown',
+    'fas fa-gem':         'pi pi-sparkles',
+    'fas fa-shield-alt':  'pi pi-shield',
+    'fas fa-rocket':      'pi pi-send',
+    'fas fa-clock':       'pi pi-clock',
+    'fas fa-users':       'pi pi-users',
+  };
+
+  resolveIcon(icon: string): string {
+    if (!icon) return '';
+    if (icon.startsWith('pi ')) return icon;
+    return this.FA_TO_PI[icon] || '';
+  }
+
+  getInitial(name: string): string {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
   groupAchievementsByType(): void {
     const typeGroups = {
-      points: { label: 'Por Puntos', icon: 'fas fa-star', color: '#22c55e' },
-      games: { label: 'Por Partidas', icon: 'fas fa-play', color: '#3b82f6' },
-      streak: { label: 'Por Racha', icon: 'fas fa-fire', color: '#f59e0b' },
-      category: { label: 'Por Categoría', icon: 'fas fa-tags', color: '#8b5cf6' }
+      points:   { label: 'Por Puntos',   icon: 'pi pi-star-fill', color: '#22c55e' },
+      games:    { label: 'Por Partidas', icon: 'pi pi-play',      color: '#3b82f6' },
+      streak:   { label: 'Por Racha',    icon: 'pi pi-bolt',      color: '#f59e0b' },
+      category: { label: 'Por Categoría',icon: 'pi pi-tag',       color: '#8b5cf6' }
     };
 
     this.achievementGroups = Object.entries(typeGroups).map(([type, config]) => {

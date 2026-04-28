@@ -1,485 +1,331 @@
-<!-- Header con botón atrás -->
-<div class="gradient-bg text-white relative overflow-hidden">
-  <!-- Botón Atrás -->
-  <button 
-    class="back-button absolute top-4 left-4 z-20 p-3 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg"
-    [routerLink]="['/user/dashboard']"
-    pRipple>
-    <i class="fas fa-arrow-left text-lg"></i>
-    <span class="hidden sm:inline">Atrás</span>
-  </button>
-  
-  <!-- Elementos decorativos -->
-  <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -translate-y-20 translate-x-20"></div>
-  <div class="absolute bottom-0 left-0 w-32 h-32 bg-white opacity-10 rounded-full translate-y-16 -translate-x-16"></div>
-  
-  <!-- Header Principal -->
-  <div class="px-6 pt-20 pb-8 relative z-10">
-    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
-      <div class="slide-in">
-        <h1 class="text-3xl font-bold mb-2">
-          <i class="pi pi-trophy"></i> Mis Logros
-        </h1>
-        <p class="text-blue-100 text-lg">Descubre todo lo que has conseguido en tu viaje ecológico</p>
+<!-- HERO -->
+<div class="ach-page">
+  <div class="ach-hero">
+    <button class="ach-back" [routerLink]="['/user/dashboard']">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+
+    <div class="ach-hero-body">
+      <div class="ach-hero-left">
+        <p class="ach-hero-sup">Mi Perfil</p>
+        <h1 class="ach-hero-title">Mis Logros</h1>
       </div>
-      <div class="achievement-summary-header mt-4 lg:mt-0 slide-in">
-        <div class="text-center">
-          <div class="text-3xl font-bold">{{ completedAchievements }} / {{ totalAchievements }}</div>
-          <div class="text-blue-100">Logros Completados</div>
-        </div>
+      <div class="ach-hero-counter">
+        <span class="ach-counter-num">{{ completedAchievements }}</span>
+        <span class="ach-counter-sep">/</span>
+        <span class="ach-counter-tot">{{ totalAchievements }}</span>
+        <span class="ach-counter-lbl">completados</span>
       </div>
     </div>
 
-    <!-- Progress Overview -->
-    <div class="glass-effect rounded-2xl p-4 slide-in">
-      <div class="flex justify-between items-center mb-3">
-        <span class="font-medium text-gray-700 text-lg">Progreso General</span>
-        <span class="text-purple-600 font-bold text-xl">{{ overallProgress | number:'1.0-0' }}%</span>
+    <!-- Progress bar -->
+    <div class="ach-hero-prog">
+      <div class="ach-prog-track">
+        <div class="ach-prog-fill" [style.width.%]="overallProgress"></div>
       </div>
-      <div class="w-full bg-gray-200 rounded-full h-3 progress-glow">
-        <div 
-          class="bg-gradient-to-r from-purple-400 to-blue-500 h-3 rounded-full transition-all duration-500"
-          [style.width.%]="overallProgress">
-        </div>
-      </div>
-      <div class="flex justify-between mt-3">
-        <span class="text-gray-600">{{ totalPointsEarned }} puntos ganados</span>
-        <span class="text-gray-600">{{ pointsRemaining }} puntos restantes</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Contenido Principal -->
-<div class="px-6 -mt-6 relative z-10">
-  
-  <!-- Filtros -->
-  <div class="glass-effect rounded-2xl p-6 shadow-lg mb-6">
-    <div class="flex items-center gap-3 mb-4">
-      <i class="fas fa-filter text-blue-600 text-xl"></i>
-      <h2 class="text-xl font-bold text-gray-800">Filtrar Logros</h2>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- Tipo de Logro -->
-      <div>
-        <label class="block text-gray-700 font-medium mb-2">Tipo de Logro</label>
-        <p-dropdown 
-          [options]="typeOptions"
-          [(ngModel)]="filters.type"
-          placeholder="Todos los tipos"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          (onChange)="applyFilters()"
-          styleClass="w-full modern-dropdown" />
-      </div>
-      
-      <!-- Estado -->
-      <div>
-        <label class="block text-gray-700 font-medium mb-2">Estado</label>
-        <p-dropdown 
-          [options]="statusOptions"
-          [(ngModel)]="filters.status"
-          placeholder="Todos los estados"
-          optionLabel="label"
-          optionValue="value"
-          [showClear]="true"
-          (onChange)="applyFilters()"
-          styleClass="w-full modern-dropdown" />
-      </div>
-      
-      <!-- Búsqueda -->
-      <div>
-        <label class="block text-gray-700 font-medium mb-2">Buscar</label>
-        <div class="search-input-wrapper">
-          <i class="fas fa-search search-icon"></i>
-          <input 
-            type="text" 
-            pInputText 
-            [(ngModel)]="filters.search"
-            (input)="applyFilters()"
-            placeholder="Buscar logros..."
-            class="search-input" />
-        </div>
+      <div class="ach-prog-meta">
+        <span>{{ totalPointsEarned }} pts ganados</span>
+        <span class="ach-prog-pct">{{ overallProgress | number:'1.0-0' }}%</span>
+        <span>{{ pointsRemaining }} pts restantes</span>
       </div>
     </div>
   </div>
 
-  <!-- Tabs de Logros -->
-  <div class="glass-effect rounded-2xl shadow-lg overflow-hidden" *ngIf="!loading; else loadingTemplate">
-    <div class="tab-header">
-      <button 
-        *ngFor="let tab of tabOptions; let i = index"
-        class="tab-button"
-        [class.active]="activeTabIndex === i"
-        (click)="activeTabIndex = i"
-        pRipple>
-        <i [class]="tab.icon" class="text-lg mr-2"></i>
-        {{ tab.label }}
-      </button>
+  <!-- FILTERS -->
+  <div class="ach-filters">
+    <div class="ach-filter-group">
+      <label class="ach-filter-lbl">Tipo</label>
+      <p-dropdown
+        [options]="typeOptions"
+        [(ngModel)]="filters.type"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        placeholder="Todos"
+        (onChange)="applyFilters()"
+        styleClass="ach-dd" />
     </div>
+    <div class="ach-filter-group">
+      <label class="ach-filter-lbl">Estado</label>
+      <p-dropdown
+        [options]="statusOptions"
+        [(ngModel)]="filters.status"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        placeholder="Todos"
+        (onChange)="applyFilters()"
+        styleClass="ach-dd" />
+    </div>
+    <div class="ach-filter-group ach-filter-search">
+      <label class="ach-filter-lbl">Buscar</label>
+      <div class="ach-search-wrap">
+        <i class="pi pi-search ach-search-ico"></i>
+        <input
+          type="text"
+          [(ngModel)]="filters.search"
+          (input)="applyFilters()"
+          placeholder="Buscar logro..."
+          class="ach-search-input" />
+      </div>
+    </div>
+  </div>
 
-    <!-- Tab: Todos los Logros -->
-    <div class="tab-content" *ngIf="activeTabIndex === 0">
-      <div class="achievements-grid" *ngIf="filteredAchievements.length > 0; else noResults">
-        <div 
-          *ngFor="let achievement of filteredAchievements; trackBy: trackByAchievement"
-          class="achievement-card"
-          [class.completed]="achievement.is_completed"
-          [class.in-progress]="!achievement.is_completed && achievement.current_progress > 0"
-          (click)="showAchievementDetail(achievement)"
-          pRipple>
-          
-          <!-- Achievement Header -->
-          <div class="achievement-header">
-            <div 
-              class="achievement-icon"
-              [style.background-color]="achievement.achievement.badge_color"
-              [class.glow]="achievement.is_completed">
-              <i [class]="achievement.achievement.icon" class="text-white text-2xl"></i>
-              <div class="completion-overlay" *ngIf="achievement.is_completed">
-                <i class="fas fa-check text-white"></i>
+  <!-- TABS -->
+  <div class="ach-tabs">
+    <button class="ach-tab" [class.ach-tab-active]="activeTabIndex === 0" (click)="activeTabIndex = 0">
+      <i class="pi pi-list"></i> Todos
+    </button>
+    <button class="ach-tab" [class.ach-tab-active]="activeTabIndex === 1" (click)="activeTabIndex = 1">
+      <i class="pi pi-tag"></i> Por Tipo
+    </button>
+    <button class="ach-tab" [class.ach-tab-active]="activeTabIndex === 2" (click)="activeTabIndex = 2">
+      <i class="pi pi-clock"></i> Recientes
+    </button>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="ach-content">
+
+    <!-- LOADING -->
+    <ng-container *ngIf="loading">
+      <div class="ach-grid">
+        <div *ngFor="let i of [1,2,3,4,5,6]" class="ach-card ach-skel">
+          <div class="ach-skel-icon"></div>
+          <div class="ach-skel-line ach-skel-title"></div>
+          <div class="ach-skel-line ach-skel-desc"></div>
+          <div class="ach-skel-bar"></div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- TAB: TODOS -->
+    <ng-container *ngIf="!loading && activeTabIndex === 0">
+      <div class="ach-grid" *ngIf="filteredAchievements.length > 0; else noResults">
+        <div
+          *ngFor="let a of filteredAchievements; trackBy: trackByAchievement"
+          class="ach-card"
+          [class.ach-card-done]="a.is_completed"
+          [class.ach-card-wip]="!a.is_completed && a.current_progress > 0"
+          (click)="showAchievementDetail(a)">
+
+          <div class="ach-card-top">
+            <div class="ach-icon-wrap" [style.background]="a.achievement.badge_color">
+              <!-- PrimeIcon if mapped, else show initial letter -->
+              <ng-container *ngIf="resolveIcon(a.achievement.icon) as piIcon; else showInit">
+                <i [class]="piIcon + ' ach-icon-fa'"></i>
+              </ng-container>
+              <ng-template #showInit>
+                <span class="ach-icon-init">{{ getInitial(a.achievement.name) }}</span>
+              </ng-template>
+              <div class="ach-done-badge" *ngIf="a.is_completed">
+                <i class="pi pi-check"></i>
               </div>
             </div>
-            
-            <div class="achievement-type">
-              <span 
-                class="type-badge"
-                [style.background-color]="getTypeColor(achievement.achievement.achievement_type)">
-                {{ getTypeLabel(achievement.achievement.achievement_type) }}
-              </span>
-            </div>
+            <span class="ach-type-chip"
+              [style.background]="getTypeColor(a.achievement.achievement_type) + '22'"
+              [style.color]="getTypeColor(a.achievement.achievement_type)">
+              {{ getTypeLabel(a.achievement.achievement_type) }}
+            </span>
           </div>
 
-          <!-- Achievement Body -->
-          <div class="achievement-body">
-            <h4 class="achievement-title">{{ achievement.achievement.name }}</h4>
-            <p class="achievement-description">{{ achievement.achievement.description }}</p>
-            
-            <!-- Progress -->
-            <div class="achievement-progress">
-              <div class="flex justify-between items-center mb-2">
-                <span class="progress-text">
-                  {{ achievement.current_progress }} / {{ achievement.achievement.points_required }}
-                </span>
-                <span class="progress-percentage">
-                  {{ achievement.completion_percentage | number:'1.0-0' }}%
-                </span>
-              </div>
-              <div class="progress-bar-container">
-                <div 
-                  class="progress-bar"
-                  [style.width.%]="achievement.completion_percentage"
-                  [style.background-color]="achievement.achievement.badge_color">
-                </div>
-              </div>
-            </div>
-
-            <!-- Reward -->
-            <div class="achievement-reward">
-              <span class="reward-badge">
-                <i class="fas fa-star mr-1"></i>
-                {{ achievement.achievement.points_required }} puntos
-              </span>
-            </div>
+          <div class="ach-card-body">
+            <h4 class="ach-card-name">{{ a.achievement.name }}</h4>
+            <p class="ach-card-desc">{{ a.achievement.description }}</p>
           </div>
 
-          <!-- Completion Status -->
-          <div class="achievement-status" *ngIf="achievement.is_completed">
-            <i class="fas fa-check-circle text-green-500"></i>
-            <span class="text-green-500 font-medium ml-2">¡Completado!</span>
+          <div class="ach-card-foot">
+            <div class="ach-bar-wrap">
+              <div class="ach-bar-row">
+                <span class="ach-bar-txt">{{ a.current_progress }} / {{ a.achievement.points_required }}</span>
+                <span class="ach-bar-pct">{{ a.completion_percentage | number:'1.0-0' }}%</span>
+              </div>
+              <div class="ach-bar-track">
+                <div class="ach-bar-fill" [style.width.%]="a.completion_percentage" [style.background]="a.achievement.badge_color"></div>
+              </div>
+            </div>
+            <div class="ach-pts-tag">
+              <i class="pi pi-star-fill"></i> {{ a.achievement.points_required }} pts
+            </div>
           </div>
         </div>
       </div>
 
       <ng-template #noResults>
-        <div class="no-results">
-          <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-          <h3 class="text-gray-500 font-medium mb-2">No se encontraron logros</h3>
-          <p class="text-gray-400">Intenta con otros filtros o comienza a jugar para desbloquear logros</p>
-          <button 
-            class="play-button mt-4"
-            [routerLink]="['/game/lobby']">
-            <i class="fas fa-play mr-2"></i>
-            Jugar Ahora
+        <div class="ach-empty">
+          <i class="pi pi-search"></i>
+          <p>No se encontraron logros</p>
+          <button class="ach-btn-play" [routerLink]="['/game/lobby']">
+            <i class="pi pi-play"></i> Jugar Ahora
           </button>
         </div>
       </ng-template>
-    </div>
+    </ng-container>
 
-    <!-- Tab: Por Tipo -->
-    <div class="tab-content" *ngIf="activeTabIndex === 1">
-      <div class="achievement-type-groups" *ngIf="achievementGroups.length > 0">
-        <div 
-          *ngFor="let group of achievementGroups"
-          class="type-group">
-          
-          <!-- Group Header -->
-          <div class="group-header">
-            <div class="flex items-center gap-4 mb-4">
-              <div 
-                class="group-icon"
-                [style.background-color]="group.color">
-                <i [class]="group.icon" class="text-white text-xl"></i>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-gray-800 text-xl">{{ group.label }}</h3>
-                <span class="text-gray-600">{{ group.completed }} de {{ group.total }} completados</span>
-              </div>
-              <div class="group-progress">
-                <div class="progress-ring" [style.--progress]="(group.completed / group.total) * 100 + '%'" [style.--color]="group.color">
-                  <span class="progress-text">{{ ((group.completed / group.total) * 100) | number:'1.0-0' }}%</span>
+    <!-- TAB: POR TIPO -->
+    <ng-container *ngIf="!loading && activeTabIndex === 1">
+      <div class="ach-groups" *ngIf="achievementGroups.length > 0; else noGroups">
+        <div class="ach-group" *ngFor="let g of achievementGroups">
+          <div class="ach-group-head">
+            <!-- Group icons are always pi pi-* now -->
+            <div class="ach-group-icon" [style.background]="g.color">
+              <i [class]="g.icon + ' ach-icon-fa'"></i>
+            </div>
+            <div class="ach-group-info">
+              <span class="ach-group-name">{{ g.label }}</span>
+              <span class="ach-group-sub">{{ g.completed }} de {{ g.total }} completados</span>
+            </div>
+            <div class="ach-group-pct" [style.color]="g.color">
+              {{ ((g.completed / g.total) * 100) | number:'1.0-0' }}%
+            </div>
+          </div>
+
+          <div class="ach-mini-grid">
+            <div
+              *ngFor="let a of g.achievements.slice(0, 6)"
+              class="ach-mini"
+              [class.ach-mini-done]="a.is_completed"
+              (click)="showAchievementDetail(a)">
+              <div class="ach-mini-icon" [style.background]="a.achievement.badge_color">
+                <ng-container *ngIf="resolveIcon(a.achievement.icon) as piIcon; else showMiniInit">
+                  <i [class]="piIcon + ' ach-icon-fa'"></i>
+                </ng-container>
+                <ng-template #showMiniInit>
+                  <span class="ach-icon-init ach-icon-init-sm">{{ getInitial(a.achievement.name) }}</span>
+                </ng-template>
+                <div class="ach-done-badge ach-done-sm" *ngIf="a.is_completed">
+                  <i class="pi pi-check"></i>
                 </div>
+              </div>
+              <div class="ach-mini-info">
+                <span class="ach-mini-name">{{ a.achievement.name }}</span>
+                <span class="ach-mini-pct">{{ a.completion_percentage | number:'1.0-0' }}%</span>
               </div>
             </div>
           </div>
 
-          <!-- Mini Achievements -->
-          <div class="mini-achievements-grid">
-            <div 
-              *ngFor="let achievement of group.achievements.slice(0, 6)"
-              class="mini-achievement-card"
-              [class.completed]="achievement.is_completed"
-              (click)="showAchievementDetail(achievement)"
-              pRipple>
-              <div class="flex items-center gap-3">
-                <div 
-                  class="mini-icon"
-                  [style.background-color]="achievement.achievement.badge_color">
-                  <i [class]="achievement.achievement.icon" class="text-white"></i>
-                  <div class="mini-check" *ngIf="achievement.is_completed">
-                    <i class="fas fa-check text-white text-xs"></i>
-                  </div>
-                </div>
-                <div class="flex-1">
-                  <div class="font-medium text-gray-800">{{ achievement.achievement.name }}</div>
-                  <small class="text-gray-500">{{ achievement.completion_percentage | number:'1.0-0' }}% completado</small>
-                </div>
-              </div>
-            </div>
-          </div>
+          <button class="ach-show-more" *ngIf="g.achievements.length > 6" (click)="showMoreByType(g.type)">
+            Ver todos los logros →
+          </button>
+        </div>
+      </div>
 
-          <div class="text-center mt-4" *ngIf="group.achievements.length > 6">
-            <button 
-              class="show-more-btn"
-              (click)="showMoreByType(group.type)">
-              Ver más →
-            </button>
+      <ng-template #noGroups>
+        <div class="ach-empty">
+          <i class="pi pi-trophy"></i>
+          <p>No hay logros disponibles aún</p>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <!-- TAB: RECIENTES -->
+    <ng-container *ngIf="!loading && activeTabIndex === 2">
+      <div class="ach-card ach-recent-list" *ngIf="recentAchievements.length > 0">
+        <div class="ach-recent-row" *ngFor="let ua of recentAchievements">
+          <div class="ach-recent-icon" [style.background]="ua.achievement.badge_color">
+            <ng-container *ngIf="resolveIcon(ua.achievement.icon) as piIcon; else showRecentInit">
+              <i [class]="piIcon + ' ach-icon-fa'"></i>
+            </ng-container>
+            <ng-template #showRecentInit>
+              <span class="ach-icon-init ach-icon-init-sm">{{ getInitial(ua.achievement.name) }}</span>
+            </ng-template>
+          </div>
+          <div class="ach-recent-body">
+            <span class="ach-recent-name">{{ ua.achievement.name }}</span>
+            <span class="ach-recent-desc">{{ ua.achievement.description }}</span>
+            <span class="ach-recent-date">{{ ua.earned_at | date:'mediumDate' }}</span>
+          </div>
+          <div class="ach-pts-tag">
+            <i class="pi pi-star-fill"></i> {{ ua.achievement.points_required }}
           </div>
         </div>
       </div>
 
-      <div class="no-groups" *ngIf="achievementGroups.length === 0">
-        <i class="fas fa-trophy text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-gray-500 font-medium">No hay logros disponibles</h3>
-        <p class="text-gray-400">Comienza a jugar para desbloquear tus primeros logros</p>
-      </div>
-    </div>
-
-    <!-- Tab: Recientes -->
-    <div class="tab-content" *ngIf="activeTabIndex === 2">
-      <div class="recent-achievements" *ngIf="recentAchievements.length > 0">
-        <div 
-          *ngFor="let userAchievement of recentAchievements"
-          class="recent-achievement-item">
-          <div class="flex items-center gap-4">
-            <div 
-              class="recent-icon"
-              [style.background-color]="userAchievement.achievement.badge_color">
-              <i [class]="userAchievement.achievement.icon" class="text-white text-xl"></i>
-            </div>
-            <div class="flex-1">
-              <h4 class="font-semibold text-gray-800 mb-1">{{ userAchievement.achievement.name }}</h4>
-              <p class="text-gray-600 text-sm mb-2">{{ userAchievement.achievement.description }}</p>
-              <div class="flex items-center gap-3">
-                <span class="text-gray-500 text-sm">{{ userAchievement.earned_at | date:'medium' }}</span>
-                <span class="reward-badge-small">
-                  <i class="fas fa-star mr-1"></i>
-                  {{ userAchievement.achievement.points_required }} pts
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="no-recent" *ngIf="recentAchievements.length === 0">
-        <i class="fas fa-clock text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-gray-500 font-medium mb-2">No hay logros recientes</h3>
-        <p class="text-gray-400 mb-4">¡Sigue jugando para desbloquear nuevos logros!</p>
-        <button 
-          class="play-button"
-          [routerLink]="['/game/lobby']">
-          <i class="fas fa-play mr-2"></i>
-          Jugar Ahora
+      <div class="ach-empty" *ngIf="recentAchievements.length === 0">
+        <i class="pi pi-clock"></i>
+        <p>No hay logros recientes</p>
+        <button class="ach-btn-play" [routerLink]="['/game/lobby']">
+          <i class="pi pi-play"></i> Jugar Ahora
         </button>
       </div>
-    </div>
-  </div>
+    </ng-container>
 
-  <!-- Loading State -->
-  <ng-template #loadingTemplate>
-    <div class="glass-effect rounded-2xl p-6 shadow-lg">
-      <div class="flex items-center gap-3 mb-6">
-        <div class="animate-pulse bg-gray-300 rounded-full w-8 h-8"></div>
-        <div class="animate-pulse bg-gray-300 rounded h-6 w-32"></div>
-      </div>
-      
-      <div class="achievements-grid">
-        <div *ngFor="let item of [1,2,3,4,5,6,7,8]" class="achievement-skeleton">
-          <div class="animate-pulse bg-gray-200 rounded-2xl h-64"></div>
-        </div>
-      </div>
-    </div>
-  </ng-template>
+  </div>
 </div>
 
-<!-- Achievement Detail Dialog Mejorado -->
-<p-dialog 
+<!-- DETAIL DIALOG -->
+<p-dialog
   [(visible)]="showDetailDialog"
   [modal]="true"
   [closable]="false"
-  [style]="{width: '450px', maxWidth: '95vw'}"
-  styleClass="achievement-modal">
-  
-  <div *ngIf="selectedAchievement" class="achievement-modal-content">
-    
-    <!-- Header con botón cerrar custom -->
-    <div class="modal-header">
-      <button 
-        class="close-btn"
-        (click)="showDetailDialog = false"
-        pRipple>
-        <i class="fas fa-times"></i>
+  [style]="{width: '420px', maxWidth: '95vw'}"
+  styleClass="ach-modal">
+
+  <div *ngIf="selectedAchievement" class="ach-modal-body">
+
+    <div class="ach-modal-top">
+      <div class="ach-modal-icon" [style.background]="selectedAchievement.achievement.badge_color">
+        <ng-container *ngIf="resolveIcon(selectedAchievement.achievement.icon) as piIcon; else showModalInit">
+          <i [class]="piIcon + ' ach-icon-fa ach-icon-lg'"></i>
+        </ng-container>
+        <ng-template #showModalInit>
+          <span class="ach-icon-init ach-icon-init-lg">{{ getInitial(selectedAchievement.achievement.name) }}</span>
+        </ng-template>
+        <div class="ach-done-badge ach-done-md" *ngIf="selectedAchievement.is_completed">
+          <i class="pi pi-check"></i>
+        </div>
+      </div>
+      <button class="ach-modal-close" (click)="showDetailDialog = false">
+        <i class="pi pi-times"></i>
       </button>
     </div>
 
-    <!-- Icono y estado -->
-    <div class="achievement-hero">
-      <div class="achievement-icon-wrapper">
-        <div 
-          class="achievement-icon-large"
-          [style.background-color]="selectedAchievement.achievement.badge_color"
-          [class.completed]="selectedAchievement.is_completed">
-          <i [class]="selectedAchievement.achievement.icon" class="achievement-icon-symbol"></i>
-        </div>
-        
-        <!-- Badge de completado -->
-        <div class="completion-badge" *ngIf="selectedAchievement.is_completed">
-          <div class="completion-badge-inner">
-            <i class="fas fa-check"></i>
-          </div>
-          <span class="completion-text">¡Completado!</span>
-        </div>
+    <h2 class="ach-modal-title">{{ selectedAchievement.achievement.name }}</h2>
+    <p class="ach-modal-desc">{{ selectedAchievement.achievement.description }}</p>
+
+    <div class="ach-modal-chips">
+      <span class="ach-type-chip"
+        [style.background]="getTypeColor(selectedAchievement.achievement.achievement_type) + '22'"
+        [style.color]="getTypeColor(selectedAchievement.achievement.achievement_type)">
+        {{ getTypeLabel(selectedAchievement.achievement.achievement_type) }}
+      </span>
+      <span class="ach-pts-tag">
+        <i class="pi pi-star-fill"></i> {{ selectedAchievement.achievement.points_required }} pts
+      </span>
+    </div>
+
+    <div class="ach-modal-prog">
+      <div class="ach-bar-row">
+        <span class="ach-bar-txt">{{ selectedAchievement.current_progress }} / {{ selectedAchievement.achievement.points_required }}</span>
+        <span class="ach-bar-pct">{{ selectedAchievement.completion_percentage | number:'1.0-0' }}%</span>
+      </div>
+      <div class="ach-bar-track">
+        <div class="ach-bar-fill" [style.width.%]="selectedAchievement.completion_percentage" [style.background]="selectedAchievement.achievement.badge_color"></div>
       </div>
     </div>
 
-    <!-- Información del achievement -->
-    <div class="achievement-info">
-      <h2 class="achievement-title">{{ selectedAchievement.achievement.name }}</h2>
-      <p class="achievement-description">{{ selectedAchievement.achievement.description }}</p>
-      
-      <!-- Tags de tipo y puntos -->
-      <div class="achievement-meta">
-        <div class="type-tag" [style.background-color]="getTypeColor(selectedAchievement.achievement.achievement_type)">
-          <i class="fas fa-tag"></i>
-          {{ getTypeLabel(selectedAchievement.achievement.achievement_type) }}
-        </div>
-        <div class="points-tag">
-          <i class="fas fa-star"></i>
-          {{ selectedAchievement.achievement.points_required }} puntos
-        </div>
-      </div>
+    <!-- Tips -->
+    <div class="ach-tips" *ngIf="!selectedAchievement.is_completed">
+      <div class="ach-tips-head"><i class="pi pi-lightbulb"></i> Consejo</div>
+      <p class="ach-tips-txt" *ngIf="selectedAchievement.achievement.achievement_type === 'points'">Sigue jugando EcoChallenges para ganar más puntos.</p>
+      <p class="ach-tips-txt" *ngIf="selectedAchievement.achievement.achievement_type === 'games'">Completa más partidas del EcoBarómetro.</p>
+      <p class="ach-tips-txt" *ngIf="selectedAchievement.achievement.achievement_type === 'streak'">Mantén una racha de partidas consecutivas.</p>
+      <p class="ach-tips-txt" *ngIf="selectedAchievement.achievement.achievement_type === 'category'">Concéntrate en una categoría específica.</p>
     </div>
 
-    <!-- Progreso -->
-    <div class="progress-section">
-      <div class="progress-header">
-        <h3 class="progress-title">Progreso</h3>
-        <div class="progress-stats">
-          <span class="progress-numbers">
-            {{ selectedAchievement.current_progress }} / {{ selectedAchievement.achievement.points_required }}
-          </span>
-          <span class="progress-percentage">
-            {{ selectedAchievement.completion_percentage | number:'1.0-0' }}%
-          </span>
-        </div>
-      </div>
-      
-      <div class="progress-bar-modern">
-        <div class="progress-track">
-          <div 
-            class="progress-fill"
-            [style.width.%]="selectedAchievement.completion_percentage"
-            [style.background-color]="selectedAchievement.achievement.badge_color">
-          </div>
-        </div>
-      </div>
+    <!-- Congrats -->
+    <div class="ach-congrats" *ngIf="selectedAchievement.is_completed">
+      <i class="pi pi-trophy"></i>
+      <span>¡Logro completado!</span>
     </div>
 
-    <!-- Consejos (solo si no está completado) -->
-    <div class="tips-section" *ngIf="!selectedAchievement.is_completed">
-      <div class="tips-header">
-        <i class="fas fa-lightbulb tips-icon"></i>
-        <h4>Consejos para completar</h4>
-      </div>
-      <div class="tips-content">
-        <div class="tip-item" *ngIf="selectedAchievement.achievement.achievement_type === 'points'">
-          <i class="fas fa-coins tip-bullet"></i>
-          <span>Sigue jugando EcoChallenges para ganar más puntos</span>
-        </div>
-        <div class="tip-item" *ngIf="selectedAchievement.achievement.achievement_type === 'games'">
-          <i class="fas fa-play-circle tip-bullet"></i>
-          <span>Completa más partidas del EcoBarómetro</span>
-        </div>
-        <div class="tip-item" *ngIf="selectedAchievement.achievement.achievement_type === 'streak'">
-          <i class="fas fa-fire tip-bullet"></i>
-          <span>Mantén una racha de partidas consecutivas</span>
-        </div>
-        <div class="tip-item" *ngIf="selectedAchievement.achievement.achievement_type === 'category'">
-          <i class="fas fa-bullseye tip-bullet"></i>
-          <span>Concéntrate en una categoría específica</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Mensaje de felicitación para completados -->
-    <div class="congratulations-section" *ngIf="selectedAchievement.is_completed">
-      <div class="congrats-content">
-        <i class="fas fa-trophy congrats-icon"></i>
-        <h4>¡Felicidades!</h4>
-        <p>Has completado este logro exitosamente</p>
-      </div>
-    </div>
-
-    <!-- Botones de acción -->
-    <div class="action-buttons">
-      <button 
-        class="btn-secondary"
-        (click)="showDetailDialog = false"
-        pRipple>
-        <i class="fas fa-times mr-2"></i>
-        Cerrar
+    <div class="ach-modal-actions">
+      <button class="ach-btn-ghost" (click)="showDetailDialog = false">Cerrar</button>
+      <button *ngIf="!selectedAchievement.is_completed" class="ach-btn-primary" [routerLink]="['/game/lobby']" (click)="showDetailDialog = false">
+        <i class="pi pi-play"></i> Jugar
       </button>
-      
-      <button 
-        *ngIf="!selectedAchievement.is_completed"
-        class="btn-primary"
-        [routerLink]="['/game/lobby']"
-        (click)="showDetailDialog = false"
-        pRipple>
-        <i class="fas fa-play mr-2"></i>
-        Jugar para Conseguirlo
-      </button>
-
-      <button 
-        *ngIf="selectedAchievement.is_completed"
-        class="btn-success"
-        (click)="shareAchievement(selectedAchievement)"
-        pRipple>
-        <i class="fas fa-share-alt mr-2"></i>
-        Compartir Logro
+      <button *ngIf="selectedAchievement.is_completed" class="ach-btn-primary" (click)="shareAchievement(selectedAchievement)">
+        <i class="pi pi-share-alt"></i> Compartir
       </button>
     </div>
   </div>
