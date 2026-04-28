@@ -180,12 +180,7 @@
 
     <!-- Steps -->
     <div class="vd-field">
-      <div class="vd-field-header">
-        <label class="vd-label">Pasos del Desafío <span class="vd-required">* (mínimo 3)</span></label>
-        <button type="button" class="vd-btn-small" (click)="addStep()">
-          <i class="pi pi-plus"></i> Agregar Paso
-        </button>
-      </div>
+      <label class="vd-label">Pasos del Desafío <span class="vd-required">* (mínimo 3)</span></label>
 
       <div cdkDropList (cdkDropListDropped)="onStepDrop($event)" class="vd-steps-list">
         <div *ngFor="let stepControl of stepsArray.controls; let i = index" cdkDrag class="vd-step-item" [formGroup]="getStepFormGroup(i)">
@@ -208,6 +203,10 @@
       <small *ngIf="stepsArray.length < 3" class="vd-error">
         Debes agregar al menos 3 pasos
       </small>
+
+      <button type="button" class="vd-btn-add-step" (click)="addStep()">
+        <i class="pi pi-plus"></i> Agregar Paso
+      </button>
     </div>
   </form>
 

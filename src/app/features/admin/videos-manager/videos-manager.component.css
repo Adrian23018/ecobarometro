@@ -489,6 +489,28 @@
   color: #9ca3af;
 }
 
+/* ── ADD STEP BUTTON ── */
+.vd-btn-add-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 1.125rem;
+  border-radius: 999px;
+  border: 1.5px solid #22c55e;
+  background: white;
+  color: #16a34a;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.vd-btn-add-step:hover {
+  background: #f0fdf4;
+}
+
 /* ── STEPS ── */
 .vd-steps-list {
   display: flex;
