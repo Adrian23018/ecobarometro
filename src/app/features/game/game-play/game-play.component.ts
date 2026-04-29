@@ -244,20 +244,19 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         }
       }
 
-      // ── Capa 2: Fallback desde Supabase (user_responses ya guardadas) ──
+      // ── Capa 2: Fallback desde Supabase (localStorage vacío, pero hay respuestas guardadas) ──
+      // Con preguntas en orden FIJO, podemos saber exactamente dónde quedó el usuario.
       const prevResponses = await this.gameSessionService
         .getSessionResponses(this.sessionId).toPromise() || [];
 
       if (prevResponses.length > 0) {
-        const answeredIds   = prevResponses.map((r: any) => r.question_id);
-        const correctCount  = prevResponses.filter((r: any) => r.is_correct).length;
-        const totalPts      = prevResponses.reduce((s: number, r: any) => s + (r.points_earned || 0), 0);
+        const answeredIds  = new Set(prevResponses.map((r: any) => r.question_id));
+        const correctCount = prevResponses.filter((r: any) => r.is_correct).length;
+        const totalPts     = prevResponses.reduce((s: number, r: any) => s + (r.points_earned || 0), 0);
 
-        // Cargar todas las preguntas disponibles y filtrar las ya respondidas
-        const allGameQ = await this.questionsService.getRandomQuestions(user.admin_id, undefined, 100).toPromise() || [];
-        const remaining = allGameQ
-          .filter(gq => !answeredIds.includes(gq.question.id))
-          .slice(0, 15 - prevResponses.length);
+        // Preguntas en ORDEN FIJO — las respondidas son siempre las primeras N
+        const allGameQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 15).toPromise() || [];
+        const remaining = allGameQ.filter(gq => !answeredIds.has(gq.question.id));
 
         if (remaining.length > 0) {
           const questions = remaining.map(gq => gq.question);
@@ -279,23 +278,22 @@ export class GamePlayComponent implements OnInit, OnDestroy {
             streakCount:     0
           };
 
-          this.saveProgress(); // persistir para que capas futuras usen localStorage
+          this.saveProgress();
           this.loadCurrentQuestion();
           this.startTimer();
           return;
         }
       }
 
-      // ── Capa 3: Primera vez, cargar preguntas nuevas ──
+      // ── Capa 3: Primera vez — cargar preguntas en orden fijo ──
       const questionCount = await this.questionsService.checkQuestionsExist(user.admin_id).toPromise();
       if (questionCount === 0) {
         this.handleGameError('No se encontraron preguntas para el administrador.');
         return;
       }
 
-      const gameQuestions = await this.questionsService.getRandomQuestions(
-        user.admin_id, undefined, 15
-      ).toPromise();
+      // Usar getOrderedQuestions para que el orden sea siempre determinista
+      const gameQuestions = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 15).toPromise();
 
       if (!gameQuestions || gameQuestions.length === 0) {
         this.handleGameError('No se pudieron cargar las preguntas.');

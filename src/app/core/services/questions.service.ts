@@ -204,6 +204,45 @@ export class QuestionsService {
     return from(this.fetchRandomQuestions(adminId, categoryIds, limit));
   }
 
+  /**
+   * Carga preguntas en orden FIJO (order_index ASC) — necesario para restaurar progreso correctamente.
+   * Con orden determinista, siempre la pregunta N es la misma, sin importar cuántas veces se cargue.
+   */
+  getOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 15): Observable<GameQuestion[]> {
+    return from(this.fetchOrderedQuestions(adminId, categoryIds, limit));
+  }
+
+  private async fetchOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 15): Promise<GameQuestion[]> {
+    let query = this.supabase
+      .from('questions')
+      .select(`*, category:categories(*), options:question_options(*)`)
+      .eq('admin_id', adminId)
+      .eq('is_active', true)
+      .order('order_index', { ascending: true })
+      .order('created_at', { ascending: true })
+      .limit(limit);
+
+    if (categoryIds && categoryIds.length > 0) {
+      query = query.in('category_id', categoryIds);
+    }
+
+    const { data: questions, error } = await query;
+    if (error) throw new Error(error.message);
+    if (!questions || questions.length === 0) return [];
+
+    const withOptions = questions.filter(q => (q.options?.length || 0) > 0);
+
+    return withOptions.map(q => ({
+      question: {
+        ...q,
+        options: (q.options || []).sort((a: any, b: any) => a.order_index - b.order_index)
+      } as Question,
+      options: (q.options || []).sort((a: any, b: any) => a.order_index - b.order_index),
+      time_limit: this.getTimeLimitByDifficulty(q.difficulty_level),
+      bonus_points: this.getBonusPointsByDifficulty(q.difficulty_level)
+    }));
+  }
+
   getQuestionsForSession(sessionId: string): Observable<Question[]> {
     return from(this.fetchSessionQuestions(sessionId));
   }

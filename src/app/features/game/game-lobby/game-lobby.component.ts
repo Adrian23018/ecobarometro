@@ -325,22 +325,39 @@ export class GameLobbyComponent implements OnInit {
   startGame(): void {
     if (!this.canStartGame || !this.currentUser) return;
 
-    // Si hay una sesión guardada en localStorage, reanudar en lugar de crear una nueva
+    // Guard 1: localStorage
     const activeId = GamePlayComponent.getActiveSessionId();
     if (activeId) {
       this.router.navigate(['/game/play', activeId]);
       return;
     }
 
+    // Guard 2: Supabase — verificar antes de crear para evitar sesiones duplicadas
     this.startingGame = true;
-    const formValue = this.gameForm.value;
+    const adminId = (this.currentUser as any).admin_id;
 
+    this.gameSessionService.getInProgressSession(this.currentUser.id, adminId).subscribe({
+      next: (inProgress) => {
+        if (inProgress) {
+          // Hay una sesión en curso → reanudar
+          this.router.navigate(['/game/play', inProgress.id]);
+          return;
+        }
+        // No hay sesión en curso → crear nueva
+        this.doCreateGame();
+      },
+      error: () => this.doCreateGame() // Si falla el check, intentar crear
+    });
+  }
+
+  private doCreateGame(): void {
+    const formValue = this.gameForm.value;
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'EcoChallenge',
       categories: formValue.selectedCategories
     };
 
-    this.gameSessionService.createGameSession(this.currentUser.id, gameRequest).subscribe({
+    this.gameSessionService.createGameSession(this.currentUser!.id, gameRequest).subscribe({
       next: (session: any) => {
         this.messageService.add({
           severity: 'success',
@@ -348,11 +365,7 @@ export class GameLobbyComponent implements OnInit {
           detail: 'Tu EcoChallenge ha comenzado',
           life: 2000
         });
-
-        // Navigate to game play
-        setTimeout(() => {
-          this.router.navigate(['/game/play', session.id]);
-        }, 1000);
+        setTimeout(() => this.router.navigate(['/game/play', session.id]), 1000);
       },
       error: (error: any) => {
         console.error('Error starting game:', error);
@@ -375,14 +388,12 @@ export class GameLobbyComponent implements OnInit {
     this.gameForm.patchValue({ timeChallenge: !currentValue });
   }
 
-  // Método para iniciar un juego de test rápido sin selección de categorías
   startQuickTest(): void {
     if (!this.currentUser) {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No hay usuario logueado' });
       return;
     }
 
-    // Si hay sesión activa guardada, reanudar
     const activeId = GamePlayComponent.getActiveSessionId();
     if (activeId) {
       this.router.navigate(['/game/play', activeId]);
@@ -390,25 +401,35 @@ export class GameLobbyComponent implements OnInit {
     }
 
     this.startingGame = true;
+    const adminId = (this.currentUser as any).admin_id;
 
+    this.gameSessionService.getInProgressSession(this.currentUser.id, adminId).subscribe({
+      next: (inProgress) => {
+        if (inProgress) {
+          this.router.navigate(['/game/play', inProgress.id]);
+          return;
+        }
+        this.doCreateQuickTest();
+      },
+      error: () => this.doCreateQuickTest()
+    });
+  }
+
+  private doCreateQuickTest(): void {
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'Test Rápido',
-      categories: [] // Sin filtros, todas las categorías
+      categories: []
     };
 
-    this.gameSessionService.createGameSession(this.currentUser.id, gameRequest).subscribe({
+    this.gameSessionService.createGameSession(this.currentUser!.id, gameRequest).subscribe({
       next: (session: any) => {
         this.messageService.add({
           severity: 'success',
-          summary: '¡Comenzando Test!',
-          detail: 'Tu juego de prueba ha comenzado',
+          summary: '¡Comenzando!',
+          detail: 'Tu EcoChallenge ha comenzado',
           life: 2000
         });
-
-        // Navigate to game play
-        setTimeout(() => {
-          this.router.navigate(['/game/play', session.id]);
-        }, 1000);
+        setTimeout(() => this.router.navigate(['/game/play', session.id]), 1000);
       },
       error: (error: any) => {
         console.error('Error starting quick test:', error);
