@@ -11,7 +11,11 @@
   <div class="gp-header">
     <div class="gp-header-left">
       <span class="gp-header-title">EcoChallenge</span>
-      <span class="gp-q-badge">{{ gameStats.currentQuestionNumber }}/{{ gameStats.totalQuestions }}</span>
+    </div>
+    <div class="gp-header-center">
+      <span class="gp-q-current">{{ gameStats.currentQuestionNumber }}</span>
+      <span class="gp-q-sep">de</span>
+      <span class="gp-q-total">{{ gameStats.totalQuestions }}</span>
     </div>
     <div class="gp-header-right">
       <span class="gp-pts-badge">{{ gameStats.totalPoints }} pts</span>
@@ -26,7 +30,9 @@
 
   <!-- PROGRESS STRIP -->
   <div class="gp-progress-track">
-    <div class="gp-progress-fill" [style.width.%]="progressPercentage"></div>
+    <div class="gp-progress-fill" [style.width.%]="progressPercentage">
+      <span class="gp-progress-label">{{ gameStats.currentQuestionNumber }}/{{ gameStats.totalQuestions }}</span>
+    </div>
   </div>
 
   <!-- BODY -->
@@ -36,6 +42,22 @@
     <div *ngIf="currentQuestion && !questionTransition" [@fadeInOut]>
 
       <div class="gp-question-card">
+
+        <!-- Indicador de progreso dentro de la tarjeta -->
+        <div class="gp-card-progress">
+          <div class="gp-card-progress-label">
+            <i class="pi pi-list-check"></i>
+            Pregunta <strong>{{ gameStats.currentQuestionNumber }}</strong> de {{ gameStats.totalQuestions }}
+          </div>
+          <div class="gp-card-segments">
+            <div
+              *ngFor="let seg of questionSegments; let i = index"
+              class="gp-segment"
+              [class.gp-seg-done]="i < gameStats.currentQuestionNumber - 1"
+              [class.gp-seg-current]="i === gameStats.currentQuestionNumber - 1"
+            ></div>
+          </div>
+        </div>
 
         <!-- Meta row: difficulty + points + timer -->
         <div class="gp-question-meta">

@@ -1,3 +1,31 @@
+/* ── VERIFICANDO ACCESO ── */
+.gl-checking-wrap {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: #f8fafc;
+}
+
+.gl-checking-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #22c55e;
+  border-radius: 50%;
+  animation: glSpin 0.8s linear infinite;
+}
+
+@keyframes glSpin { to { transform: rotate(360deg); } }
+
+.gl-checking-text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
 /* ── ACCESO BLOQUEADO ── */
 .gl-blocked-wrap {
   min-height: 100dvh;
@@ -19,17 +47,23 @@
   border: 1px solid #f0f0f0;
 }
 
+.gl-blocked-icon-wrap {
+  margin: 0 auto 1.25rem;
+  display: flex;
+  justify-content: center;
+}
+
 .gl-blocked-icon {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #fef2f2;
+  background: #f0fdf4;
+  border: 2px solid #bbf7d0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 1.25rem;
   font-size: 2rem;
-  color: #ef4444;
+  color: #16a34a;
 }
 
 .gl-blocked-title {
@@ -62,6 +96,46 @@
 }
 
 .gl-blocked-info i { flex-shrink: 0; margin-top: 1px; }
+
+/* Resultado de la sesión ya completada */
+.gl-blocked-result {
+  background: #f8fafc;
+  border: 1px solid #e8eef4;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.gl-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8125rem;
+}
+
+.gl-result-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.gl-result-value {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.gl-result-pts {
+  color: #16a34a;
+  font-size: 1rem;
+}
+
+.gl-result-date {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.75rem;
+}
 
 .gl-blocked-back {
   display: inline-flex;

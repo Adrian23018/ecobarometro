@@ -85,6 +85,8 @@ export class GameLobbyComponent implements OnInit {
   loadingCategories = true;
   startingGame = false;
   accessBlocked = false;
+  checkingAccess = true;
+  lastSession: any = null;
 
   // Stats
   userStats = {
@@ -156,10 +158,47 @@ export class GameLobbyComponent implements OnInit {
   }
 
   checkGameAccess(): void {
-    if (!this.currentUser) return;
-    const gamesPlayed = this.currentUser.games_played || 0;
-    const extraAttempts = (this.currentUser as any).extra_attempts || 0;
-    this.accessBlocked = gamesPlayed > extraAttempts;
+    if (!this.currentUser) {
+      this.checkingAccess = false;
+      return;
+    }
+
+    const adminId = (this.currentUser as any).admin_id;
+    if (!adminId) {
+      this.checkingAccess = false;
+      return;
+    }
+
+    // 1. Verificar si ya completó
+    this.gameSessionService.hasCompletedChallenge(this.currentUser.id, adminId).subscribe({
+      next: (completed) => {
+        if (completed) {
+          this.accessBlocked = true;
+          this.gameSessionService.getLastCompletedSession(this.currentUser!.id, adminId).subscribe({
+            next: (session) => { this.lastSession = session; },
+            error: () => {}
+          });
+          this.checkingAccess = false;
+          return;
+        }
+
+        // 2. Si no completó, verificar si tiene una sesión en curso
+        this.gameSessionService.getInProgressSession(this.currentUser!.id, adminId).subscribe({
+          next: (inProgress) => {
+            if (inProgress) {
+              // Redirigir directamente a continuar la partida
+              this.router.navigate(['/game/play', inProgress.id]);
+            }
+            this.checkingAccess = false;
+          },
+          error: () => { this.checkingAccess = false; }
+        });
+      },
+      error: () => {
+        this.accessBlocked = false;
+        this.checkingAccess = false;
+      }
+    });
   }
 
   loadUserStats(): void {

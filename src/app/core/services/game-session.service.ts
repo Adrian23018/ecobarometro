@@ -611,6 +611,57 @@ export class GameSessionService {
   }
 
   /**
+   * Verifica si el usuario ya completó al menos una sesión de EcoChallenge
+   */
+  hasCompletedChallenge(userId: string, adminId: string): Observable<boolean> {
+    return from(this.supabase
+      .from('game_sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('admin_id', adminId)
+      .eq('status', 'completed')
+    ).pipe(
+      map(response => (response.count ?? 0) > 0)
+    );
+  }
+
+  /**
+   * Obtiene la sesión en curso (in_progress) del usuario para reanudar
+   */
+  getInProgressSession(userId: string, adminId: string): Observable<GameSession | null> {
+    return from(this.supabase
+      .from('game_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('admin_id', adminId)
+      .eq('status', 'in_progress')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    ).pipe(
+      map(response => response.data as GameSession | null)
+    );
+  }
+
+  /**
+   * Obtiene la última sesión completada para mostrar datos al usuario
+   */
+  getLastCompletedSession(userId: string, adminId: string): Observable<GameSession | null> {
+    return from(this.supabase
+      .from('game_sessions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('admin_id', adminId)
+      .eq('status', 'completed')
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    ).pipe(
+      map(response => response.data as GameSession | null)
+    );
+  }
+
+  /**
    * Obtener sesión por ID
    */
   getGameSession(sessionId: string): Observable<GameSession> {

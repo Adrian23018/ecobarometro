@@ -1,16 +1,44 @@
-<!-- ── ACCESO BLOQUEADO ── -->
-<div *ngIf="accessBlocked" class="gl-blocked-wrap">
+<!-- ── VERIFICANDO ACCESO ── -->
+<div *ngIf="checkingAccess" class="gl-checking-wrap">
+  <div class="gl-checking-spinner"></div>
+  <p class="gl-checking-text">Verificando acceso...</p>
+</div>
+
+<!-- ── YA PRESENTASTE ── -->
+<div *ngIf="!checkingAccess && accessBlocked" class="gl-blocked-wrap">
   <div class="gl-blocked-card">
-    <div class="gl-blocked-icon"><i class="pi pi-lock"></i></div>
-    <h2 class="gl-blocked-title">Ya jugaste tu EcoChallenge</h2>
+    <div class="gl-blocked-icon-wrap">
+      <div class="gl-blocked-icon"><i class="pi pi-check-circle"></i></div>
+    </div>
+    <h2 class="gl-blocked-title">¡Ya presentaste el EcoChallenge!</h2>
     <p class="gl-blocked-desc">
-      Solo puedes presentar el EcoChallenge una vez.<br>
-      Si necesitas volver a presentarlo, solicítaselo a tu administrador.
+      Solo se permite <strong>una presentación</strong> por usuario.
+      Tu resultado ya fue registrado.
     </p>
+
+    <!-- Datos de la última sesión -->
+    <div class="gl-blocked-result" *ngIf="lastSession">
+      <div class="gl-result-item">
+        <span class="gl-result-label">Puntos obtenidos</span>
+        <span class="gl-result-value gl-result-pts">{{ lastSession.total_points | number }}</span>
+      </div>
+      <div class="gl-result-item">
+        <span class="gl-result-label">Respuestas correctas</span>
+        <span class="gl-result-value">{{ lastSession.correct_answers }} / {{ lastSession.total_questions }}</span>
+      </div>
+      <div class="gl-result-item">
+        <span class="gl-result-label">Fecha de presentación</span>
+        <span class="gl-result-value gl-result-date">
+          {{ lastSession.completed_at | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+      </div>
+    </div>
+
     <div class="gl-blocked-info">
       <i class="pi pi-info-circle"></i>
-      El administrador puede habilitarte un nuevo intento desde el panel de usuarios.
+      Si crees que hay un error, contacta a tu administrador.
     </div>
+
     <button class="gl-blocked-back" [routerLink]="['/user/dashboard']">
       <i class="pi pi-arrow-left"></i> Volver al inicio
     </button>
@@ -18,7 +46,7 @@
 </div>
 
 <!-- Header con botón atrás -->
-<div *ngIf="!accessBlocked" class="gradient-bg text-white relative overflow-hidden">
+<div *ngIf="!checkingAccess && !accessBlocked" class="gradient-bg text-white relative overflow-hidden">
   <!-- Botón Atrás -->
   <button 
     class="back-button absolute top-4 left-4 z-20 p-3 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg"

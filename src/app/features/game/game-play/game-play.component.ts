@@ -152,96 +152,106 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     }
   }
 
+  private get saveKey(): string { return `eco_session_${this.sessionId}`; }
+
+  private saveProgress(): void {
+    if (!this.gameSession) return;
+    const snapshot = {
+      questions:      this.gameSession.questions,
+      currentIndex:   this.gameSession.current_question_index,
+      correctAnswers: this.gameStats.correctAnswers,
+      totalPoints:    this.gameStats.totalPoints,
+      streakCount:    this.gameStats.streakCount,
+      startTime:      this.gameSession.start_time.toISOString()
+    };
+    localStorage.setItem(this.saveKey, JSON.stringify(snapshot));
+  }
+
+  private clearSavedProgress(): void {
+    localStorage.removeItem(this.saveKey);
+  }
+
   async initializeGame(): Promise<void> {
     try {
       this.isLoading = true;
-      console.log('Inicializando juego con sessionId:', this.sessionId);
 
-      // Cargar sesión de juego
       const session = await this.gameSessionService.getGameSession(this.sessionId).toPromise();
-      console.log('Sesión cargada:', session);
+      if (!session) { this.handleGameError('Sesión de juego no encontrada'); return; }
 
-      if (!session) {
-        this.handleGameError('Sesión de juego no encontrada');
+      // Si la sesión ya está completada o abandonada, ir directo a resultados
+      if (session.status === 'completed') {
+        this.router.navigate(['/game/result', this.sessionId]);
         return;
       }
 
-      // Obtener el admin_id del usuario actual
       const userData = localStorage.getItem('ecobarometro_user');
-      if (!userData) {
-        this.handleGameError('Usuario no encontrado');
-        return;
-      }
-
+      if (!userData) { this.handleGameError('Usuario no encontrado'); return; }
       const user = JSON.parse(userData);
-      console.log('Usuario para obtener preguntas:', user);
-      console.log('admin_id del usuario:', user.admin_id);
+      if (!user.admin_id) { this.handleGameError('Usuario no tiene admin_id asignado'); return; }
 
-      if (!user.admin_id) {
-        this.handleGameError('Usuario no tiene admin_id asignado');
-        return;
+      // ── Intentar reanudar desde localStorage ──
+      const saved = localStorage.getItem(this.saveKey);
+      if (saved) {
+        try {
+          const snapshot = JSON.parse(saved);
+          this.gameSession = {
+            session,
+            current_question_index: snapshot.currentIndex,
+            questions: snapshot.questions,
+            responses: [],
+            start_time: new Date(snapshot.startTime)
+          };
+          this.gameStats = {
+            currentQuestionNumber: snapshot.currentIndex + 1,
+            totalQuestions:  snapshot.questions.length,
+            correctAnswers:  snapshot.correctAnswers,
+            totalPoints:     snapshot.totalPoints,
+            timeRemaining:   this.timeLimit,
+            streakCount:     snapshot.streakCount
+          };
+          this.loadCurrentQuestion();
+          this.startTimer();
+          return;
+        } catch { /* snapshot corrupto, continuar con carga normal */ }
       }
 
-      // Verificar primero si existen preguntas
-      console.log('🔍 Verificando existencia de preguntas para admin_id:', user.admin_id);
+      // ── Primera vez: cargar preguntas nuevas ──
       const questionCount = await this.questionsService.checkQuestionsExist(user.admin_id).toPromise();
-      console.log('📊 Total de preguntas ACTIVAS disponibles:', questionCount);
-
       if (questionCount === 0) {
-        console.error('❌ No existen preguntas para este admin_id en la base de datos');
-        this.handleGameError(`No se encontraron preguntas para el administrador. Admin ID: ${user.admin_id}`);
+        this.handleGameError(`No se encontraron preguntas para el administrador.`);
         return;
       }
 
-      // Cargar preguntas aleatorias directamente del admin desde la base de datos
-      console.log('📋 Consultando base de datos para obtener preguntas...');
-      console.log('📋 Parámetros: admin_id =', user.admin_id, ', límite = 15 preguntas');
       const gameQuestions = await this.questionsService.getRandomQuestions(
-        user.admin_id,
-        undefined, // Sin filtro de categorías
-        15 // 15 preguntas
+        user.admin_id, undefined, 15
       ).toPromise();
 
-      console.log('✅ Total de preguntas obtenidas de la BD:', gameQuestions?.length || 0);
-      console.log('📝 Detalles de preguntas obtenidas:', gameQuestions);
-
       if (!gameQuestions || gameQuestions.length === 0) {
-        console.error('❌ No se pudieron cargar preguntas de la base de datos');
-        this.handleGameError('No se pudieron cargar las preguntas. Verifica que existan preguntas activas para este administrador.');
+        this.handleGameError('No se pudieron cargar las preguntas.');
         return;
       }
 
-      if (gameQuestions.length < 15) {
-        console.warn(`⚠️ ATENCIÓN: Se solicitaron 15 preguntas pero solo se obtuvieron ${gameQuestions.length}`);
-        console.warn('⚠️ Esto puede deberse a:');
-        console.warn('   1. Solo hay ' + gameQuestions.length + ' preguntas activas (is_active=true)');
-        console.warn('   2. Algunas preguntas no tienen opciones válidas');
-        console.warn('   3. El admin_id no coincide con todas las preguntas');
-      }
-
-      // Convertir GameQuestion[] a Question[]
       const questions = gameQuestions.map(gq => gq.question);
-      console.log('✅ Preguntas convertidas exitosamente:', questions.length);
 
       this.gameSession = {
         session,
         current_question_index: 0,
-        questions: questions,
+        questions,
         responses: [],
         start_time: new Date()
       };
 
       this.gameStats = {
         currentQuestionNumber: 1,
-        totalQuestions: this.gameSession.questions.length,
+        totalQuestions: questions.length,
         correctAnswers: 0,
-        totalPoints: 0,
-        timeRemaining: this.timeLimit,
-        streakCount: 0
+        totalPoints:    0,
+        timeRemaining:  this.timeLimit,
+        streakCount:    0
       };
 
-      console.log('GameSession inicializada:', this.gameSession);
-      console.log('GameStats inicializadas:', this.gameStats);
+      // Guardar snapshot inicial para poder reanudar
+      this.saveProgress();
 
       this.loadCurrentQuestion();
       this.startTimer();
@@ -422,12 +432,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.showFeedback = false;
     this.feedbackType = null;
     this.questionTransition = true;
-
-    // Resetear la ayuda de video para la nueva pregunta
     this.videoHelpUsedForCurrentQuestion = false;
 
     if (this.gameSession) {
       this.gameSession.current_question_index++;
+      this.saveProgress(); // persistir progreso después de cada pregunta
     }
 
     setTimeout(() => {
@@ -473,9 +482,11 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       if (this.gameSession) {
         await this.gameSessionService.abandonSession(this.sessionId).toPromise();
       }
+      this.clearSavedProgress();
       this.router.navigate(['/user/dashboard']);
     } catch (error) {
       console.error('Error abandoning game:', error);
+      this.clearSavedProgress();
       this.router.navigate(['/user/dashboard']);
     }
   }
@@ -497,6 +508,9 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
       // Save completion to backend
       await this.gameSessionService.completeSession(this.sessionId, completionData).toPromise();
+
+      // Limpiar progreso guardado — la partida ya terminó
+      this.clearSavedProgress();
 
       // Show success message
       this.messageService.add({
@@ -533,6 +547,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   // Getters for template
   get progressPercentage(): number {
     return (this.gameStats.currentQuestionNumber / this.gameStats.totalQuestions) * 100;
+  }
+
+  get questionSegments(): number[] {
+    return Array.from({ length: this.gameStats.totalQuestions }, (_, i) => i);
   }
 
   get timePercentage(): number {
