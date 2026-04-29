@@ -205,3 +205,130 @@
 
 <p-toast></p-toast>
 <p-confirmDialog></p-confirmDialog>
+
+<!-- ══════════════════════════════
+     MODAL: PAUSAR JUEGO
+     ══════════════════════════════ -->
+<div class="gp-pause-overlay" *ngIf="showPauseDialog" (click)="resumeGame()">
+  <div class="gp-pause-modal" (click)="$event.stopPropagation()">
+
+    <!-- Drag handle -->
+    <div class="gp-pause-handle"></div>
+
+    <!-- Icono animado -->
+    <div class="gp-pause-icon-wrap">
+      <div class="gp-pause-icon">
+        <i class="pi pi-pause"></i>
+      </div>
+      <div class="gp-pause-ring"></div>
+    </div>
+
+    <!-- Título -->
+    <h3 class="gp-pause-title">Juego pausado</h3>
+    <p class="gp-pause-desc">
+      Tómate un respiro. El tiempo está detenido.<br>
+      Cuando vuelvas, continuarás desde donde estás.
+    </p>
+
+    <!-- Stats actuales -->
+    <div class="gp-pause-stats">
+      <div class="gp-pause-stat">
+        <i class="pi pi-star-fill gp-ps-icon gp-ps-pts"></i>
+        <span class="gp-pause-stat-val">{{ gameStats.totalPoints }}</span>
+        <span class="gp-pause-stat-lbl">puntos</span>
+      </div>
+      <div class="gp-pause-stat-divider"></div>
+      <div class="gp-pause-stat">
+        <i class="pi pi-check-circle gp-ps-icon gp-ps-ok"></i>
+        <span class="gp-pause-stat-val">{{ gameStats.correctAnswers }}</span>
+        <span class="gp-pause-stat-lbl">correctas</span>
+      </div>
+      <div class="gp-pause-stat-divider"></div>
+      <div class="gp-pause-stat">
+        <i class="pi pi-list gp-ps-icon gp-ps-q"></i>
+        <span class="gp-pause-stat-val">{{ gameStats.currentQuestionNumber }}/{{ gameStats.totalQuestions }}</span>
+        <span class="gp-pause-stat-lbl">progreso</span>
+      </div>
+    </div>
+
+    <!-- Botón principal -->
+    <button class="gp-pause-btn-resume" (click)="resumeGame()">
+      <i class="pi pi-play"></i>
+      Continuar jugando
+    </button>
+
+    <!-- Salir -->
+    <button class="gp-pause-btn-quit" (click)="showPauseDialog = false; quitGame()">
+      <i class="pi pi-sign-out"></i>
+      Guardar y salir
+    </button>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MODAL: GUARDAR Y SALIR
+     ══════════════════════════════ -->
+<div class="gp-quit-overlay" *ngIf="showQuitDialog" (click)="cancelQuit()">
+  <div class="gp-quit-modal" (click)="$event.stopPropagation()">
+
+    <!-- Icono -->
+    <div class="gp-quit-icon-wrap">
+      <div class="gp-quit-icon"><i class="pi pi-bookmark-fill"></i></div>
+    </div>
+
+    <!-- Títulos -->
+    <h3 class="gp-quit-title">¿Salir del juego?</h3>
+    <p class="gp-quit-desc">
+      Tu progreso se guarda automáticamente en la
+      <strong>Pregunta {{ gameStats.currentQuestionNumber }}</strong> de {{ gameStats.totalQuestions }}.
+      Cuando vuelvas, continuarás desde aquí.
+    </p>
+
+    <!-- Stats actuales -->
+    <div class="gp-quit-stats">
+      <div class="gp-quit-stat">
+        <i class="pi pi-star-fill gp-qs-icon gp-qs-pts"></i>
+        <span class="gp-quit-stat-val">{{ gameStats.totalPoints }}</span>
+        <span class="gp-quit-stat-lbl">puntos</span>
+      </div>
+      <div class="gp-quit-stat-divider"></div>
+      <div class="gp-quit-stat">
+        <i class="pi pi-check-circle gp-qs-icon gp-qs-ok"></i>
+        <span class="gp-quit-stat-val">{{ gameStats.correctAnswers }}</span>
+        <span class="gp-quit-stat-lbl">correctas</span>
+      </div>
+      <div class="gp-quit-stat-divider"></div>
+      <div class="gp-quit-stat">
+        <i class="pi pi-list gp-qs-icon gp-qs-q"></i>
+        <span class="gp-quit-stat-val">{{ gameStats.currentQuestionNumber - 1 }}</span>
+        <span class="gp-quit-stat-lbl">respondidas</span>
+      </div>
+    </div>
+
+    <!-- Mini barra de progreso -->
+    <div class="gp-quit-progress-wrap">
+      <div class="gp-quit-progress-bar">
+        <div class="gp-quit-progress-fill"
+          [style.width.%]="((gameStats.currentQuestionNumber - 1) / gameStats.totalQuestions) * 100">
+        </div>
+      </div>
+      <span class="gp-quit-progress-txt">
+        {{ gameStats.currentQuestionNumber - 1 }}/{{ gameStats.totalQuestions }} completadas
+      </span>
+    </div>
+
+    <!-- Acciones -->
+    <div class="gp-quit-actions">
+      <button class="gp-quit-btn-continue" (click)="cancelQuit()">
+        <i class="pi pi-play"></i>
+        Seguir jugando
+      </button>
+      <button class="gp-quit-btn-save" (click)="saveAndQuit()">
+        <i class="pi pi-bookmark"></i>
+        Guardar y salir
+      </button>
+    </div>
+
+  </div>
+</div>

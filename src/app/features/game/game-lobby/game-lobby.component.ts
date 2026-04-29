@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { GamePlayComponent } from '../game-play/game-play.component';
 import { IconPipe } from '../../../shared/pipes/icon.pipe';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -324,6 +325,13 @@ export class GameLobbyComponent implements OnInit {
   startGame(): void {
     if (!this.canStartGame || !this.currentUser) return;
 
+    // Si hay una sesión guardada en localStorage, reanudar en lugar de crear una nueva
+    const activeId = GamePlayComponent.getActiveSessionId();
+    if (activeId) {
+      this.router.navigate(['/game/play', activeId]);
+      return;
+    }
+
     this.startingGame = true;
     const formValue = this.gameForm.value;
 
@@ -370,11 +378,14 @@ export class GameLobbyComponent implements OnInit {
   // Método para iniciar un juego de test rápido sin selección de categorías
   startQuickTest(): void {
     if (!this.currentUser) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No hay usuario logueado'
-      });
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No hay usuario logueado' });
+      return;
+    }
+
+    // Si hay sesión activa guardada, reanudar
+    const activeId = GamePlayComponent.getActiveSessionId();
+    if (activeId) {
+      this.router.navigate(['/game/play', activeId]);
       return;
     }
 

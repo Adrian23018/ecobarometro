@@ -19,7 +19,7 @@ import { RippleModule } from 'primeng/ripple';
 import { AvatarModule } from 'primeng/avatar';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 
 // Models
 import { Question, QuestionOption, GameQuestion } from '../../../core/models/question';
@@ -71,7 +71,7 @@ interface GameStats {
   ],
   templateUrl: './game-play.component.html',
   styleUrls: ['./game-play.component.css'],
-  providers: [ConfirmationService]
+  providers: []
 })
 export class GamePlayComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
@@ -100,10 +100,15 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   showResults = false;
   gameCompleted = false;
   isPaused = false;
+  showQuitDialog = false;
+  showPauseDialog = false;
 
   // Timer
   timeLimit = 30; // segundos por pregunta
   timer$ = new Subject<void>();
+
+  // Offset de preguntas ya respondidas (usado en recuperación desde Supabase)
+  private questionOffset = 0;
 
   // Animation states
   questionTransition = false;
@@ -126,8 +131,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     private questionsService: QuestionsService,
     private userService: UserService,
     private videoService: VideoService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -139,6 +143,10 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Guardar progreso al salir (cubre botón atrás del navegador, cierre de pestaña, etc.)
+    if (!this.gameCompleted && this.gameSession) {
+      this.saveProgress();
+    }
     this.destroy$.next();
     this.destroy$.complete();
     this.timer$.next();
@@ -152,23 +160,37 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     }
   }
 
+  private static readonly ACTIVE_KEY = 'eco_active_session_id';
   private get saveKey(): string { return `eco_session_${this.sessionId}`; }
 
   private saveProgress(): void {
-    if (!this.gameSession) return;
-    const snapshot = {
-      questions:      this.gameSession.questions,
-      currentIndex:   this.gameSession.current_question_index,
-      correctAnswers: this.gameStats.correctAnswers,
-      totalPoints:    this.gameStats.totalPoints,
-      streakCount:    this.gameStats.streakCount,
-      startTime:      this.gameSession.start_time.toISOString()
-    };
-    localStorage.setItem(this.saveKey, JSON.stringify(snapshot));
+    if (!this.gameSession || !this.sessionId) return;
+    try {
+      const snapshot = {
+        sessionId:      this.sessionId,
+        currentIndex:   this.gameSession.current_question_index,
+        questionOffset: this.questionOffset,
+        totalQuestions: this.gameStats.totalQuestions,
+        correctAnswers: this.gameStats.correctAnswers,
+        totalPoints:    this.gameStats.totalPoints,
+        streakCount:    this.gameStats.streakCount,
+        startTime:      this.gameSession.start_time.toISOString(),
+        questions:      this.gameSession.questions
+      };
+      localStorage.setItem(this.saveKey, JSON.stringify(snapshot));
+      localStorage.setItem(GamePlayComponent.ACTIVE_KEY, this.sessionId);
+    } catch (e) {
+      console.warn('saveProgress: could not serialize state', e);
+    }
   }
 
   private clearSavedProgress(): void {
     localStorage.removeItem(this.saveKey);
+    localStorage.removeItem(GamePlayComponent.ACTIVE_KEY);
+  }
+
+  static getActiveSessionId(): string | null {
+    return localStorage.getItem(GamePlayComponent.ACTIVE_KEY);
   }
 
   async initializeGame(): Promise<void> {
@@ -178,7 +200,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       const session = await this.gameSessionService.getGameSession(this.sessionId).toPromise();
       if (!session) { this.handleGameError('Sesión de juego no encontrada'); return; }
 
-      // Si la sesión ya está completada o abandonada, ir directo a resultados
       if (session.status === 'completed') {
         this.router.navigate(['/game/result', this.sessionId]);
         return;
@@ -189,36 +210,86 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       const user = JSON.parse(userData);
       if (!user.admin_id) { this.handleGameError('Usuario no tiene admin_id asignado'); return; }
 
-      // ── Intentar reanudar desde localStorage ──
+      // ── Capa 1: Reanudar desde localStorage ──
       const saved = localStorage.getItem(this.saveKey);
       if (saved) {
         try {
           const snapshot = JSON.parse(saved);
+          const questions = snapshot.questions;
+          const idx = snapshot.currentIndex ?? 0;
+
+          if (Array.isArray(questions) && questions.length > 0) {
+            this.questionOffset = snapshot.questionOffset ?? 0;
+            this.gameSession = {
+              session,
+              current_question_index: idx,
+              questions,
+              responses: [],
+              start_time: new Date(snapshot.startTime || Date.now())
+            };
+            this.gameStats = {
+              currentQuestionNumber: idx + 1 + this.questionOffset,
+              totalQuestions:  snapshot.totalQuestions ?? questions.length,
+              correctAnswers:  snapshot.correctAnswers ?? 0,
+              totalPoints:     snapshot.totalPoints    ?? 0,
+              timeRemaining:   this.timeLimit,
+              streakCount:     snapshot.streakCount    ?? 0
+            };
+            this.loadCurrentQuestion();
+            this.startTimer();
+            return;
+          }
+        } catch (e) {
+          console.warn('initializeGame: localStorage restore failed, trying Supabase fallback', e);
+        }
+      }
+
+      // ── Capa 2: Fallback desde Supabase (user_responses ya guardadas) ──
+      const prevResponses = await this.gameSessionService
+        .getSessionResponses(this.sessionId).toPromise() || [];
+
+      if (prevResponses.length > 0) {
+        const answeredIds   = prevResponses.map((r: any) => r.question_id);
+        const correctCount  = prevResponses.filter((r: any) => r.is_correct).length;
+        const totalPts      = prevResponses.reduce((s: number, r: any) => s + (r.points_earned || 0), 0);
+
+        // Cargar todas las preguntas disponibles y filtrar las ya respondidas
+        const allGameQ = await this.questionsService.getRandomQuestions(user.admin_id, undefined, 100).toPromise() || [];
+        const remaining = allGameQ
+          .filter(gq => !answeredIds.includes(gq.question.id))
+          .slice(0, 15 - prevResponses.length);
+
+        if (remaining.length > 0) {
+          const questions = remaining.map(gq => gq.question);
+          this.questionOffset = prevResponses.length;
+
           this.gameSession = {
             session,
-            current_question_index: snapshot.currentIndex,
-            questions: snapshot.questions,
+            current_question_index: 0,
+            questions,
             responses: [],
-            start_time: new Date(snapshot.startTime)
+            start_time: new Date(session.started_at || Date.now())
           };
           this.gameStats = {
-            currentQuestionNumber: snapshot.currentIndex + 1,
-            totalQuestions:  snapshot.questions.length,
-            correctAnswers:  snapshot.correctAnswers,
-            totalPoints:     snapshot.totalPoints,
+            currentQuestionNumber: prevResponses.length + 1,
+            totalQuestions:  prevResponses.length + remaining.length,
+            correctAnswers:  correctCount,
+            totalPoints:     totalPts,
             timeRemaining:   this.timeLimit,
-            streakCount:     snapshot.streakCount
+            streakCount:     0
           };
+
+          this.saveProgress(); // persistir para que capas futuras usen localStorage
           this.loadCurrentQuestion();
           this.startTimer();
           return;
-        } catch { /* snapshot corrupto, continuar con carga normal */ }
+        }
       }
 
-      // ── Primera vez: cargar preguntas nuevas ──
+      // ── Capa 3: Primera vez, cargar preguntas nuevas ──
       const questionCount = await this.questionsService.checkQuestionsExist(user.admin_id).toPromise();
       if (questionCount === 0) {
-        this.handleGameError(`No se encontraron preguntas para el administrador.`);
+        this.handleGameError('No se encontraron preguntas para el administrador.');
         return;
       }
 
@@ -232,6 +303,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       }
 
       const questions = gameQuestions.map(gq => gq.question);
+      this.questionOffset = 0;
 
       this.gameSession = {
         session,
@@ -250,9 +322,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         streakCount:    0
       };
 
-      // Guardar snapshot inicial para poder reanudar
       this.saveProgress();
-
       this.loadCurrentQuestion();
       this.startTimer();
 
@@ -290,7 +360,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
 
     this.selectedOption = null;
     this.gameStats.timeRemaining = this.timeLimit;
-    this.gameStats.currentQuestionNumber = this.gameSession.current_question_index + 1;
+    this.gameStats.currentQuestionNumber = this.gameSession.current_question_index + 1 + this.questionOffset;
 
     console.log('gameStats actualizadas:', this.gameStats);
   }
@@ -405,14 +475,14 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     this.showFeedback = true;
     this.gameStats.streakCount = 0;
 
-    // Save empty response
+    // Save empty response (time expired — no option selected, 0 points)
     if (this.currentQuestion && this.gameSession) {
       const response: UserResponse = {
         id: '',
         user_id: this.currentUser?.id || '',
         question_id: this.currentQuestion.question.id,
         session_id: this.sessionId,
-        selected_option_id: '',
+        selected_option_id: null as any,
         is_correct: false,
         points_earned: 0,
         time_taken: this.timeLimit,
@@ -448,36 +518,38 @@ export class GamePlayComponent implements OnInit, OnDestroy {
   }
 
   pauseGame(): void {
+    this.timer$.next();
     this.isPaused = true;
-    this.confirmationService.confirm({
-      message: '¿Estás seguro de que quieres pausar el juego?',
-      header: 'Pausar Juego',
-      icon: 'pi pi-pause',
-      acceptLabel: 'Sí, pausar',
-      rejectLabel: 'Continuar',
-      accept: () => {
-        // Game remains paused
-      },
-      reject: () => {
-        this.isPaused = false;
-      }
-    });
+    this.showPauseDialog = true;
+  }
+
+  resumeGame(): void {
+    this.showPauseDialog = false;
+    this.isPaused = false;
+    this.startTimer();
   }
 
   quitGame(): void {
-    this.confirmationService.confirm({
-      message: '¿Estás seguro de que quieres abandonar el juego? Perderás todo el progreso.',
-      header: 'Abandonar Juego',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, abandonar',
-      rejectLabel: 'Continuar jugando',
-      accept: () => {
-        this.abandonGame();
-      }
-    });
+    this.timer$.next(); // detener timer mientras está el modal
+    this.isPaused = true;
+    this.showQuitDialog = true;
+  }
+
+  cancelQuit(): void {
+    this.showQuitDialog = false;
+    this.isPaused = false;
+    this.startTimer(); // reanudar timer
+  }
+
+  saveAndQuit(): void {
+    this.showQuitDialog = false;
+    this.saveProgress(); // asegura que el último estado queda guardado
+    // NO llamamos abandonSession() — la sesión queda in_progress para poder reanudar
+    this.router.navigate(['/user/dashboard']);
   }
 
   async abandonGame(): Promise<void> {
+    // Solo se llama si en el futuro se quiere abandonar definitivamente
     try {
       if (this.gameSession) {
         await this.gameSessionService.abandonSession(this.sessionId).toPromise();
@@ -485,7 +557,6 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       this.clearSavedProgress();
       this.router.navigate(['/user/dashboard']);
     } catch (error) {
-      console.error('Error abandoning game:', error);
       this.clearSavedProgress();
       this.router.navigate(['/user/dashboard']);
     }

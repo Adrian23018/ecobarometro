@@ -194,14 +194,11 @@ export class GameSessionService {
 
   private async performUpdateSession(sessionId: string, updateData: UpdateGameSessionRequest): Promise<GameSession> {
     try {
-      const updates = {
-        ...updateData,
-        updated_at: new Date().toISOString()
-      };
+      const updates = { ...updateData };
 
-      // Si se está completando la sesión, establecer completed_at
+      // Solo agregar completed_at si aplica (updated_at se omite — puede no existir en la tabla)
       if (updateData.status === 'completed' && !updateData.completed_at) {
-        updates.completed_at = new Date().toISOString();
+        (updates as any).completed_at = new Date().toISOString();
       }
 
       const { data: session, error } = await this.supabase
@@ -700,20 +697,40 @@ export class GameSessionService {
   }
 
   /**
+   * Obtiene las respuestas ya guardadas de una sesión (para recuperación de estado)
+   */
+  getSessionResponses(sessionId: string): Observable<{ question_id: string; is_correct: boolean; points_earned: number }[]> {
+    return from(this.supabase
+      .from('user_responses')
+      .select('question_id, is_correct, points_earned')
+      .eq('game_session_id', sessionId)
+      .order('created_at', { ascending: true })
+    ).pipe(
+      map(response => response.data || [])
+    );
+  }
+
+  /**
    * Guardar respuesta del usuario
    */
   submitResponse(response: any): Observable<any> {
+    const payload: any = {
+      game_session_id: response.session_id,
+      user_id: response.user_id,
+      question_id: response.question_id,
+      is_correct: response.is_correct,
+      points_earned: response.points_earned,
+      time_taken: response.time_taken
+    };
+
+    // Only include selected_option_id when it's a valid non-empty value (UUID column rejects empty string)
+    if (response.selected_option_id) {
+      payload.selected_option_id = response.selected_option_id;
+    }
+
     return from(this.supabase
       .from('user_responses')
-      .insert([{
-        game_session_id: response.session_id,
-        user_id: response.user_id,
-        question_id: response.question_id,
-        selected_option_id: response.selected_option_id,
-        is_correct: response.is_correct,
-        points_earned: response.points_earned,
-        time_taken: response.time_taken
-      }])
+      .insert([payload])
       .select()
       .single()
     ).pipe(
