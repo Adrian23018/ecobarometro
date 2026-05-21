@@ -255,7 +255,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         const totalPts     = prevResponses.reduce((s: number, r: any) => s + (r.points_earned || 0), 0);
 
         // Preguntas en ORDEN FIJO — las respondidas son siempre las primeras N
-        const allGameQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 15).toPromise() || [];
+        const allGameQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, session.total_questions || 15).toPromise() || [];
         const remaining = allGameQ.filter(gq => !answeredIds.has(gq.question.id));
 
         if (remaining.length > 0) {
@@ -293,7 +293,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       }
 
       // Usar getOrderedQuestions para que el orden sea siempre determinista
-      const gameQuestions = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 15).toPromise();
+      const gameQuestions = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, session.total_questions || 15).toPromise();
 
       if (!gameQuestions || gameQuestions.length === 0) {
         this.handleGameError('No se pudieron cargar las preguntas.');

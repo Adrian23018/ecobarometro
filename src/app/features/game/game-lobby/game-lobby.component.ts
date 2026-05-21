@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { GamePlayComponent } from '../game-play/game-play.component';
 import { IconPipe } from '../../../shared/pipes/icon.pipe';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../../../environments/environment';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // PrimeNG
@@ -79,6 +81,7 @@ export class GameLobbyComponent implements OnInit {
 
   // Data
   currentUser: User | null = null;
+  private supabase!: SupabaseClient;
   categories: CategoryWithStats[] = [];
   recentAchievements: any[] = [];
 
@@ -129,6 +132,7 @@ export class GameLobbyComponent implements OnInit {
     private userService: UserService,
     private messageService: MessageService
   ) {
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     this.gameForm = this.createForm();
   }
 
@@ -350,12 +354,38 @@ export class GameLobbyComponent implements OnInit {
     });
   }
 
-  private doCreateGame(): void {
+  private async doCreateGame(): Promise<void> {
+    const adminId = (this.currentUser as any).admin_id;
+
+    // Intentar leer questions_per_game del admin (requiere migración SQL)
+    let questionCount = 0;
+    try {
+      const { data: adminData } = await this.supabase
+        .from('admins')
+        .select('questions_per_game')
+        .eq('id', adminId)
+        .maybeSingle();
+      if (adminData?.questions_per_game) {
+        questionCount = adminData.questions_per_game;
+      }
+    } catch {}
+
+    // Si no está configurado, contar todas las preguntas activas del admin
+    if (!questionCount) {
+      const { count } = await this.supabase
+        .from('questions')
+        .select('id', { count: 'exact', head: true })
+        .eq('admin_id', adminId)
+        .eq('is_active', true);
+      questionCount = count || 15;
+    }
+
     const formValue = this.gameForm.value;
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'EcoChallenge',
-      categories: formValue.selectedCategories
-    };
+      categories: formValue.selectedCategories,
+      totalQuestions: questionCount
+    } as any;
 
     this.gameSessionService.createGameSession(this.currentUser!.id, gameRequest).subscribe({
       next: (session: any) => {
@@ -415,11 +445,30 @@ export class GameLobbyComponent implements OnInit {
     });
   }
 
-  private doCreateQuickTest(): void {
+  private async doCreateQuickTest(): Promise<void> {
+    const adminId = (this.currentUser as any).admin_id;
+    let questionCount = 0;
+    try {
+      const { data: adminData } = await this.supabase
+        .from('admins')
+        .select('questions_per_game')
+        .eq('id', adminId)
+        .maybeSingle();
+      if (adminData?.questions_per_game) questionCount = adminData.questions_per_game;
+    } catch {}
+    if (!questionCount) {
+      const { count } = await this.supabase
+        .from('questions')
+        .select('id', { count: 'exact', head: true })
+        .eq('admin_id', adminId)
+        .eq('is_active', true);
+      questionCount = count || 15;
+    }
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'Test Rápido',
-      categories: []
-    };
+      categories: [],
+      totalQuestions: questionCount
+    } as any;
 
     this.gameSessionService.createGameSession(this.currentUser!.id, gameRequest).subscribe({
       next: (session: any) => {

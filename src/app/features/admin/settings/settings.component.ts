@@ -25,6 +25,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 // Services
 import { AuthService } from '../../../core/services/auth.service';
 import { Admin } from '../../../core/models/admin';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '../../../../environments/environment';
 
 interface AppSettings {
   app_name: string;
@@ -102,6 +104,7 @@ interface NotificationSettings {
 })
 export class SettingsComponent implements OnInit {
   currentAdmin: any | null = null;
+  private supabase!: SupabaseClient;
 
   // Forms
   profileForm!: FormGroup;
@@ -173,6 +176,7 @@ export class SettingsComponent implements OnInit {
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {
+    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
     this.initializeForms();
   }
 
@@ -216,7 +220,7 @@ export class SettingsComponent implements OnInit {
 
     // Game Settings Form
     this.gameSettingsForm = this.fb.group({
-      default_question_count: [this.defaultGameSettings.default_question_count, [Validators.min(1), Validators.max(50)]],
+      default_question_count: [this.defaultGameSettings.default_question_count, [Validators.min(1)]],
       default_time_limit: [this.defaultGameSettings.default_time_limit, [Validators.min(10), Validators.max(300)]],
       shuffle_questions: [this.defaultGameSettings.shuffle_questions],
       shuffle_options: [this.defaultGameSettings.shuffle_options],
@@ -246,7 +250,6 @@ export class SettingsComponent implements OnInit {
   private loadSettings(): void {
     if (!this.currentAdmin) return;
 
-    // Load profile data
     this.profileForm.patchValue({
       full_name: this.currentAdmin.full_name,
       email: this.currentAdmin.email,
@@ -254,6 +257,12 @@ export class SettingsComponent implements OnInit {
       organization: this.currentAdmin.organization || '',
       bio: this.currentAdmin.bio || ''
     });
+
+    if (this.currentAdmin.questions_per_game) {
+      this.gameSettingsForm.patchValue({
+        default_question_count: this.currentAdmin.questions_per_game
+      });
+    }
   }
 
   onProfileSubmit(): void {
@@ -291,20 +300,35 @@ export class SettingsComponent implements OnInit {
   }
 
   onGameSettingsSubmit(): void {
-    if (!this.gameSettingsForm.valid) return;
+    if (!this.gameSettingsForm.valid || !this.currentAdmin) return;
 
     this.isLoadingGameSettings = true;
     const formData = this.gameSettingsForm.value;
+    const questionCount = formData.default_question_count;
 
-    // Simulate API call
-    setTimeout(() => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Éxito',
-        detail: 'Configuración de juego actualizada'
+    this.supabase
+      .from('admins')
+      .update({ questions_per_game: questionCount })
+      .eq('id', this.currentAdmin.id)
+      .then(({ error }) => {
+        if (error) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo guardar la configuración: ' + error.message
+          });
+        } else {
+          const updatedAdmin = { ...this.currentAdmin, questions_per_game: questionCount };
+          localStorage.setItem('ecobarometro_admin', JSON.stringify(updatedAdmin));
+          this.currentAdmin = updatedAdmin;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: `Configuración guardada: ${questionCount} preguntas por partida`
+          });
+        }
+        this.isLoadingGameSettings = false;
       });
-      this.isLoadingGameSettings = false;
-    }, 1000);
   }
 
   onNotificationSubmit(): void {
