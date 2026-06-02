@@ -2,10 +2,8 @@
    PAGE
    ============================================ */
 .profile-page {
-  padding: 1.5rem;
-  padding-bottom: 5rem;
-  min-height: 100vh;
-  background: #f1f5f9;
+  max-width: 1100px;
+  margin: 0 auto;
 }
 
 /* ============================================

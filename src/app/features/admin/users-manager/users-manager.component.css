@@ -1,8 +1,7 @@
 /* ── PAGE ── */
 .um-page {
-  min-height: 100vh;
-  background: #faf9f6;
-  padding: 1.25rem 1rem 5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ── TOP BAR ── */

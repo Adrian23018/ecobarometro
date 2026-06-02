@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AdminGuard } from '../../core/guards/admin.guard';
+import { AdminShellComponent } from './admin-shell/admin-shell.component';
 
 const routes: Routes = [
   {
     path: '',
-    // canActivate: [AdminGuard],
+    component: AdminShellComponent,
     children: [
       {
         path: '',

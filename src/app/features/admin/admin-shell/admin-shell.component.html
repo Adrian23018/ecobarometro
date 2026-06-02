@@ -1,0 +1,68 @@
+<div class="shell" [class.shell--collapsed]="sidebarCollapsed">
+
+  <!-- ═══════════ SIDEBAR ═══════════ -->
+  <aside class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i class="pi pi-globe"></i>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">EcoBarómetro</span>
+        <span class="brand-role">Admin Panel</span>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <a
+        *ngFor="let item of navItems"
+        class="nav-item"
+        [routerLink]="item.route"
+        routerLinkActive="nav-item--active"
+        [routerLinkActiveOptions]="{ exact: !!item.exact }"
+        [title]="item.label">
+        <i [class]="item.icon + ' nav-icon'"></i>
+        <span class="nav-label">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <!-- Footer: admin info + logout -->
+    <div class="sidebar-footer">
+      <div class="admin-info" [routerLink]="['/admin/profile']" title="Mi Perfil">
+        <div class="admin-avatar">{{ avatarLabel }}</div>
+        <div class="admin-details">
+          <span class="admin-name">{{ currentAdmin?.name || 'Administrador' }}</span>
+          <span class="admin-role-tag">Admin</span>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Cerrar sesión">
+        <i class="pi pi-sign-out"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ═══════════ MAIN AREA ═══════════ -->
+  <div class="main">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <button class="topbar-toggle" (click)="toggleSidebar()" title="Colapsar menú">
+        <i class="pi pi-bars"></i>
+      </button>
+      <h1 class="topbar-title">{{ currentPageTitle }}</h1>
+      <div class="topbar-right">
+        <div class="topbar-avatar" [routerLink]="['/admin/profile']" title="Mi Perfil">
+          {{ avatarLabel }}
+        </div>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+</div>

@@ -4,14 +4,11 @@
 
 :host {
   display: block;
-  min-height: 100vh;
-  background: #f6f7fb;
 }
 
 .qm-page {
-  max-width: 800px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem 1rem 5rem;
 }
 
 /* ── FILA 1: TOP BAR ── */

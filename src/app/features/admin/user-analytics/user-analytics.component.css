@@ -3,9 +3,8 @@
    ========================================== */
 
 .uan-page {
-  background: #faf9f6;
-  min-height: 100vh;
-  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 /* ========== HEADER ========== */
