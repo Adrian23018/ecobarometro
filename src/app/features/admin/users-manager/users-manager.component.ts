@@ -59,6 +59,8 @@ export class UsersManagerComponent implements OnInit {
   showStatsDialog = false;
   showBulkActionsDialog = false;
   showFilterPanel = false;
+  showResetDialog = false;
+  userToReset: UserWithStats | null = null;
 
   // Filters
   filters: UserFilter = {};
@@ -213,16 +215,18 @@ export class UsersManagerComponent implements OnInit {
   }
 
   resetUserProgress(user: UserWithStats) {
-    this.confirmationService.confirm({
-      message: `¿Estás seguro de que deseas reiniciar el progreso de ${user.full_name}? Esto eliminará todos sus puntos, nivel y logros.`,
-      header: 'Confirmar Reinicio',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, reiniciar',
-      rejectLabel: 'Cancelar',
-      accept: () => {
-        this.userService.resetUserProgress(user.id).subscribe({
+    this.userToReset = user;
+    this.showResetDialog = true;
+  }
+
+  confirmReset() {
+    if (!this.userToReset) return;
+    const user = this.userToReset;
+    this.showResetDialog = false;
+    this.userToReset = null;
+
+    this.userService.resetUserProgress(user.id).subscribe({
           next: () => {
-            // Reset user data locally
             user.total_points = 0;
             user.level = 1;
             user.experience_points = 0;
@@ -247,8 +251,6 @@ export class UsersManagerComponent implements OnInit {
             });
           }
         });
-      }
-    });
   }
 
   isUserBlocked(user: UserWithStats): boolean {

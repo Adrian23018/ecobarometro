@@ -281,6 +281,40 @@
   </div>
 </p-dialog>
 
+<!-- ── RESET PROGRESS DIALOG ── -->
+<p-dialog
+  [(visible)]="showResetDialog"
+  [modal]="true"
+  [closable]="false"
+  [showHeader]="false"
+  [style]="{width: '420px'}"
+  styleClass="reset-dialog">
+  <div class="rd-wrap" *ngIf="userToReset">
+    <div class="rd-icon-wrap">
+      <div class="rd-icon"><i class="pi pi-refresh"></i></div>
+    </div>
+    <h3 class="rd-title">Reiniciar Progreso</h3>
+    <p class="rd-msg">
+      Estás a punto de reiniciar el progreso de
+      <strong>{{ userToReset.full_name }}</strong>.
+    </p>
+    <ul class="rd-list">
+      <li><i class="pi pi-times-circle"></i> Puntos y experiencia → 0</li>
+      <li><i class="pi pi-times-circle"></i> Nivel → 1</li>
+      <li><i class="pi pi-times-circle"></i> Partidas y logros → 0</li>
+    </ul>
+    <p class="rd-warn">Esta acción no se puede deshacer.</p>
+    <div class="rd-footer">
+      <button class="rd-btn-cancel" (click)="showResetDialog = false; userToReset = null">
+        <i class="pi pi-times"></i> Cancelar
+      </button>
+      <button class="rd-btn-confirm" (click)="confirmReset()">
+        <i class="pi pi-refresh"></i> Sí, reiniciar
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
 <!-- ── STATS DIALOG ── -->
 <p-dialog
   header="Estadísticas Detalladas"
