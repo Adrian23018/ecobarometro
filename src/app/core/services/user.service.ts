@@ -60,6 +60,7 @@ export interface UpdateUserRequest {
   username?: string;
   email?: string;
   bio?: string;
+  bibiografia?: string;
   avatar_url?: string;
 }
 
@@ -107,7 +108,7 @@ export class UserService {
         .select('id')
         .eq('username', updateData.username)
         .neq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (existingUser) {
         throw new Error('El nombre de usuario ya está en uso');
@@ -121,18 +122,23 @@ export class UserService {
         .select('id')
         .eq('email', updateData.email)
         .neq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (existingUser) {
         throw new Error('El email ya está en uso');
       }
     }
 
-    // Actualizar usuario
+    // Mapear bio → bibiografia (nombre real de la columna en la tabla)
+    const { bio, ...safeData } = updateData;
+    if (bio !== undefined) {
+      (safeData as any).bibiografia = bio;
+    }
+
     const { data: updatedUser, error } = await this.supabase
       .from('users')
       .update({
-        ...updateData,
+        ...safeData,
         updated_at: new Date().toISOString()
       })
       .eq('id', userId)

@@ -267,7 +267,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         full_name: this.currentUser.full_name,
         username: this.currentUser.username,
         email: this.currentUser.email,
-        bio: '' // Add bio field to User model if needed
+        bio: (this.currentUser as any).bibiografia || ''
       });
     }
   }
