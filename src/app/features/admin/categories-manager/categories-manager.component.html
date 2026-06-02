@@ -254,7 +254,13 @@
                 <i class="pi pi-palette"></i> Color
               </label>
               <div class="color-row">
-                <p-colorPicker formControlName="color" [inline]="false" appendTo="body" />
+                <p-colorPicker
+                  [ngModel]="colorPickerValue"
+                  [ngModelOptions]="{standalone: true}"
+                  (onChange)="onColorPickerChange($event)"
+                  [inline]="false"
+                  appendTo="body"
+                />
                 <input
                   type="text"
                   pInputText

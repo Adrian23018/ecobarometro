@@ -376,4 +376,14 @@ export class CategoriesManagerComponent implements OnInit {
     const end = start + this.pageSize;
     this.paginatedCategories = this.filteredCategories.slice(start, end);
   }
+
+  get colorPickerValue(): string {
+    const val = this.categoryForm.get('color')?.value || '22c55e';
+    return val.startsWith('#') ? val.slice(1) : val;
+  }
+
+  onColorPickerChange(event: any): void {
+    const hex = typeof event.value === 'string' ? event.value : event.value?.hex ?? '';
+    this.categoryForm.patchValue({ color: '#' + hex });
+  }
 }
