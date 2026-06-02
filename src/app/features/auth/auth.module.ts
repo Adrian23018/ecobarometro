@@ -2,6 +2,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 // PrimeNG Modules para auth
 import { ButtonModule } from 'primeng/button';
@@ -27,6 +28,7 @@ import { RegisterComponent } from './register/register.component';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     AuthRoutingModule,
     
     // PrimeNG

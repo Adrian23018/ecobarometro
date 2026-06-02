@@ -736,6 +736,26 @@ export class AuthService {
     return match;
   }
 
+  // ── Métodos públicos para recuperación de contraseña ──────────
+
+  async checkUserEmailExists(email: string): Promise<boolean> {
+    const { data } = await this.supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+    return !!data;
+  }
+
+  async resetPasswordByEmail(email: string, newPassword: string): Promise<void> {
+    const newHash = await this.hashPassword(newPassword);
+    const { error } = await this.supabase
+      .from('users')
+      .update({ password_hash: newHash, updated_at: new Date().toISOString() })
+      .eq('email', email);
+    if (error) throw new Error(error.message);
+  }
+
   private async generateAdminCode(): Promise<string> {
     let code: string;
     let isUnique = false;
