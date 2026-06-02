@@ -203,24 +203,22 @@ export class UserService {
 
   private async performAvatarUpload(userId: string, file: File): Promise<string> {
     try {
-      // Subir archivo a Supabase Storage
+      const BUCKET = 'user-avatars';
       const fileName = `${userId}-${Date.now()}.${file.name.split('.').pop()}`;
       const filePath = `avatars/${fileName}`;
 
-      const { data: uploadData, error: uploadError } = await this.supabase.storage
-        .from('user-avatars')
+      const { error: uploadError } = await this.supabase.storage
+        .from(BUCKET)
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Obtener URL pública
       const { data: urlData } = this.supabase.storage
-        .from('user-avatars')
+        .from(BUCKET)
         .getPublicUrl(filePath);
 
       const avatarUrl = urlData.publicUrl;
 
-      // Actualizar usuario con nueva URL
       await this.updateUser(userId, { avatar_url: avatarUrl }).toPromise();
 
       return avatarUrl;

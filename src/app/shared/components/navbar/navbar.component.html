@@ -24,7 +24,10 @@
         <span class="user-name">{{ displayName }}</span>
         <span class="user-stats" *ngIf="userStats">{{ userStats }}</span>
       </div>
-      <div class="user-avatar">{{ userInitials }}</div>
+      <div class="user-avatar">
+        <img *ngIf="currentUser?.avatar_url" [src]="currentUser!.avatar_url!" alt="avatar" class="avatar-img" />
+        <span *ngIf="!currentUser?.avatar_url">{{ userInitials }}</span>
+      </div>
     </div>
 
     <!-- Botones si no autenticado -->
@@ -44,7 +47,10 @@
 
   <!-- Header del drawer -->
   <div class="drawer-header">
-    <div class="drawer-avatar">{{ userInitials }}</div>
+    <div class="drawer-avatar">
+      <img *ngIf="currentUser?.avatar_url" [src]="currentUser!.avatar_url!" alt="avatar" class="avatar-img" />
+      <span *ngIf="!currentUser?.avatar_url">{{ userInitials }}</span>
+    </div>
     <div class="drawer-user-info">
       <span class="drawer-name">{{ displayName }}</span>
       <span class="drawer-role">{{ userTypeLabel }}</span>
