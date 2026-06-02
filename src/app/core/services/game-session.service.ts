@@ -143,7 +143,7 @@ export class GameSessionService {
       user_id: userId,
       admin_id: this.getCurrentAdminId(),
       session_name: gameRequest.sessionName || 'EcoChallenge',
-      total_questions: gameRequest.totalQuestions || 10
+      total_questions: gameRequest.totalQuestions || gameRequest.total_questions || 10
     };
 
     return from(this.performCreateSession(sessionData)).pipe(

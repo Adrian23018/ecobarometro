@@ -328,58 +328,91 @@ export class GameLobbyComponent implements OnInit {
 
   startGame(): void {
     if (!this.canStartGame || !this.currentUser) return;
+    this.startingGame = true;
+    this.doStartGame();
+  }
 
-    // Guard 1: localStorage
+  private async doStartGame(): Promise<void> {
+    const adminId = (this.currentUser as any).admin_id;
+    console.log('[EcoChallenge] admin_id del usuario:', adminId);
+
+    // Contar todas las preguntas activas del admin
+    const { count: realCount, error: countError } = await this.supabase
+      .from('questions')
+      .select('id', { count: 'exact', head: true })
+      .eq('admin_id', adminId)
+      .eq('is_active', true);
+    const totalAdminQuestions = realCount || 0;
+    console.log('[EcoChallenge] Total preguntas activas del admin:', totalAdminQuestions, '| error:', countError);
+
+    // Guard 1: localStorage — solo reutilizar si el total coincide
     const activeId = GamePlayComponent.getActiveSessionId();
     if (activeId) {
-      this.router.navigate(['/game/play', activeId]);
+      const { data: lsSession } = await this.supabase
+        .from('game_sessions')
+        .select('total_questions, status')
+        .eq('id', activeId)
+        .maybeSingle();
+
+      if (lsSession?.status === 'in_progress' && lsSession.total_questions === totalAdminQuestions) {
+        this.router.navigate(['/game/play', activeId]);
+        return;
+      }
+      // Sesión inválida → limpiar localStorage
+      GamePlayComponent.clearActiveSession?.();
+    }
+
+    // Guard 2: Supabase — buscar sesión en curso con el total correcto
+    const { data: inProgress } = await this.supabase
+      .from('game_sessions')
+      .select('*')
+      .eq('user_id', this.currentUser!.id)
+      .eq('admin_id', adminId)
+      .eq('status', 'in_progress')
+      .order('started_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (inProgress && inProgress.total_questions === totalAdminQuestions) {
+      this.router.navigate(['/game/play', inProgress.id]);
       return;
     }
 
-    // Guard 2: Supabase — verificar antes de crear para evitar sesiones duplicadas
-    this.startingGame = true;
-    const adminId = (this.currentUser as any).admin_id;
+    // Si hay sesión vieja con total incorrecto → abandonarla
+    if (inProgress && inProgress.total_questions !== totalAdminQuestions) {
+      await this.supabase
+        .from('game_sessions')
+        .update({ status: 'abandoned', completed_at: new Date().toISOString() })
+        .eq('id', inProgress.id);
+    }
 
-    this.gameSessionService.getInProgressSession(this.currentUser.id, adminId).subscribe({
-      next: (inProgress) => {
-        if (inProgress) {
-          // Hay una sesión en curso → reanudar
-          this.router.navigate(['/game/play', inProgress.id]);
-          return;
-        }
-        // No hay sesión en curso → crear nueva
-        this.doCreateGame();
-      },
-      error: () => this.doCreateGame() // Si falla el check, intentar crear
-    });
+    // Crear nueva sesión con el total real
+    await this.doCreateGame(totalAdminQuestions);
   }
 
-  private async doCreateGame(): Promise<void> {
+  private async doCreateGame(questionCount?: number): Promise<void> {
     const adminId = (this.currentUser as any).admin_id;
 
-    // Intentar leer questions_per_game del admin (requiere migración SQL)
-    let questionCount = 0;
-    try {
-      const { data: adminData } = await this.supabase
-        .from('admins')
-        .select('questions_per_game')
-        .eq('id', adminId)
-        .maybeSingle();
-      if (adminData?.questions_per_game) {
-        questionCount = adminData.questions_per_game;
-      }
-    } catch {}
-
-    // Si no está configurado, contar todas las preguntas activas del admin
     if (!questionCount) {
       const { count } = await this.supabase
         .from('questions')
         .select('id', { count: 'exact', head: true })
         .eq('admin_id', adminId)
         .eq('is_active', true);
-      questionCount = count || 15;
+      questionCount = count || 0;
     }
 
+    if (questionCount === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sin preguntas',
+        detail: 'No hay preguntas disponibles para este EcoChallenge.'
+      });
+      this.startingGame = false;
+      return;
+    }
+
+    console.log('[EcoChallenge] Creando sesión con', questionCount, 'preguntas');
     const formValue = this.gameForm.value;
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'EcoChallenge',
@@ -423,46 +456,29 @@ export class GameLobbyComponent implements OnInit {
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No hay usuario logueado' });
       return;
     }
-
-    const activeId = GamePlayComponent.getActiveSessionId();
-    if (activeId) {
-      this.router.navigate(['/game/play', activeId]);
-      return;
-    }
-
     this.startingGame = true;
-    const adminId = (this.currentUser as any).admin_id;
-
-    this.gameSessionService.getInProgressSession(this.currentUser.id, adminId).subscribe({
-      next: (inProgress) => {
-        if (inProgress) {
-          this.router.navigate(['/game/play', inProgress.id]);
-          return;
-        }
-        this.doCreateQuickTest();
-      },
-      error: () => this.doCreateQuickTest()
-    });
+    this.doStartGame();
   }
 
   private async doCreateQuickTest(): Promise<void> {
     const adminId = (this.currentUser as any).admin_id;
-    let questionCount = 0;
-    try {
-      const { data: adminData } = await this.supabase
-        .from('admins')
-        .select('questions_per_game')
-        .eq('id', adminId)
-        .maybeSingle();
-      if (adminData?.questions_per_game) questionCount = adminData.questions_per_game;
-    } catch {}
-    if (!questionCount) {
-      const { count } = await this.supabase
-        .from('questions')
-        .select('id', { count: 'exact', head: true })
-        .eq('admin_id', adminId)
-        .eq('is_active', true);
-      questionCount = count || 15;
+
+    // Contar todas las preguntas activas del admin
+    const { count } = await this.supabase
+      .from('questions')
+      .select('id', { count: 'exact', head: true })
+      .eq('admin_id', adminId)
+      .eq('is_active', true);
+    const questionCount = count || 0;
+
+    if (questionCount === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Sin preguntas',
+        detail: 'No hay preguntas disponibles para este EcoChallenge.'
+      });
+      this.startingGame = false;
+      return;
     }
     const gameRequest: CreateGameSessionRequest = {
       session_name: 'Test Rápido',

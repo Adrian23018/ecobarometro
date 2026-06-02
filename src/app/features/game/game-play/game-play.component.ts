@@ -193,12 +193,17 @@ export class GamePlayComponent implements OnInit, OnDestroy {
     return localStorage.getItem(GamePlayComponent.ACTIVE_KEY);
   }
 
+  static clearActiveSession(): void {
+    localStorage.removeItem(GamePlayComponent.ACTIVE_KEY);
+  }
+
   async initializeGame(): Promise<void> {
     try {
       this.isLoading = true;
 
       const session = await this.gameSessionService.getGameSession(this.sessionId).toPromise();
       if (!session) { this.handleGameError('Sesión de juego no encontrada'); return; }
+      console.log('[EcoChallenge] Sesión cargada - total_questions:', session.total_questions, '| session_id:', this.sessionId);
 
       if (session.status === 'completed') {
         this.router.navigate(['/game/result', this.sessionId]);
@@ -210,37 +215,65 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       const user = JSON.parse(userData);
       if (!user.admin_id) { this.handleGameError('Usuario no tiene admin_id asignado'); return; }
 
-      // ── Capa 1: Reanudar desde localStorage ──
+      // ── Capa 1: Reanudar desde localStorage (solo si el conteo de preguntas coincide con el admin) ──
       const saved = localStorage.getItem(this.saveKey);
       if (saved) {
         try {
           const snapshot = JSON.parse(saved);
-          const questions = snapshot.questions;
+          const savedQuestions = snapshot.questions;
           const idx = snapshot.currentIndex ?? 0;
 
-          if (Array.isArray(questions) && questions.length > 0) {
-            this.questionOffset = snapshot.questionOffset ?? 0;
-            this.gameSession = {
-              session,
-              current_question_index: idx,
-              questions,
-              responses: [],
-              start_time: new Date(snapshot.startTime || Date.now())
-            };
-            this.gameStats = {
-              currentQuestionNumber: idx + 1 + this.questionOffset,
-              totalQuestions:  snapshot.totalQuestions ?? questions.length,
-              correctAnswers:  snapshot.correctAnswers ?? 0,
-              totalPoints:     snapshot.totalPoints    ?? 0,
-              timeRemaining:   this.timeLimit,
-              streakCount:     snapshot.streakCount    ?? 0
-            };
-            this.loadCurrentQuestion();
-            this.startTimer();
-            return;
+          if (Array.isArray(savedQuestions) && savedQuestions.length > 0) {
+            // Verificar que las preguntas guardadas coincidan con el total actual del admin
+            const allCurrentQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 1000).toPromise() || [];
+            const actualTotal = allCurrentQ.length;
+
+            if (savedQuestions.length === actualTotal) {
+              // El conteo coincide → reanudar desde localStorage
+              this.questionOffset = snapshot.questionOffset ?? 0;
+              this.gameSession = {
+                session,
+                current_question_index: idx,
+                questions: savedQuestions,
+                responses: [],
+                start_time: new Date(snapshot.startTime || Date.now())
+              };
+              this.gameStats = {
+                currentQuestionNumber: idx + 1 + this.questionOffset,
+                totalQuestions:  actualTotal,
+                correctAnswers:  snapshot.correctAnswers ?? 0,
+                totalPoints:     snapshot.totalPoints    ?? 0,
+                timeRemaining:   this.timeLimit,
+                streakCount:     snapshot.streakCount    ?? 0
+              };
+              this.loadCurrentQuestion();
+              this.startTimer();
+              return;
+            } else {
+              // Conteo desactualizado → limpiar localStorage y recargar desde DB
+              console.log('[EcoChallenge] Snapshot desactualizado (' + savedQuestions.length + ' vs ' + actualTotal + '), recargando desde DB');
+              this.clearSavedProgress();
+              // Usar las preguntas ya cargadas para continuar con Capa 3
+              const questions = allCurrentQ.map(gq => gq.question);
+              this.questionOffset = 0;
+              this.gameSession = { session, current_question_index: 0, questions, responses: [], start_time: new Date() };
+              this.gameStats = {
+                currentQuestionNumber: 1,
+                totalQuestions: questions.length,
+                correctAnswers: 0,
+                totalPoints: 0,
+                timeRemaining: this.timeLimit,
+                streakCount: 0
+              };
+              this.saveProgress();
+              this.loadCurrentQuestion();
+              this.startTimer();
+              return;
+            }
           }
         } catch (e) {
           console.warn('initializeGame: localStorage restore failed, trying Supabase fallback', e);
+          this.clearSavedProgress();
         }
       }
 
@@ -255,7 +288,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
         const totalPts     = prevResponses.reduce((s: number, r: any) => s + (r.points_earned || 0), 0);
 
         // Preguntas en ORDEN FIJO — las respondidas son siempre las primeras N
-        const allGameQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, session.total_questions || 15).toPromise() || [];
+        const allGameQ = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 1000).toPromise() || [];
         const remaining = allGameQ.filter(gq => !answeredIds.has(gq.question.id));
 
         if (remaining.length > 0) {
@@ -293,7 +326,7 @@ export class GamePlayComponent implements OnInit, OnDestroy {
       }
 
       // Usar getOrderedQuestions para que el orden sea siempre determinista
-      const gameQuestions = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, session.total_questions || 15).toPromise();
+      const gameQuestions = await this.questionsService.getOrderedQuestions(user.admin_id, undefined, 1000).toPromise();
 
       if (!gameQuestions || gameQuestions.length === 0) {
         this.handleGameError('No se pudieron cargar las preguntas.');

@@ -208,11 +208,11 @@ export class QuestionsService {
    * Carga preguntas en orden FIJO (order_index ASC) — necesario para restaurar progreso correctamente.
    * Con orden determinista, siempre la pregunta N es la misma, sin importar cuántas veces se cargue.
    */
-  getOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 15): Observable<GameQuestion[]> {
+  getOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 1000): Observable<GameQuestion[]> {
     return from(this.fetchOrderedQuestions(adminId, categoryIds, limit));
   }
 
-  private async fetchOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 15): Promise<GameQuestion[]> {
+  private async fetchOrderedQuestions(adminId: string, categoryIds?: string[], limit: number = 1000): Promise<GameQuestion[]> {
     let query = this.supabase
       .from('questions')
       .select(`*, category:categories(*), options:question_options(*)`)
@@ -230,7 +230,9 @@ export class QuestionsService {
     if (error) throw new Error(error.message);
     if (!questions || questions.length === 0) return [];
 
+    console.log('[EcoChallenge] Preguntas traídas de DB:', questions.length, '| limit usado:', limit);
     const withOptions = questions.filter(q => (q.options?.length || 0) > 0);
+    console.log('[EcoChallenge] Preguntas con opciones:', withOptions.length);
 
     return withOptions.map(q => ({
       question: {

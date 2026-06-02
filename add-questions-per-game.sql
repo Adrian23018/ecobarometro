@@ -2,4 +2,4 @@
 -- Ejecutar en Supabase SQL Editor
 
 ALTER TABLE public.admins
-ADD COLUMN IF NOT EXISTS questions_per_game INTEGER DEFAULT 15;
+ADD COLUMN IF NOT EXISTS questions_per_game INTEGER DEFAULT NULL;
