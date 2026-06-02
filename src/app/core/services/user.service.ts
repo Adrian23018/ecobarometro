@@ -177,27 +177,41 @@ export class UserService {
   }
 
   private async performPasswordChange(userId: string, currentPassword: string, newPassword: string): Promise<boolean> {
-    try {
-      // En un caso real, aquí validarías la contraseña actual
-      // Por ahora simularemos la validación
-      
-      // Hash de la nueva contraseña (simplificado)
-      const hashedPassword = btoa(newPassword + 'salt');
+    // Obtener hash actual del usuario
+    const { data: user, error: fetchError } = await this.supabase
+      .from('users')
+      .select('password_hash')
+      .eq('id', userId)
+      .single();
 
-      const { error } = await this.supabase
-        .from('users')
-        .update({ 
-          password_hash: hashedPassword,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', userId);
+    if (fetchError || !user) throw new Error('Usuario no encontrado');
 
-      if (error) throw new Error(error.message);
-      
-      return true;
-    } catch (error) {
-      throw new Error('Error al cambiar la contraseña');
+    // Verificar contraseña actual
+    const isValid = this.verifyHash(currentPassword, user.password_hash || '');
+    if (!isValid) throw new Error('Contraseña actual incorrecta');
+
+    // Generar nuevo hash con salt aleatorio (mismo esquema que auth service)
+    const salt = Math.random().toString(36).substring(2, 15);
+    const newHash = btoa(newPassword + salt) + '.' + salt;
+
+    const { error } = await this.supabase
+      .from('users')
+      .update({ password_hash: newHash, updated_at: new Date().toISOString() })
+      .eq('id', userId);
+
+    if (error) throw new Error(error.message);
+
+    return true;
+  }
+
+  private verifyHash(password: string, hash: string): boolean {
+    if (!hash) return false;
+    if (!hash.includes('.')) {
+      // hash simple sin salt (legacy)
+      return btoa(password) === hash;
     }
+    const [stored, salt] = hash.split('.');
+    return btoa(password + salt) === stored;
   }
 
   /**

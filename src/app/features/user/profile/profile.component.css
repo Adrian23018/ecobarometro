@@ -348,9 +348,36 @@
 .pf-pref-title { font-size: 0.82rem; font-weight: 600; color: #1f2937; }
 .pf-pref-desc  { font-size: 0.68rem; color: #9ca3af; }
 
-/* ── SECURITY ── */
-.pf-pw-wrap { width: 100% !important; }
-.pf-pw-wrap .pf-input { width: 100% !important; }
+/* ── SECURITY / PASSWORD ── */
+.pf-pw-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.pf-pw-row .pf-input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.pf-eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: color 0.15s;
+}
+.pf-eye-btn:hover { color: #374151; }
 
 .pf-sec-row {
   display: flex;

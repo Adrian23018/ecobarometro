@@ -131,6 +131,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   changingPassword = false;
   uploadingAvatar = false;
   showAvatarDialog = false;
+  showCurrentPw = false;
+  showNewPw = false;
+  showConfirmPw = false;
 
   // Avatar
   selectedAvatarFile: File | null = null;
@@ -193,7 +196,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   createPasswordForm(): FormGroup {
     return this.fb.group({
       currentPassword: ['', [Validators.required]],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
+      newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: [this.passwordMatchValidator] });
   }
@@ -612,6 +615,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   changePassword(): void {
+    this.passwordForm.markAllAsTouched();
     if (this.passwordForm.invalid || !this.currentUser) return;
 
     this.changingPassword = true;
@@ -634,11 +638,15 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error changing password:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo cambiar la contraseña'
-        });
+        if (error.message === 'Contraseña actual incorrecta') {
+          this.passwordForm.get('currentPassword')?.setErrors({ wrongPassword: true });
+        } else {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.message || 'No se pudo cambiar la contraseña'
+          });
+        }
         this.changingPassword = false;
       }
     });

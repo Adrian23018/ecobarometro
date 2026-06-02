@@ -192,24 +192,65 @@
       <div class="pf-card">
         <div class="pf-card-title"><i class="pi pi-key"></i> Cambiar Contraseña</div>
         <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+
+          <!-- Contraseña Actual -->
           <div class="pf-field">
             <label class="pf-label">Contraseña Actual *</label>
-            <p-password formControlName="currentPassword" [toggleMask]="true" [feedback]="false"
-              placeholder="Contraseña actual" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+            <div class="pf-pw-row">
+              <input [type]="showCurrentPw ? 'text' : 'password'"
+                     formControlName="currentPassword"
+                     placeholder="Contraseña actual"
+                     class="pf-input"
+                     [class.pf-input-err]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" />
+              <button type="button" class="pf-eye-btn" (click)="showCurrentPw = !showCurrentPw">
+                <i [class]="showCurrentPw ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+            <small *ngIf="passwordForm.get('currentPassword')?.errors?.['required'] && passwordForm.get('currentPassword')?.touched"
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> La contraseña actual es requerida</small>
+            <small *ngIf="passwordForm.get('currentPassword')?.errors?.['wrongPassword']"
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> Contraseña actual incorrecta</small>
           </div>
+
+          <!-- Nueva Contraseña -->
           <div class="pf-field">
             <label class="pf-label">Nueva Contraseña *</label>
-            <p-password formControlName="newPassword" [toggleMask]="true" [feedback]="true"
-              placeholder="Nueva contraseña" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+            <div class="pf-pw-row">
+              <input [type]="showNewPw ? 'text' : 'password'"
+                     formControlName="newPassword"
+                     placeholder="Mínimo 6 caracteres"
+                     class="pf-input"
+                     [class.pf-input-err]="passwordForm.get('newPassword')?.invalid && passwordForm.get('newPassword')?.touched" />
+              <button type="button" class="pf-eye-btn" (click)="showNewPw = !showNewPw">
+                <i [class]="showNewPw ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+            <small *ngIf="passwordForm.get('newPassword')?.errors?.['required'] && passwordForm.get('newPassword')?.touched"
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> La nueva contraseña es requerida</small>
+            <small *ngIf="passwordForm.get('newPassword')?.errors?.['minlength'] && passwordForm.get('newPassword')?.touched"
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> Mínimo 6 caracteres</small>
           </div>
+
+          <!-- Confirmar Contraseña -->
           <div class="pf-field">
             <label class="pf-label">Confirmar Contraseña *</label>
-            <p-password formControlName="confirmPassword" [toggleMask]="true" [feedback]="false"
-              placeholder="Confirmar contraseña" styleClass="pf-pw-wrap" inputStyleClass="pf-input"></p-password>
+            <div class="pf-pw-row">
+              <input [type]="showConfirmPw ? 'text' : 'password'"
+                     formControlName="confirmPassword"
+                     placeholder="Repite la nueva contraseña"
+                     class="pf-input"
+                     [class.pf-input-err]="passwordForm.get('confirmPassword')?.invalid && passwordForm.get('confirmPassword')?.touched" />
+              <button type="button" class="pf-eye-btn" (click)="showConfirmPw = !showConfirmPw">
+                <i [class]="showConfirmPw ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+              </button>
+            </div>
+            <small *ngIf="passwordForm.get('confirmPassword')?.errors?.['required'] && passwordForm.get('confirmPassword')?.touched"
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> Confirma tu nueva contraseña</small>
             <small *ngIf="passwordForm.get('confirmPassword')?.errors?.['passwordMismatch'] && passwordForm.get('confirmPassword')?.touched"
-                   class="pf-err">Las contraseñas no coinciden</small>
+                   class="pf-err"><i class="pi pi-exclamation-circle"></i> Las contraseñas no coinciden</small>
           </div>
-          <button type="submit" class="pf-btn-primary pf-btn-full" [disabled]="passwordForm.invalid || changingPassword">
+
+          <button type="submit" class="pf-btn-primary pf-btn-full" [disabled]="changingPassword">
             <i class="pi pi-key"></i>
             {{ changingPassword ? 'Cambiando...' : 'Cambiar Contraseña' }}
           </button>
