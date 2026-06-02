@@ -3,7 +3,7 @@
   <div class="navbar-inner">
 
     <!-- Hamburguesa (izquierda) -->
-    <button *ngIf="currentUser" class="hamburger-btn" (click)="toggleMenu()" [class.active]="isMenuOpen">
+    <button *ngIf="currentUser && currentUser.role !== 'admin'" class="hamburger-btn" (click)="toggleMenu()" [class.active]="isMenuOpen">
       <span class="bar" [class.open]="isMenuOpen"></span>
       <span class="bar" [class.open]="isMenuOpen"></span>
       <span class="bar" [class.open]="isMenuOpen"></span>
