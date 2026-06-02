@@ -12,11 +12,23 @@ const routes: Routes = [
   },
   {
     path: 'login',
-    component: LoginComponent
+    component: LoginComponent,
+    data: { isAdmin: false }
+  },
+  {
+    path: 'login-admin',
+    component: LoginComponent,
+    data: { isAdmin: true }
   },
   {
     path: 'register',
-    component: RegisterComponent
+    component: RegisterComponent,
+    data: { isAdmin: false }
+  },
+  {
+    path: 'register-admin',
+    component: RegisterComponent,
+    data: { isAdmin: true }
   }
 ];
 

@@ -9,9 +9,9 @@ import { map } from 'rxjs/operators';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="role-indicator-float" *ngIf="roleInfo$ | async as info" [class]="info.class" [title]="info.tooltip">
+    <!-- <div class="role-indicator-float" *ngIf="roleInfo$ | async as info" [class]="info.class" [title]="info.tooltip">
       <i [class]="info.icon"></i>
-    </div>
+    </div> -->
   `,
   styles: [`
     .role-indicator-float {

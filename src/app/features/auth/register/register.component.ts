@@ -1,7 +1,7 @@
 // src/app/features/auth/register/register.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -16,6 +16,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   registerForm!: FormGroup;
   isLoading = false;
   activeTab = 0; // 0 = Usuario, 1 = Admin
+  isAdminRoute = false;
   showPassword = false;
   showConfirmPassword = false;
   showAdminCodeValidation = false;
@@ -26,12 +27,17 @@ export class RegisterComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private messageService: MessageService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
+    this.isAdminRoute = this.route.snapshot.data['isAdmin'] === true;
     this.initForm();
+    if (this.isAdminRoute) {
+      this.onTabChange({ index: 1 });
+    }
     this.setupAdminCodeValidation();
   }
 
@@ -221,7 +227,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
         // Redirigir al login después de 3 segundos
         setTimeout(() => {
-          this.router.navigate(['/auth/login']);
+          this.router.navigate([this.isAdminRoute ? '/auth/login-admin' : '/auth/login']);
         }, 3000);
       } else {
         this.messageService.add({
@@ -263,7 +269,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   navigateToLogin() {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate([this.isAdminRoute ? '/auth/login-admin' : '/auth/login']);
   }
 
   isFieldInvalid(fieldName: string): boolean {

@@ -1,7 +1,7 @@
 // src/app/features/auth/login/login.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   loginForm!: FormGroup;
   isLoading = false;
   activeTab = 0; // 0 = Usuario, 1 = Admin
+  isAdminRoute = false;
   showPassword = false;
   private destroy$ = new Subject<void>();
 
@@ -29,11 +30,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private messageService: MessageService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
+    this.isAdminRoute = this.route.snapshot.data['isAdmin'] === true;
+    this.activeTab = this.isAdminRoute ? 1 : 0;
     this.initForm();
     this.checkExistingSession();
     this.setupDemoValues();
@@ -156,7 +160,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   navigateToRegister() {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate([this.isAdminRoute ? '/auth/register-admin' : '/auth/register']);
   }
 
   isFieldInvalid(fieldName: string): boolean {
